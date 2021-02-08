@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/bd_navigation"
+    app:startDestination="@id/addBdFragment">
+
+    <fragment
+        android:id="@+id/addBdFragment"
+        android:name="ru.hse.control_system_v2.AddBdFragment"
+        android:label="fragment_add_bd"
+        tools:layout="@layout/fragment_add_bd" />
+</navigation>
