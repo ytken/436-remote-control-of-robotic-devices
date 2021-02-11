@@ -12,5 +12,5 @@
         android:layout_height="match_parent"
         tools:layout_editor_absoluteX="185dp"
         tools:layout_editor_absoluteY="333dp"
-        tools:context = ".MyActivity"/>
+        tools:context = ".MainActivity"/>
 </androidx.constraintlayout.widget.ConstraintLayout>

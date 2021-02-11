@@ -4,8 +4,6 @@ import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.content.ContentValues;
 import android.content.Intent;
-import android.database.Cursor;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -18,9 +16,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import ru.hse.control_system_v2.MyActivity;
+import ru.hse.control_system_v2.MainActivity;
 import ru.hse.control_system_v2.R;
 
 public class AddDeviceDBActivity extends Activity implements View.OnClickListener{
@@ -110,7 +107,7 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
                     else {
                         dbHelper.update(contentValues, id);
                         Toast.makeText(getApplicationContext(), "Device has been edited", Toast.LENGTH_LONG).show();
-                        MyActivity.activity.setBdUpdated(-1);
+                        MainActivity.activity.setBdUpdated(-1);
                     }
                     dbHelper.viewData();
                 }
