@@ -11,6 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 
 public class DialogDevice extends DialogFragment {
@@ -22,6 +23,7 @@ public class DialogDevice extends DialogFragment {
         String name = getArguments().getString("name");
         String MAC = getArguments().getString("MAC");
         String classDevice = getArguments().getString("protocol");
+        int rate = getArguments().getInt("rate");
         AlertDialog.Builder builder=new AlertDialog.Builder(getActivity());
         return builder.setTitle("Информация")
                 .setMessage("Name: " + name + "\nMAC address: " + MAC)
@@ -29,20 +31,27 @@ public class DialogDevice extends DialogFragment {
                     @Override
                     public void onClick(DialogInterface dialog, int whichButton) {
                         Bundle b = new Bundle();
-                        b.putInt("id", id);
                         b.putString("protocol", classDevice);
+                        b.putString("MAC", MAC);
                         b.putString("name", name);
                         Intent intent = new Intent().setClass(getActivity(), Manual_mode.class);
                         intent.putExtras(b);
                         startActivityForResult(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), 3);
                     }
                 })
-                .setNegativeButton("Отмена", null)
-                .setNeutralButton("Удалить", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        MyActivity.activity.setBdUpdated(id);
-                    }
+                .setNegativeButton("Удалить", (dialog, whichButton) -> MyActivity.activity.setBdUpdated(id))
+                .setNeutralButton("Редактировать", (dialog, which) -> {
+                    Bundle b = new Bundle();
+                    b.putString("name", name);
+                    b.putString("protocol", classDevice);
+                    b.putInt("rate", rate);
+                    b.putString("MAC", MAC);
+                    b.putInt("mode", 1);
+                    b.putInt("id", id);
+                    Intent intent = new Intent().setClass(getActivity(), AddDeviceDBActivity.class);
+                    intent.putExtras(b);
+                    startActivity(intent);
+
                 })
                 .create();
     }

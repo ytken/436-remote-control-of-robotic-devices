@@ -43,6 +43,7 @@ public class ListDevicesFragment extends Fragment {
             args.putString("name", item.name);
             args.putString("MAC", item.getMAC());
             args.putString("protocol", item.getType());
+            args.putInt("rate", item.speed);
             dialog.setArguments(args);
             //dialog.setTargetFragment(this, MY_REQUEST_CODE);
             dialog.show(ListDevicesFragment.this.getParentFragmentManager(), "dialog");
@@ -52,7 +53,6 @@ public class ListDevicesFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         final RecyclerView recycler = view.findViewById(R.id.recycler_devices);
         adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getContext()).list(), new MyListener());
         recycler.setAdapter(adapter);

@@ -1,5 +1,6 @@
 package ru.hse.control_system_v2.list_devices;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Application;
 import android.content.Context;
@@ -44,7 +45,7 @@ public class DeviceRepository implements Serializable {
             if (device.id == id) {
                 return device;
             }
-        return new DeviceItem(0, "0", "0", "main_protocol");
+        return new DeviceItem(0, "0", "0", "main_protocol", 0);
     }
 
     int size() {
@@ -65,7 +66,7 @@ public class DeviceRepository implements Serializable {
         Set<DeviceItem> data = new HashSet<>();
 
         SQLiteDatabase deviceDB = DeviceDBHelper.getInstance(getActivity(context)).getReadableDatabase();
-        Cursor cursor = deviceDB.query(DeviceDBHelper.TABLE_DEVICES, null, null, null, null, null, null);
+        @SuppressLint("Recycle") Cursor cursor = deviceDB.query(DeviceDBHelper.TABLE_DEVICES, null, null, null, null, null, null);
         if (cursor.moveToFirst()) {
             int idIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_ID);
             int nameIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_NAME);
@@ -73,7 +74,7 @@ public class DeviceRepository implements Serializable {
             int rateIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_CONNECTION);
             int protocolIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_PROTO);
             do {
-                DeviceItem item = new DeviceItem(cursor.getInt(idIndex), cursor.getString(nameIndex), cursor.getString(MacIndex), cursor.getString(protocolIndex));
+                DeviceItem item = new DeviceItem(cursor.getInt(idIndex), cursor.getString(nameIndex), cursor.getString(MacIndex), cursor.getString(protocolIndex), cursor.getInt(rateIndex));
                 data.add(item);
             } while (cursor.moveToNext());
         }

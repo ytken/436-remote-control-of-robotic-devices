@@ -17,6 +17,9 @@ import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import ru.hse.control_system_v2.MyActivity;
 import ru.hse.control_system_v2.R;
 
@@ -26,16 +29,19 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
     Spinner spinnerProtocol;
     Button buttonAdd, buttonOK, buttonCancel;
 
-    int dataChanged = 0;
+    int dataChanged = 0, mode, id;
 
-    String[] data = {"main_protocol", "wheel_platform"};
+    ArrayList<String> data = new ArrayList<String>() {{
+        add("main_protocol");
+        add("wheel_platform");
+    }};
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.add_bd_device);
 
         dbHelper = new DeviceDBHelper(this);
-
 
         editTextMAC = findViewById(R.id.editTextMAC);
         editTextName = findViewById(R.id.editTextName);
@@ -45,6 +51,16 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerProtocol = findViewById(R.id.spinnerProtocol);
         spinnerProtocol.setAdapter(adapter);
+
+        Bundle b = getIntent().getExtras();
+        mode = b.getInt("mode");
+        if (mode == 1) {
+            editTextName.setText(b.getString("name"));
+            editTextMAC.setText(b.getString("MAC"));
+            editTextRate.setText(b.getString("rate"));
+            spinnerProtocol.setSelection(data.indexOf(b.getString("protocol")));
+            id = b.getInt("id");
+        }
 
         buttonAdd = findViewById(R.id.button_add);
         buttonAdd.setOnClickListener(this);
@@ -58,7 +74,6 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
 
     @Override
     public void onClick(View v) {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
         switch (v.getId()){
             case R.id.button_add:
                 String MacAddress = editTextMAC.getText().toString();
@@ -67,7 +82,7 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
                 int rate = 0;
                 if (!rateString.isEmpty())
                     rate = Integer.parseInt(rateString);
-                String protocol = data[(int) spinnerProtocol.getSelectedItemId()];
+                String protocol = data.get((int) spinnerProtocol.getSelectedItemId());
 
                 if (BluetoothAdapter.checkBluetoothAddress(MacAddress)) {
                     ContentValues contentValues = new ContentValues();
@@ -77,13 +92,26 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
                     contentValues.put(DeviceDBHelper.KEY_CONNECTION, rate);
                     contentValues.put(DeviceDBHelper.KEY_PROTO, protocol);
 
-                    database.insert(DeviceDBHelper.TABLE_DEVICES, null, contentValues);
-                    dataChanged = 1;
-                    editTextMAC.setText("");
-                    editTextName.setText("");
-                    editTextRate.setText("");
-                    Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
-                    Log.d("Add device", "Device accepted");
+                    if (mode == 0) {
+                        int res = dbHelper.insert(contentValues);
+                        if (res == 1) {
+                            dataChanged = 1;
+                            editTextMAC.setText("");
+                            editTextName.setText("");
+                            editTextRate.setText("");
+                            Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
+                            Log.d("Add device", "Device accepted");
+                        }
+                        else {
+                            Toast.makeText(getApplicationContext(), "MAC has already been registered", Toast.LENGTH_LONG).show();
+                            Log.d("Add device", "MAC is in database");
+                        }
+                    }
+                    else {
+                        dbHelper.update(contentValues, id);
+                        Toast.makeText(getApplicationContext(), "Device has been edited", Toast.LENGTH_LONG).show();
+                        MyActivity.activity.setBdUpdated(-1);
+                    }
                     dbHelper.viewData();
                 }
                 else {

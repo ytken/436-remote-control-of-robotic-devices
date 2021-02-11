@@ -6,11 +6,12 @@ public class DeviceItem {
     String name, MAC;
     String type;
     int id, speed = 0;
-    public DeviceItem(int id, String name, String MAC, String type) {
+    public DeviceItem(int id, String name, String MAC, String type, int rate) {
         this.name = name;
         this.MAC = MAC;
         this.id = id;
         this.type = type;
+        this.speed = rate;
     }
 
     public DeviceItem(String name, String MAC, String type) {

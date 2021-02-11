@@ -61,7 +61,8 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
 
         Bundle b = getIntent().getExtras();
         getDevicesID = new ProtocolRepo(b.getString("protocol"));
-        String MAC = DeviceRepository.getInstance(getApplicationContext()).item(b.getInt("id")).getMAC();
+        String MAC = b.getString("MAC");
+        //String MAC = DeviceRepository.getInstance(getApplicationContext()).item(b.getInt("id")).getMAC();
 
         if (!BluetoothAdapter.checkBluetoothAddress(MAC)) {
             Toast.makeText(getApplicationContext(), "Wrong MAC adress", Toast.LENGTH_LONG);

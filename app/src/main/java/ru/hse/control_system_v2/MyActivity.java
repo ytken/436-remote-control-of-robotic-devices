@@ -1,5 +1,6 @@
 package ru.hse.control_system_v2;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -57,6 +58,7 @@ public class MyActivity extends FragmentActivity implements View.OnClickListener
                 .add(R.id.frame_recycler, newFragment).addToBackStack(null).commit();
     }
 
+    @SuppressLint("NonConstantResourceId")
     @Override
     public void onClick(View v)
     {
@@ -66,7 +68,9 @@ public class MyActivity extends FragmentActivity implements View.OnClickListener
                 finish();
                 break;
             case R.id.button_new_device:
-                startActivityForResult(new Intent().setClass(MyActivity.this, AddDeviceDBActivity.class), 10);
+                Intent intent = new Intent();
+                intent.putExtra("mode",0);
+                startActivityForResult(intent.setClass(MyActivity.this, AddDeviceDBActivity.class), 10);
                 break;
             case R.id.button_new_protocol:
                 startActivity(new Intent().setClass(MyActivity.this, AddProtocolDBActivity.class));
@@ -113,7 +117,7 @@ public class MyActivity extends FragmentActivity implements View.OnClickListener
     }
 
     public void setBdUpdated(int id) {
-        db.deleteDevice(id);
+        if (id > 0) db.deleteDevice(id);
         DeviceDBHelper helper = new DeviceDBHelper(getApplicationContext());
         db = helper;
         db.viewData();

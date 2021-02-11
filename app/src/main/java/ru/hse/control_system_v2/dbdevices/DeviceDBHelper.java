@@ -1,10 +1,14 @@
 package ru.hse.control_system_v2.dbdevices;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
+
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 
 public class DeviceDBHelper extends SQLiteOpenHelper {
 
@@ -56,6 +60,23 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
             Log.d("SQL", cursor.getInt(0) + " " + cursor.getString(1));
             cursor.moveToNext();
         }
+    }
+
+    public int insert(ContentValues contentValues) {
+        int result = 0;
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query ="select * from " + TABLE_DEVICES + " where " + KEY_MAC + " = '" + contentValues.get(KEY_MAC) + "';";
+        Cursor cursor = db.rawQuery(query, null);
+        if (cursor.getCount() == 0) {
+            db.insert(TABLE_DEVICES, null, contentValues);
+            result = 1;
+        }
+        return result;
+    }
+
+    public void update(ContentValues contentValues, int id) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        db.update(TABLE_DEVICES, contentValues, "_id=?", new String[]{String.valueOf(id)});
     }
 
     public void deleteDevice(int id) {
