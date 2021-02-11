@@ -68,7 +68,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         else
         {
             // запускаем длительную операцию подключения в Service
-            arduino = new BluetoothConnectionService(getApplicationContext(), MAC);
+            arduino = new BluetoothConnectionService(MAC);
         }
 
 
