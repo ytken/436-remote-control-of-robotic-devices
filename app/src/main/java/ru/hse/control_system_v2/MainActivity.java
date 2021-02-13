@@ -1,41 +1,27 @@
 package ru.hse.control_system_v2;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.FrameLayout;
-import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentActivity;
-
-import com.google.android.material.navigation.NavigationView;
-
-import java.util.HashSet;
-import java.util.Set;
 
 import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 import ru.hse.control_system_v2.dbprotocol.AddProtocolDBActivity;
-import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
-import ru.hse.control_system_v2.list_devices.DeviceItem;
 import ru.hse.control_system_v2.list_devices.ListDevicesFragment;
 
-public class MyActivity extends FragmentActivity implements View.OnClickListener
+public class MainActivity extends FragmentActivity implements View.OnClickListener
 {
     DeviceDBHelper db;
     int bdUpdated = 0;
-    public static MyActivity activity;
+    public static MainActivity activity;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -71,10 +57,10 @@ public class MyActivity extends FragmentActivity implements View.OnClickListener
             case R.id.button_new_device:
                 Intent intent = new Intent();
                 intent.putExtra("mode",0);
-                startActivityForResult(intent.setClass(MyActivity.this, AddDeviceDBActivity.class), 10);
+                startActivityForResult(intent.setClass(MainActivity.this, AddDeviceDBActivity.class), 10);
                 break;
             case R.id.button_new_protocol:
-                startActivity(new Intent().setClass(MyActivity.this, AddProtocolDBActivity.class));
+                startActivity(new Intent().setClass(MainActivity.this, AddProtocolDBActivity.class));
                 break;
             case R.id.button_delete_bd:
                 Log.d("button", "button delete");
@@ -126,8 +112,7 @@ public class MyActivity extends FragmentActivity implements View.OnClickListener
 
     public void setBdUpdated(int id) {
         if (id > 0) db.deleteDevice(id);
-        DeviceDBHelper helper = new DeviceDBHelper(getApplicationContext());
-        db = helper;
+        db = new DeviceDBHelper(getApplicationContext());
         db.viewData();
         bdUpdated = 1;
     }

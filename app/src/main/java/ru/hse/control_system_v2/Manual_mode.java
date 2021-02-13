@@ -22,19 +22,16 @@ import ru.hse.control_system_v2.list_devices.DeviceRepository;
 public class Manual_mode extends Activity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener
 {
     private boolean is_hold_command;
-    private boolean is_sens_data;
-    private boolean is_fixed_angel;
 
-    private Bt_connection arduino;                  // устройство, с которого буду получаю получать данные
+    private BluetoothConnectionService arduino;                  // устройство, с которого буду получаю получать данные
     private Timer arduino_timer;            // таймер для arduino
-    private TimerTask arduino_timer_task;   // функция выполняющаяся при тике таймера для arduino
 
     private String[] pre_str_sens_data;             // форматирование вывода данных с сенсоров
     private int[] sens_data;                        // непосредственно данные с сенсоров
-    private byte[] message= new byte[32];      // комманда посылаемая на arduino
+    private final byte[] message= new byte[32];      // комманда посылаемая на arduino
     private byte prevCommand = 0;
-
-    private TextView deviceInfo, text_sens_data;
+    static String MAC;
+    private TextView text_sens_data;
 
     HashMap<String, Byte> getDevicesID;
 
@@ -56,12 +53,12 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         sens_data = new int[5];
 
         is_hold_command = false;
-        is_sens_data = false;
-        is_fixed_angel = false;
+        boolean is_sens_data = false;
+        boolean is_fixed_angel = false;
 
         Bundle b = getIntent().getExtras();
         getDevicesID = new ProtocolRepo(b.getString("protocol"));
-        String MAC = b.getString("MAC");
+        MAC = b.getString("MAC");
         //String MAC = DeviceRepository.getInstance(getApplicationContext()).item(b.getInt("id")).getMAC();
 
         if (!BluetoothAdapter.checkBluetoothAddress(MAC)) {
@@ -70,25 +67,22 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         }
         else
         {
-
-            arduino = new Bt_connection(getApplicationContext(), MAC);
+            // запускаем длительную операцию подключения в Service
+            arduino = new BluetoothConnectionService(MAC);
         }
 
 
-        deviceInfo = findViewById(R.id.textViewNameManual);
+        TextView deviceInfo = findViewById(R.id.textViewNameManual);
         deviceInfo.setText("Устройство: " + b.getString("name") + "\n MAC: " + MAC);
 
         arduino_timer = new Timer();
-        arduino_timer_task = new TimerTask()
-        {
+        // функция выполняющаяся при тике таймера для arduino
+        TimerTask arduino_timer_task = new TimerTask() {
             @Override
-            public void run()
-            {
-                runOnUiThread(new Runnable()
-                {
+            public void run() {
+                runOnUiThread(new Runnable() {
                     @Override
-                    public void run()
-                    {
+                    public void run() {
                         Data_request();
                     }
                 });
@@ -116,7 +110,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         findViewById(R.id.button_left).setOnTouchListener(touchListener);
         findViewById(R.id.button_right).setOnTouchListener(touchListener);
 
-        Switch hold_command = (Switch) findViewById(R.id.switch_hold_command_mm);
+        Switch hold_command = findViewById(R.id.switch_hold_command_mm);
         hold_command.setOnCheckedChangeListener(this);
 
         //Switch fixed_angel = (Switch) findViewById(R.id.switch_fxed_angel_mm);
@@ -140,7 +134,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
     {
         super.onResume();
 
-        arduino.Connect();     // соединяемся с bluetooth
+        arduino.BluetoothConnectionServiceVoid();     // соединяемся с bluetooth
     }
 
     @Override
@@ -322,6 +316,8 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
             Log.d("qwerty", "******************************************** ошибка");
         }
     }
+
+
 
 }
 
