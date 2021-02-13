@@ -53,13 +53,4 @@ public class DialogDevice extends DialogFragment {
                 })
                 .create();
     }
-
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if (data == null) {return;}
-        String message = data.getStringExtra("message");
-        Bundle args = new Bundle();
-        args.putString("message", message);
-        setArguments(args);
-    }
 }

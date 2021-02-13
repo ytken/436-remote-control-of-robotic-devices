@@ -22,7 +22,7 @@ import ru.hse.control_system_v2.R;
 
 public class AddDeviceDBActivity extends Activity implements View.OnClickListener{
     DeviceDBHelper dbHelper;
-    EditText editTextMAC, editTextName, editTextRate;
+    EditText editTextMAC, editTextName;
     Spinner spinnerProtocol;
     Button buttonAdd, buttonOK, buttonCancel;
 
@@ -42,7 +42,6 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
 
         editTextMAC = findViewById(R.id.editTextMAC);
         editTextName = findViewById(R.id.editTextName);
-        editTextRate = findViewById(R.id.editTextRate);
 
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -54,7 +53,6 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
         if (mode == 1) {
             editTextName.setText(b.getString("name"));
             editTextMAC.setText(b.getString("MAC"));
-            editTextRate.setText(b.getString("rate"));
             spinnerProtocol.setSelection(data.indexOf(b.getString("protocol")));
             id = b.getInt("id");
         }
@@ -75,10 +73,7 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
             case R.id.button_add:
                 String MacAddress = editTextMAC.getText().toString();
                 String name = editTextName.getText().toString();
-                String rateString = editTextRate.getText().toString();
                 int rate = 0;
-                if (!rateString.isEmpty())
-                    rate = Integer.parseInt(rateString);
                 String protocol = data.get((int) spinnerProtocol.getSelectedItemId());
 
                 if (BluetoothAdapter.checkBluetoothAddress(MacAddress)) {
@@ -86,7 +81,6 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
 
                     contentValues.put(DeviceDBHelper.KEY_MAC, MacAddress);
                     contentValues.put(DeviceDBHelper.KEY_NAME, name);
-                    contentValues.put(DeviceDBHelper.KEY_CONNECTION, rate);
                     contentValues.put(DeviceDBHelper.KEY_PROTO, protocol);
 
                     if (mode == 0) {
@@ -95,7 +89,6 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
                             dataChanged = 1;
                             editTextMAC.setText("");
                             editTextName.setText("");
-                            editTextRate.setText("");
                             Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
                             Log.d("Add device", "Device accepted");
                         }
@@ -129,32 +122,7 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
             case R.id.button_cancel:
                 editTextMAC.setText("");
                 editTextName.setText("");
-                editTextRate.setText("");
                 break;
         }
     }
-
-
 }
-
-
-/*Cursor cursor = database.query(DeviceDBHelper.TABLE_DEVICES, null, null, null, null, null, null);
-
-                if (cursor.moveToFirst()) {
-                    int idIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_ID);
-                    int nameIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_NAME);
-                    int MacIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_MAC);
-                    int rateIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_CONNECTION);
-                    int protocolIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_PROTO);
-                    do {
-                        Log.d("mLog", "ID = " + cursor.getInt(idIndex) +
-                                ", name = " + cursor.getString(nameIndex) +
-                                ", MAC = " + cursor.getString(MacIndex) +
-                                ", rate = " + cursor.getString(rateIndex) +
-                                ", protocol = " + cursor.getString(protocolIndex));
-                    } while (cursor.moveToNext());
-                } else
-                    Log.d("mLog","0 rows");
-
-                cursor.close();
-                break;*/

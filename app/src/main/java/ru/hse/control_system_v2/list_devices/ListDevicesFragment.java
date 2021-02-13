@@ -43,7 +43,6 @@ public class ListDevicesFragment extends Fragment {
             args.putString("name", item.name);
             args.putString("MAC", item.getMAC());
             args.putString("protocol", item.getType());
-            args.putInt("rate", item.speed);
             dialog.setArguments(args);
             //dialog.setTargetFragment(this, MY_REQUEST_CODE);
             dialog.show(ListDevicesFragment.this.getParentFragmentManager(), "dialog");

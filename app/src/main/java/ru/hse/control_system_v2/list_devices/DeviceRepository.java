@@ -38,7 +38,7 @@ public class DeviceRepository implements Serializable {
             if (device.id == id) {
                 return device;
             }
-        return new DeviceItem(0, "0", "0", "main_protocol", 0);
+        return new DeviceItem(0, "0", "0", "main_protocol");
     }
 
     int size() {
@@ -64,10 +64,9 @@ public class DeviceRepository implements Serializable {
             int idIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_ID);
             int nameIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_NAME);
             int MacIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_MAC);
-            int rateIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_CONNECTION);
             int protocolIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_PROTO);
             do {
-                DeviceItem item = new DeviceItem(cursor.getInt(idIndex), cursor.getString(nameIndex), cursor.getString(MacIndex), cursor.getString(protocolIndex), cursor.getInt(rateIndex));
+                DeviceItem item = new DeviceItem(cursor.getInt(idIndex), cursor.getString(nameIndex), cursor.getString(MacIndex), cursor.getString(protocolIndex));
                 data.add(item);
             } while (cursor.moveToNext());
         }

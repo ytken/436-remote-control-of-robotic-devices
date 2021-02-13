@@ -81,21 +81,22 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
                         .create();
                 dialog.show();
                 break;
-            case R.id.button_update_bd:
-                if (bdUpdated == 1) {
-                    ListDevicesFragment newFragment = new ListDevicesFragment();
-                    getSupportFragmentManager().beginTransaction()
-                            .replace(R.id.frame_recycler, newFragment).addToBackStack(null).commit();
-                }
-                bdUpdated = 0;
-                break;
         }
+    }
+
+    protected void onUpdateList() {
+        if (bdUpdated == 1) {
+            ListDevicesFragment newFragment = new ListDevicesFragment();
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.frame_recycler, newFragment).addToBackStack(null).commit();
+        }
+        bdUpdated = 0;
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
+        onUpdateList();
     }
 
 
@@ -115,6 +116,7 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         db = new DeviceDBHelper(getApplicationContext());
         db.viewData();
         bdUpdated = 1;
+        onUpdateList();
     }
 
 }
