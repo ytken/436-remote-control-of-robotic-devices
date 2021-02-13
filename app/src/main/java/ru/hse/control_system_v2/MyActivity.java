@@ -43,6 +43,7 @@ public class MyActivity extends FragmentActivity implements View.OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         activity = this;
+        DeviceDBHelper.getInstance(getApplicationContext());
 
         FrameLayout frame = findViewById(R.id.frame_recycler);
         findViewById(R.id.button_exit).setOnClickListener(this);
@@ -104,6 +105,13 @@ public class MyActivity extends FragmentActivity implements View.OnClickListener
                 break;
         }
     }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {

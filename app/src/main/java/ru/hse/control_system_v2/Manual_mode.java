@@ -70,6 +70,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         }
         else
         {
+
             arduino = new Bt_connection(getApplicationContext(), MAC);
         }
 
