@@ -5,14 +5,12 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
-import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 
 public class DialogDevice extends DialogFragment {
 
@@ -39,7 +37,7 @@ public class DialogDevice extends DialogFragment {
                         startActivityForResult(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), 3);
                     }
                 })
-                .setNegativeButton("Удалить", (dialog, whichButton) -> MyActivity.activity.setBdUpdated(id))
+                .setNegativeButton("Удалить", (dialog, whichButton) -> MainActivity.activity.setBdUpdated(id))
                 .setNeutralButton("Редактировать", (dialog, which) -> {
                     Bundle b = new Bundle();
                     b.putString("name", name);

@@ -2,23 +2,16 @@ package ru.hse.control_system_v2.list_devices;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.Application;
 import android.content.Context;
 import android.content.ContextWrapper;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
-import ru.hse.control_system_v2.MyActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
-import ru.hse.control_system_v2.dbprotocol.AddProtocolDBActivity;
-import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
 
 public class DeviceRepository implements Serializable {
     final Set<DeviceItem> mData;

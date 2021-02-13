@@ -6,6 +6,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ru.hse.control_system_v2.R;
@@ -39,9 +40,9 @@ public class ListDevicesHolder extends RecyclerView.ViewHolder {
         mAddress.setText(item.MAC);
 
         if (item.type.equals("main_protocol"))
-            mIcon.setImageDrawable(resources.getDrawable(R.drawable.protocol_default));
+            mIcon.setImageResource(R.drawable.protocol_default);
         else if (item.type.equals("wheel_platform"))
-            mIcon.setImageDrawable(resources.getDrawable(R.drawable.protocol_wheel));
+            mIcon.setImageResource(R.drawable.protocol_wheel);
     }
 
 }
