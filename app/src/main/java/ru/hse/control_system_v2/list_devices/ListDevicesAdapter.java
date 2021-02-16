@@ -19,11 +19,11 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
     List<DeviceItem> mData = new ArrayList<>();
     DeviceClickedListener listener;
 
-    interface DeviceClickedListener {
+    public interface DeviceClickedListener {
         void deviceClicked(DeviceItem item);
     }
 
-    ListDevicesAdapter(Set<DeviceItem> data, DeviceClickedListener nlistener){
+    public ListDevicesAdapter(Set<DeviceItem> data, DeviceClickedListener nlistener){
         super();
         for (DeviceItem item : data)
             mData.add(item);

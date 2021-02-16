@@ -29,7 +29,7 @@ public class DeviceRepository implements Serializable {
         mData = initializeData(context);
     }
 
-    Set<DeviceItem> list() {
+    public Set<DeviceItem> list() {
         return mData;
     }
 

@@ -10,18 +10,25 @@ import android.view.View;
 import android.widget.FrameLayout;
 
 import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 import ru.hse.control_system_v2.dbprotocol.AddProtocolDBActivity;
-import ru.hse.control_system_v2.list_devices.ListDevicesFragment;
+import ru.hse.control_system_v2.list_devices.DeviceItem;
+import ru.hse.control_system_v2.list_devices.DeviceRepository;
+import ru.hse.control_system_v2.list_devices.ListDevicesAdapter;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener
 {
     DeviceDBHelper db;
     int bdUpdated = 0;
     public static MainActivity activity;
+    RecyclerView recycler;
+    ListDevicesAdapter adapter = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -36,13 +43,28 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         findViewById(R.id.button_new_device).setOnClickListener(this);
         findViewById(R.id.button_new_protocol).setOnClickListener(this);
         findViewById(R.id.button_delete_bd).setOnClickListener(this);
-        findViewById(R.id.button_update_bd).setOnClickListener(this);
 
         db = new DeviceDBHelper(this);
 
-        ListDevicesFragment newFragment = new ListDevicesFragment();
-        getSupportFragmentManager().beginTransaction()
-                .add(R.id.frame_recycler, newFragment).addToBackStack(null).commit();
+        recycler = findViewById(R.id.recycler_main);
+        recycler.setLayoutManager(new LinearLayoutManager(this));
+        adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
+        recycler.setAdapter(adapter);
+    }
+
+    public class MyListener implements ListDevicesAdapter.DeviceClickedListener{
+        @Override
+        public void deviceClicked(DeviceItem item) {
+            DialogDevice dialog = new DialogDevice();
+            Bundle args = new Bundle();
+            args.putInt("id", item.getId());
+            args.putString("name", item.getName());
+            args.putString("MAC", item.getMAC());
+            args.putString("protocol", item.getType());
+            dialog.setArguments(args);
+            //dialog.setTargetFragment(this, MY_REQUEST_CODE);
+            dialog.show(getSupportFragmentManager(), "dialog");
+        }
     }
 
     @SuppressLint("NonConstantResourceId")
@@ -85,11 +107,11 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
     }
 
     protected void onUpdateList() {
-        if (bdUpdated == 1) {
-            ListDevicesFragment newFragment = new ListDevicesFragment();
-            getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.frame_recycler, newFragment).addToBackStack(null).commit();
+        if (bdUpdated == 1){
+            adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
+            recycler.setAdapter(adapter);
         }
+
         bdUpdated = 0;
     }
 
