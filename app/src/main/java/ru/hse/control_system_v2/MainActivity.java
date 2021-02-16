@@ -2,12 +2,16 @@ package ru.hse.control_system_v2;
 
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
@@ -21,6 +25,8 @@ import ru.hse.control_system_v2.dbprotocol.AddProtocolDBActivity;
 import ru.hse.control_system_v2.list_devices.DeviceItem;
 import ru.hse.control_system_v2.list_devices.DeviceRepository;
 import ru.hse.control_system_v2.list_devices.ListDevicesAdapter;
+
+import static android.view.View.INVISIBLE;
 
 public class MainActivity extends FragmentActivity implements View.OnClickListener
 {
@@ -50,6 +56,9 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         recycler.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
         recycler.setAdapter(adapter);
+
+        registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
+        registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
     }
 
     public class MyListener implements ListDevicesAdapter.DeviceClickedListener{
@@ -65,6 +74,30 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
             //dialog.setTargetFragment(this, MY_REQUEST_CODE);
             dialog.show(getSupportFragmentManager(), "dialog");
         }
+    }
+
+    private final BroadcastReceiver mMessageReceiverNotSuccess = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            showToast("Not success");
+            //progressBar.setVisibility(INVISIBLE);
+        }
+    };
+
+    private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Устройство подключено, Service выполнился успешно
+            showToast("success");
+            //progressBar.setVisibility(INVISIBLE);
+        }
+    };
+
+    public void showToast(String outputInfoString) {
+        Toast outputInfoToast = Toast.makeText(this, outputInfoString, Toast.LENGTH_SHORT);
+        outputInfoToast.show();
     }
 
     @SuppressLint("NonConstantResourceId")
