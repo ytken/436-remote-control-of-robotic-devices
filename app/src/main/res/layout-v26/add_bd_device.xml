@@ -35,7 +35,11 @@
             android:text="@string/paired_devices"
             android:textAlignment="center"
             android:textColor="#FFFFFF"
-            android:visibility="visible" />
+            android:visibility="visible"
+            android:autoSizeTextType="uniform"
+            android:autoSizeMinTextSize="16sp"
+            android:autoSizeMaxTextSize="100sp"
+            app:autoSizeStepGranularity="2sp"/>
 
         <Space
             android:layout_width="match_parent"

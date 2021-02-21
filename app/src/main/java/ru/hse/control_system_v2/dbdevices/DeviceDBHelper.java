@@ -25,7 +25,6 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
     public static final String KEY_CLASS = "class";
     public static final String KEY_PROTO = "id_protocol";
     public static final String KEY_PANEL = "id_panel";
-    public static final String KEY_CONNECTION = "connection_rate";
 
     public DeviceDBHelper(Context context) {super(context, DATABASE_NAME, null, DATABASE_VERSION);}
 
@@ -34,7 +33,7 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
         db.execSQL("create table " + TABLE_DEVICES + "(" + KEY_ID + " integer primary key AUTOINCREMENT,"
                 + KEY_NAME + " text," + KEY_MAC + " text," + KEY_CLASS + " text,"
                 + KEY_URL_PH + " text," + KEY_PROTO + " text,"
-                + KEY_PANEL + " text," + KEY_CONNECTION + " text" + ")");
+                + KEY_PANEL + " text" + ")");
     }
 
     @Override

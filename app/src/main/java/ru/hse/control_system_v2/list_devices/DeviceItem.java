@@ -6,12 +6,11 @@ public class DeviceItem {
     String name, MAC;
     String type;
     int id, speed = 0;
-    public DeviceItem(int id, String name, String MAC, String type, int rate) {
+    public DeviceItem(int id, String name, String MAC, String type) {
         this.name = name;
         this.MAC = MAC;
         this.id = id;
         this.type = type;
-        this.speed = rate;
     }
 
     public DeviceItem(String name, String MAC, String type) {
@@ -39,10 +38,6 @@ public class DeviceItem {
 
     public String getName() {
         return name;
-    }
-
-    public void setSpeed(int speed) {
-        this.speed = speed;
     }
 
     public String getType() { return type; }
