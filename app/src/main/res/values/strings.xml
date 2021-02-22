@@ -10,4 +10,7 @@
     <string name="add_bd_label">Принять</string>
     <string name="cancel_add_bd_label">Отмена</string>
     <string name="ok_add_bd_label">Завершить</string>
+    <string name="protocol_name">Имя:</string>
+    <string name="protocol_length">Длина сообщения в байт:</string>
+    <string name="protocol_xml">XML вид кода:</string>
 </resources>

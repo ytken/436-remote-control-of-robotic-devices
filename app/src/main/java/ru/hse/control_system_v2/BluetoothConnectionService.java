@@ -39,6 +39,7 @@ public class BluetoothConnectionService extends Service {
         BluetoothConnectionServiceVoid();
     }
 
+
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Bundle arguments = intent.getExtras();
@@ -236,7 +237,7 @@ public class BluetoothConnectionService extends Service {
         try {
             // В случае остановки сервиса завершаем соединение
             clientSocket.close();
-        } catch (RuntimeException | IOException e) {
+        } catch (IOException e) {
             Log.d("BLUETOOTH", e.getMessage());
         }
     }
@@ -246,12 +247,11 @@ public class BluetoothConnectionService extends Service {
         Intent resultOfConnectionIntent;
         if (!stateOfConnection) {
             resultOfConnectionIntent = new Intent("not_success");
-            Log.d("stateOfConnection", "not_success");
         } else {
             resultOfConnectionIntent = new Intent("success");
-            Log.d("stateOfConnection", "success");
+
         }
-        sendBroadcast(resultOfConnectionIntent);
+        //sendBroadcast(resultOfConnectionIntent);
     }
 
     public void Send_Data(String message) { data_receiver1.sendData(message);}

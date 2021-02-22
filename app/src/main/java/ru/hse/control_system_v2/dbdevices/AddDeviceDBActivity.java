@@ -19,6 +19,7 @@ import java.util.ArrayList;
 
 import ru.hse.control_system_v2.MainActivity;
 import ru.hse.control_system_v2.R;
+import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
 
 public class AddDeviceDBActivity extends Activity implements View.OnClickListener{
     DeviceDBHelper dbHelper;
@@ -28,10 +29,7 @@ public class AddDeviceDBActivity extends Activity implements View.OnClickListene
 
     int dataChanged = 0, mode, id;
 
-    ArrayList<String> data = new ArrayList<String>() {{
-        add("main_protocol");
-        add("wheel_platform");
-    }};
+    ArrayList<String> data = ProtocolDBHelper.instance.getProtocolNames();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

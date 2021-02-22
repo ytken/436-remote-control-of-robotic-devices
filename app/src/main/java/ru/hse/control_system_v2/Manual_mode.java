@@ -3,10 +3,7 @@ package ru.hse.control_system_v2;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -38,13 +35,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
 
     HashMap<String, Byte> getDevicesID;
 
-    private final BroadcastReceiver mMessageReceiverNotSuccess = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Manual_mode.this.finish();
-        }
-    };
-
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -70,8 +60,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         getDevicesID = new ProtocolRepo(b.getString("protocol"));
         MAC = b.getString("MAC");
         //String MAC = DeviceRepository.getInstance(getApplicationContext()).item(b.getInt("id")).getMAC();
-
-        registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
 
         if (!BluetoothAdapter.checkBluetoothAddress(MAC)) {
             Toast.makeText(getApplicationContext(), "Wrong MAC adress", Toast.LENGTH_LONG);
@@ -124,6 +112,9 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
 
         Switch hold_command = findViewById(R.id.switch_hold_command_mm);
         hold_command.setOnCheckedChangeListener(this);
+
+        //Switch fixed_angel = (Switch) findViewById(R.id.switch_fxed_angel_mm);
+        //fixed_angel.setOnCheckedChangeListener(this);
 
         Arrays.fill(message, (byte) 0);
     }
@@ -185,6 +176,23 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                 message[6] = prevCommand = getDevicesID.get("STOP");
                 arduino.Send_Data(message);
                 break;
+                /*
+            case R.id.button_left_45:
+                message = new byte[] {0x30, 0x0a, 0x5c, 0x37, 0x37, 0x37};
+                arduino.Send_Data(message);
+                break;
+            case R.id.button_right_45:
+                message = new byte[] {0x30, 0x0a, 0x54, 0x37, 0x37, 0x37};
+                arduino.Send_Data(message);
+                break;
+            case R.id.button_left_90:
+                message = new byte[] {0x30, 0x0a, 0x5a, 0x37, 0x37, 0x37};
+                arduino.Send_Data(message);
+                break;
+            case R.id.button_right_90:
+                message = new byte[] {0x30, 0x0a, 0x56, 0x37, 0x37, 0x37};
+                arduino.Send_Data(message);
+                break;*/
         }
     }
 
@@ -193,7 +201,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         @Override
         public boolean onTouch(View v, MotionEvent event)
         {
-            message[0] = ProtocolRepo.getDeviceCode("class_android"); message[1] = ProtocolRepo.getDeviceCode("type_computer"); // класс и тип устройства отправки
+            message[0] = getDevicesID.get("class_android"); message[1] = getDevicesID.get("type_computer"); // класс и тип устройства отправки
             message[2] = getDevicesID.get("class_arduino"); // класс и тип устройства приема
             message[5] = getDevicesID.get("type_move");
             if(event.getAction() == MotionEvent.ACTION_DOWN)                        // если нажали на кнопку и не важно есть удержание команд или нет

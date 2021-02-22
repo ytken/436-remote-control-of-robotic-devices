@@ -11,6 +11,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 
@@ -64,7 +65,16 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                 contentValues.put(ProtocolDBHelper.KEY_LEN, length);
                 contentValues.put(ProtocolDBHelper.KEY_CODE, code);
 
-                database.insert(ProtocolDBHelper.TABLE_PROTOCOLS, null, contentValues);
+                if (dbHelper.insert(contentValues) == 0)
+                    Toast.makeText(getApplicationContext(), "Protocol name has already been registered", Toast.LENGTH_LONG).show();
+                else {
+                    editTextName.setText("");
+                    editTextLen.setText("");
+                    editTextCode.setText("");
+                    Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
+                }
+
+
                 break;
 
             case R.id.button_read_protocol:
@@ -88,9 +98,11 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                 break;
 
             case R.id.button_cancel_protocol:
-                editTextLen.setText("");
+                ProtocolDBHelper dbHelper = new ProtocolDBHelper(getApplicationContext());
+                dbHelper.onUpgrade(dbHelper.getWritableDatabase(), 1,1);
+                /*editTextLen.setText("");
                 editTextName.setText("");
-                editTextCode.setText("");
+                editTextCode.setText("");*/
                 break;
         }
     }

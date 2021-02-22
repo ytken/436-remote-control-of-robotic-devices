@@ -24,18 +24,36 @@
             android:layout_weight="30"
             android:orientation="vertical">
 
+            <TextView
+                android:id="@+id/textView7"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/protocol_name" />
+
             <EditText
                 android:id="@+id/editTextProtocolName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName"
-                android:text="Name" />
+                android:inputType="textPersonName" />
+
+            <TextView
+                android:id="@+id/textView8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/protocol_length" />
 
             <EditText
                 android:id="@+id/editTextLength"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Length" />
+                android:ems="10"
+                android:inputType="number" />
+
+            <TextView
+                android:id="@+id/textView10"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/protocol_xml" />
 
             <EditText
                 android:id="@+id/editTextCode"
@@ -43,8 +61,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:ems="10"
-                android:inputType="textPersonName"
-                android:text="Code" />
+                android:inputType="textPersonName" />
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
