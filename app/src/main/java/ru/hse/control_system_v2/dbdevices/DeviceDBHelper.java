@@ -10,6 +10,10 @@ import android.util.Log;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
+import ru.hse.control_system_v2.MainActivity;
+import ru.hse.control_system_v2.list_devices.DeviceRepository;
+import ru.hse.control_system_v2.list_devices.ListDevicesAdapter;
+
 public class DeviceDBHelper extends SQLiteOpenHelper {
 
     public static DeviceDBHelper instance;
@@ -76,6 +80,7 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
     public void update(ContentValues contentValues, int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.update(TABLE_DEVICES, contentValues, "_id=?", new String[]{String.valueOf(id)});
+
     }
 
     public void deleteDevice(int id) {

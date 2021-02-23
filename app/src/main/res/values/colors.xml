@@ -13,4 +13,5 @@
     <color name="startColor">#006797</color>
     <color name="endColor">#3F51B5</color>
     <color name="centerColor">#006797</color>
+    <color name="foregroundColor">#9E9E9E</color>
 </resources>

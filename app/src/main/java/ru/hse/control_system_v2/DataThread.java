@@ -46,6 +46,7 @@ public class DataThread extends Thread{ // класс поток для прие
     @Override
     public void run()
     {
+        Log.d("thread is running", "********************************************");
         OutputStream tmpOut = null;
         InputStream tmpIn = null;
         try
@@ -54,6 +55,8 @@ public class DataThread extends Thread{ // класс поток для прие
             tmpIn = clientSocket.getInputStream();
         } catch (IOException e)
         {
+            e.printStackTrace();
+            Log.d("BLUETOOTH", e.getMessage());
         }
 
         OutStrem = tmpOut;
@@ -107,9 +110,11 @@ public class DataThread extends Thread{ // класс поток для прие
                 break;
             }
         }
+        Log.d("Конец true", "********************************************");
     }
     public void sendData(String message)
     {
+        Log.d("Send_Data 3", "********************************************");
         byte[] msgBuffer = message.getBytes();
         Log.d(TAG, "***Отправляем данные: " + message + "***");
 
@@ -123,6 +128,7 @@ public class DataThread extends Thread{ // класс поток для прие
 
     public void sendData(byte[] message)
     {
+        Log.d("Send_Data 2", "********************************************");
         String logMessage = "***Отправляем данные: ";
         for (int i=0; i < 32; i++)
             logMessage += message[i] + " ";
@@ -149,6 +155,7 @@ public class DataThread extends Thread{ // класс поток для прие
     {
         if (OutStrem == null)
         {
+
             return null;
         }
         return OutStrem;
@@ -164,7 +171,9 @@ public class DataThread extends Thread{ // класс поток для прие
 
     public void Send_Data(String message) { sendData(message);}
 
-    public void Send_Data(byte message[]) { sendData(message);}
+    public void Send_Data(byte message[]) {
+        Log.d("Send_Data", "********************************************");
+        sendData(message);}
     public void Disconnect(Timer bt_timer) // для работы через определенные промежутки времени
     {
         Log.d(TAG, "...In onPause()...");

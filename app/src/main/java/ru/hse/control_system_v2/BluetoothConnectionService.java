@@ -29,12 +29,6 @@ public class BluetoothConnectionService extends Service {
     BluetoothSocket clientSocket;
     String classDevice;
 
-    public void setSelectedDevice(String selectedDevice) {
-        this.selectedDevice = selectedDevice;
-    }
-    public void setProtocol(String classDevice) {
-        this.classDevice = classDevice;
-    }
 
 
     @Override
@@ -42,23 +36,22 @@ public class BluetoothConnectionService extends Service {
         Bundle arguments = intent.getExtras();
         selectedDevice = arguments.get("MAC").toString();
         classDevice = arguments.get("protocol").toString();
-
         Intent serviceStarted;
         serviceStarted = new Intent("serviceStarted");
+        Log.d(TAG, "...Соединение начато...");
         sendBroadcast(serviceStarted);
-
         BluetoothConnectionServiceVoid();
-        return Service.START_STICKY;
+        return Service.START_NOT_STICKY;
     }
 
 
     public void BluetoothConnectionServiceVoid() {
-
+        //Фикс зависания Main Activity
+        new Thread(() -> {
             btAdapter = BluetoothAdapter.getDefaultAdapter();
             if (btIsEnabledFlagVoid()) {
                 device = btAdapter.getRemoteDevice(selectedDevice);
                 // Попытка подключиться к устройству
-                // В новом потоке, чтобы Main Activity не зависал
                 try {
                     clientSocket = (BluetoothSocket) device.getClass().getMethod("createRfcommSocketToServiceRecord", UUID.class).invoke(device, MY_UUID);
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
@@ -70,7 +63,6 @@ public class BluetoothConnectionService extends Service {
                     clientSocket.connect();
                     // Отключаем поиск устройств для сохранения заряда батареи
                     BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
-                    Log.d(TAG, "...Соединение установлено и готово к передачи данных...");
                     stateOfConnection = true;
                 } catch (IOException e) {
                     stateOfConnection = false;
@@ -99,14 +91,13 @@ public class BluetoothConnectionService extends Service {
                     }
                     resultOfConnection();
                 }
-
             } else {
                 stateOfConnection = false;
             }
             if (!stateOfConnection) {
                 resultOfConnection();
-                onDestroy();
             }
+        }).start();
 
     }
 
@@ -125,6 +116,7 @@ public class BluetoothConnectionService extends Service {
 
     public void onDestroy() {
         super.onDestroy();
+        Log.d(TAG, "...Сервис остановлен...");
     }
 
     // Передаём данные о статусе соединения в Main Activity
@@ -132,21 +124,15 @@ public class BluetoothConnectionService extends Service {
         Intent resultOfConnectionIntent;
         if (!stateOfConnection) {
             resultOfConnectionIntent = new Intent("not_success");
+            Log.d(TAG, "...Соединение неуспешно...");
         } else {
             resultOfConnectionIntent = new Intent("success");
             resultOfConnectionIntent.putExtra("MAC", selectedDevice);
             resultOfConnectionIntent.putExtra("protocol", classDevice);
-            DataThread dataThreadForArduino = new DataThread();
-            dataThreadForArduino.setSelectedDevice(selectedDevice);
-            dataThreadForArduino.setSocket(clientSocket);
-            dataThreadForArduino.setProtocol(classDevice);
-            dataThreadForArduino.startManualMode(getApplicationContext());
-
+            SocketHandler.setSocket(clientSocket);
+            Log.d(TAG, "...Соединение успешно...");
         }
-
         sendBroadcast(resultOfConnectionIntent);
+        onDestroy();
     }
-
-
-
 }

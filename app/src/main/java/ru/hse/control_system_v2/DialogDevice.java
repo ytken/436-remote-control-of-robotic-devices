@@ -17,14 +17,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-
 import java.util.ArrayList;
-import java.util.Objects;
-
-import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 
-import static android.view.View.VISIBLE;
+
 
 
 public class DialogDevice extends DialogFragment {
@@ -48,8 +44,7 @@ public class DialogDevice extends DialogFragment {
         String MAC = getArguments().getString("MAC");
         String classDevice = getArguments().getString("protocol");
         builder=new AlertDialog.Builder(getActivity());
-
-
+        dbHelper = new DeviceDBHelper(requireActivity());
 
         return builder.setTitle("Информация")
                 .setMessage("Name: " + name + "\nMAC address: " + MAC)
@@ -60,34 +55,12 @@ public class DialogDevice extends DialogFragment {
                     b.putString("name", name);
                     Intent intent = new Intent().setClass(getActivity(), Manual_mode.class);
                     intent.putExtras(b);
-
-                    //startActivityForResult(intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP), 3);
-                    // запускаем длительную операцию подключения в Service
-                    //Intent startBluetoothConnectionService = new Intent(requireActivity(), BluetoothConnectionService.class);
-                    //startBluetoothConnectionService.putExtras(b);
-                    //startActivity(startBluetoothConnectionService);
-                    //arduino = new BluetoothConnectionService();
-                    //arduino.setSelectedDevice(MAC);
-                    //startActivity(new Intent(requireActivity(), BluetoothConnectionService.class));
-                    NewDevice arduino = new NewDevice(getActivity(),MAC, classDevice);
+                    NewDevice arduino = new NewDevice(requireActivity(),MAC, classDevice);
                     arduino.startBluetoothConnectionService();
                 })
                 .setNegativeButton("Удалить", (dialog, whichButton) -> MainActivity.activity.setBdUpdated(id))
                 .setNeutralButton("Редактировать", (dialog, which) -> {
-                    Bundle b = new Bundle();
-                    b.putString("name", name);
-                    b.putString("protocol", classDevice);
-                    b.putString("MAC", MAC);
-                    b.putInt("mode", 1);
-                    b.putInt("id", id);
-                    //Intent intent = new Intent().setClass(getActivity(), AddDeviceDBActivity.class);
-                    //intent.putExtras(b);
-                    //startActivity(intent);
                     changeDeviceAlert();
-
-
-
-
                 })
                 .create();
     }
@@ -104,19 +77,14 @@ public class DialogDevice extends DialogFragment {
     void changeDeviceAlert(){
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireActivity(), android.R.layout.simple_spinner_item, data);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-
         spinnerProtocol = new Spinner(requireActivity());
         EditText editTextNameAlert = new EditText(requireActivity());
         spinnerProtocol.setAdapter(spinnerAdapter);
-
-
         id = getArguments().getInt("id");
         String name = getArguments().getString("name");
-
         editTextNameAlert.setText(name);
         editTextNameAlert.setInputType(InputType.TYPE_CLASS_TEXT);
         editTextNameAlert.setHint("Device Name");
-
         String MAC = getArguments().getString("MAC");
         String classDevice = getArguments().getString("protocol");
         for(int i = 0; i<data.size(); i++){
@@ -125,37 +93,29 @@ public class DialogDevice extends DialogFragment {
                 break;
             }
         }
-        androidx.appcompat.app.AlertDialog.Builder setSettingsToDeviceAlertDialog = new androidx.appcompat.app.AlertDialog.Builder(requireActivity());
+        AlertDialog.Builder setSettingsToDeviceAlertDialog = new AlertDialog.Builder(requireActivity());
         setSettingsToDeviceAlertDialog.setTitle("Change Device settings");
-
 
         LinearLayout layout = new LinearLayout(requireActivity());
         layout.setOrientation(LinearLayout.VERTICAL);
-
         if(spinnerProtocol.getParent() != null) {
             ((ViewGroup)spinnerProtocol.getParent()).removeView(spinnerProtocol); // <- fix crash
         }
-
-
         layout.addView(editTextNameAlert);
-
         layout.addView(spinnerProtocol);
-
         setSettingsToDeviceAlertDialog.setView(layout);
         setSettingsToDeviceAlertDialog.setPositiveButton("OK", (dialogInterface, i) -> {
             newName = editTextNameAlert.getText().toString();
             protocol = data.get((int) spinnerProtocol.getSelectedItemId());
-
-
             ContentValues contentValues = new ContentValues();
             contentValues.put(DeviceDBHelper.KEY_MAC, MAC);
             contentValues.put(DeviceDBHelper.KEY_NAME, newName);
             contentValues.put(DeviceDBHelper.KEY_PROTO, protocol);
-
             dbHelper.update(contentValues, id);
-            Toast.makeText(requireActivity(), "Device has been edited", Toast.LENGTH_LONG).show();
+            //Toast.makeText(requireActivity(), "Device has been edited", Toast.LENGTH_LONG).show();
             MainActivity.activity.setBdUpdated(-1);
             dbHelper.viewData();
+
         });
         setSettingsToDeviceAlertDialog.setNegativeButton("Cancel", (dialogInterface, i) -> {
             dialogInterface.cancel();
@@ -163,7 +123,4 @@ public class DialogDevice extends DialogFragment {
         setSettingsToDeviceAlertDialog.create();
         setSettingsToDeviceAlertDialog.show();
     }
-
-
-
 }

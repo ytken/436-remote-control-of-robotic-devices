@@ -3,6 +3,7 @@ package ru.hse.control_system_v2;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -24,6 +25,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
     private boolean is_hold_command;
 
     private DataThread dataThreadForArduino;                  // устройство, с которого буду получаю получать данные
+    //переделать в массив
     private Timer arduino_timer;            // таймер для arduino
 
     private String[] pre_str_sens_data;             // форматирование вывода данных с сенсоров
@@ -38,6 +40,11 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
     InputStream InStrem;
     private int[] my_data;
     private boolean ready_to_request;         // флаг готовности принятия данных: true - высылай новый пакет   false - не высылай пакет
+    BluetoothSocket clientSocket;
+
+    public void setSocket(BluetoothSocket clientSocket) {
+        this.clientSocket = clientSocket;
+    }
 
     HashMap<String, Byte> getDevicesID;
 
@@ -48,6 +55,18 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         setContentView(R.layout.manual_mode);
         showToast("Started Manual mode!");
         findViewById(R.id.button_stop).setEnabled(false);
+
+        clientSocket = SocketHandler.getSocket();
+
+        //много устройств, но сейчас одно
+        Bundle b = getIntent().getExtras();
+        MAC = b.get("MAC").toString();
+        classDevice = b.get("protocol").toString();
+        DataThread dataThreadForArduino = new DataThread();
+        dataThreadForArduino.setSelectedDevice(MAC);
+        dataThreadForArduino.setSocket(clientSocket);
+        dataThreadForArduino.setProtocol(classDevice);
+        dataThreadForArduino.start();
 
         pre_str_sens_data = new String[5];
         pre_str_sens_data[0] = "     0º \t\t-\t\t ";
@@ -63,7 +82,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         boolean is_sens_data = false;
         boolean is_fixed_angel = false;
 
-        Bundle b = getIntent().getExtras();
         getDevicesID = new ProtocolRepo(b.getString("protocol"));
         MAC = b.getString("MAC");
 
@@ -213,11 +231,13 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                 {
                     case R.id.button_up:
                         //Toast.makeText(getApplicationContext(), "Вперед поехали", Toast.LENGTH_SHORT).show();
+                        Log.d("Вперед поехали", "********************************************");
                         message[4] = (prevCommand == getDevicesID.get("FORWARD"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("FORWARD");
                         dataThreadForArduino.Send_Data(message);
                         break;
                     case R.id.button_down:
+                        Log.d("Назад поехали", "********************************************");
                         //Toast.makeText(getApplicationContext(), "Назад поехали", Toast.LENGTH_SHORT).show();
                         message[4] = (prevCommand == getDevicesID.get("BACK"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("BACK");
@@ -225,12 +245,14 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                         break;
                     case R.id.button_left:
                         //Toast.makeText(getApplicationContext(), "Влево поехали", Toast.LENGTH_SHORT).show();
+                        Log.d("Влево поехали", "********************************************");
                         message[4] = (prevCommand == getDevicesID.get("LEFT"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("LEFT");
                         dataThreadForArduino.Send_Data(message);
                         break;
                     case R.id.button_right:
                         //Toast.makeText(getApplicationContext(), "Вправо поехали", Toast.LENGTH_SHORT).show();
+                        Log.d("Вправо поехали", "********************************************");
                         message[4] = (prevCommand == getDevicesID.get("RIGHT"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("RIGHT");
                         dataThreadForArduino.Send_Data(message);

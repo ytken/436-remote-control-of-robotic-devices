@@ -2,6 +2,7 @@ package ru.hse.control_system_v2;
 
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.ContentValues;
 import android.content.Context;
@@ -57,11 +58,13 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     ExtendedFloatingActionButton fabToEnBt;
     ExtendedFloatingActionButton fabToAddDevice;
     ListDevicesFragment newFragment;
-    RecyclerView recycler;
-    ListDevicesAdapter adapter = null;
+    public static RecyclerView recycler;
+    public static ListDevicesAdapter adapter = null;
     TextView headerText;
     private BluetoothConnectionService arduino;                  // устройство, с которого буду получаю получать данные
     ProgressBar progressBar;
+    boolean isItemSelected;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -118,6 +121,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         public void onReceive(Context context, Intent intent) {
             showToast("Connection Started");
             progressBar.setVisibility(VISIBLE);
+            isItemSelected = true;
         }
     };
     //Результат работы Service
@@ -139,9 +143,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             Bundle arguments = intent.getExtras();
             String selectedDevice = arguments.get("MAC").toString();
             String classDevice = arguments.get("protocol").toString();
-            //Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
-            //startSendingData.putExtra("MAC", selectedDevice);
-            //startActivity(startSendingData);
+            Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
+            startSendingData.putExtra("MAC", selectedDevice);
+            startSendingData.putExtra("protocol", classDevice);
+            startActivity(startSendingData);
 
             //SendDataActivity.device = device;
             progressBar.setVisibility(INVISIBLE);
@@ -221,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onRefresh() {
         if (btIsEnabledFlagVoid()) {
-            headerText.setText(R.string.paired_devices);
+            headerText.setText(R.string.favorites_devices);
             // Bluetooth включён. Предложим пользователю добавить устройства и начать передачу данных.
             if (stateOfFabToEnBt) {
                 // Bluetooth включён, надо скрыть кнопку включения Bluetooth
@@ -270,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     }
 
-    private static long back_pressed;
+    private static long back_pressed = 0;
 
     @Override
     public void onBackPressed() {
@@ -280,6 +285,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         } else {
             showToast("Press again to exit");
         }
+        back_pressed = System.currentTimeMillis();
     }
 
     // Метод для вывода всплывающих данных на экран
