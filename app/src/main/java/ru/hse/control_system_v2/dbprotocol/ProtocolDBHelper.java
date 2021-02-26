@@ -88,4 +88,3 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
     }
 
 }
-

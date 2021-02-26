@@ -1,70 +1,94 @@
 package ru.hse.control_system_v2.dbprotocol;
 
-import android.content.Intent;
+import android.content.Context;
+import android.util.Log;
 
-import androidx.annotation.Nullable;
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
 
-import org.w3c.dom.Document;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-
-import java.io.StringReader;
-import java.util.ArrayList;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
+import ru.hse.control_system_v2.R;
 
 public class ProtocolRepo extends HashMap<String, Byte> {
 
+    private static final String LOG_TAG = "XMLParcer";
     private HashMap<String, Integer> lengthOfQuery;
     private HashMap<String, Byte> moveCodes;
+    private Context context;
 
     public static final List<String> labels = List.of("class_android","class_computer","class_arduino","type_sphere","type_anthropomorphic",
             "type_cubbi","type_computer","redo_command","new_command","type_move","type_tele","STOP","FORWARD","FORWARD_STOP","BACK","BACK_STOP","LEFT","LEFT_STOP","RIGHT","RIGHT_STOP");
 
-    /*
-    public static final String CLASS_ANDROID = ;
-    public static final String CLASS_COMPUTER = ;
-    public static final String CLASS_ARDUINO = ;
-
-    public static final String TYPE_SPHERE = ;
-    public static final String TYPE_ANTROPOMORPHIC = ;
-    public static final String TYPE_CUBBIE = ;
-    public static final String TYPE_COMPUTER = ;
-
-    public static final String REDO_COMMAND = ;
-    public static final String NEW_COMMAND = ;
-
-    public static final String MODE_MOVE = ;
-    public static final String MODE_TELE = ;
-
-    public static final String A_STOP = ;
-    public static final String A_FORWARD = ;
-    public static final String A_FORWARD_STOP = ;
-    public static final String A_BACK = ;
-    public static final String A_BACK_STOP = ;
-    public static final String A_LEFT = ;
-    public static final String A_LEFT_STOP = ;
-    public static final String A_RIGHT = ;
-    public static final String A_RIGHT_STOP = ;
-     */
-
-    public ProtocolRepo(String name) {
-        String code = ProtocolDBHelper.instance.getCode(name);
-        parseCodes(code);
+    public ProtocolRepo(Context context, String name) {
+        this.context = context;
+        Log.d("mLog", "name = "+name);
+        //String code = ProtocolDBHelper.instance.getCode(name);
+        lengthOfQuery = new HashMap<>();
+        moveCodes = new HashMap<>();
+        parseCodes();
     }
 
-    @Nullable
-    @Override
-    public Byte get(@Nullable Object key) {
+    public Byte get(String key) {
+        Log.d("mLog", "key = " + key);
+        Log.d("mLog", "value = " + moveCodes.get(key));
         return moveCodes.get(key);
     }
 
-    public void parseCodes(String xmlString) {
+    XmlPullParser prepareXpp() {
+        return context.getResources().getXml(R.xml.xmlcode);
+    }
+
+    public void parseCodes() {
+        String parentName = "", curName = "";
+
+        try {
+            XmlPullParser xpp = prepareXpp();
+            while (xpp.getEventType() != XmlPullParser.END_DOCUMENT) {
+                switch (xpp.getEventType()) {
+                    // начало документа
+                    case XmlPullParser.START_TAG:
+                        Log.d(LOG_TAG, "START_TAG: name = " + xpp.getName()
+                                + ", depth = " + xpp.getDepth() + ", attrCount = "
+                                + xpp.getAttributeCount());
+                        parentName = curName;
+                        curName = xpp.getName();
+                        break;
+                    // содержимое тэга
+                    case XmlPullParser.TEXT:
+                        if(curName.equals("length")){
+                            int len = Integer.parseInt(xpp.getText());
+                            lengthOfQuery.put(parentName, len);
+                            Log.d(LOG_TAG, "length of " + parentName + " = " + len);
+                        }
+                        else {
+                            if (labels.contains(curName)) {
+                                Byte xppCode = (byte) (Integer.parseInt(xpp.getText(),16) & 0xff);
+                                Log.d(LOG_TAG, "CODE " + curName + " " + xppCode);
+                                moveCodes.put(curName, xppCode);
+                            }
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+                // следующий элемент
+                xpp.next();
+            }
+            Log.d(LOG_TAG, "END_DOCUMENT");
+
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+
+        /*
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         Document doc;
         //API to obtain DOM Document instance
@@ -93,6 +117,6 @@ public class ProtocolRepo extends HashMap<String, Byte> {
         catch (Exception e)
         {
             e.printStackTrace();
-        }
+        }*/
     }
 }

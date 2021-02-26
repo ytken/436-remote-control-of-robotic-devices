@@ -33,7 +33,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
     static String MAC;
     private TextView text_sens_data;
 
-    HashMap<String, Byte> getDevicesID;
+    ProtocolRepo getDevicesID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -57,7 +57,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         boolean is_fixed_angel = false;
 
         Bundle b = getIntent().getExtras();
-        getDevicesID = new ProtocolRepo(b.getString("protocol"));
+        getDevicesID = new ProtocolRepo(this, b.getString("protocol"));
         MAC = b.getString("MAC");
         //String MAC = DeviceRepository.getInstance(getApplicationContext()).item(b.getInt("id")).getMAC();
 
