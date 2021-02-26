@@ -40,9 +40,9 @@ public class ListDevicesHolder extends RecyclerView.ViewHolder {
         mAddress.setText(item.MAC);
 
         if (item.type.equals("main_protocol"))
-            mIcon.setImageResource(R.drawable.protocol_default);
+            mIcon.setImageResource(R.drawable.ic_baseline_android_24);
         else if (item.type.equals("wheel_platform"))
-            mIcon.setImageResource(R.drawable.protocol_wheel);
+            mIcon.setImageResource(R.drawable.ic_baseline_directions_car_24);
     }
 
 }
