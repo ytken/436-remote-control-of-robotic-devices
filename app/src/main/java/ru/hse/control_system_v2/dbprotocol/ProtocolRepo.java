@@ -1,46 +1,123 @@
 package ru.hse.control_system_v2.dbprotocol;
 
+import android.content.Context;
+import android.util.Log;
+
+import org.xmlpull.v1.XmlPullParser;
+import org.xmlpull.v1.XmlPullParserException;
+
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.List;
+
+import ru.hse.control_system_v2.R;
 
 public class ProtocolRepo extends HashMap<String, Byte> {
 
-    static HashMap<String, Byte> getDevicesID;
-    private HashMap<String, Byte> commandType = new HashMap<>(), moveCodes = new HashMap<>();
+    private static final String LOG_TAG = "XMLParcer";
+    private HashMap<String, Integer> lengthOfQuery;
+    private HashMap<String, Byte> moveCodes;
+    private Context context;
 
-    public static Byte getDeviceCode(String device) {
-        getDevicesID = new HashMap<>();
-        getDevicesID.put("class_android", (byte) 0x30);
-        getDevicesID.put("class_computer", (byte) 0x65);
-        getDevicesID.put("class_arduino", (byte) 0x7e);
-        getDevicesID.put("type_sphere", (byte) 0x1);
-        getDevicesID.put("type_anthropomorphic", (byte) 0x9);
-        getDevicesID.put("type_cubbi", (byte) 0x41);
-        getDevicesID.put("type_computer", (byte) 0x9d);
-        return getDevicesID.get(device);
+    public static final List<String> labels = List.of("class_android","class_computer","class_arduino","type_sphere","type_anthropomorphic",
+            "type_cubbi","type_computer","redo_command","new_command","type_move","type_tele","STOP","FORWARD","FORWARD_STOP","BACK","BACK_STOP","LEFT","LEFT_STOP","RIGHT","RIGHT_STOP");
+
+    public ProtocolRepo(Context context, String name) {
+        this.context = context;
+        Log.d("mLog", "name = "+name);
+        //String code = ProtocolDBHelper.instance.getCode(name);
+        lengthOfQuery = new HashMap<>();
+        moveCodes = new HashMap<>();
+        parseCodes();
     }
 
-    public ProtocolRepo(String code) {
-        switch (code) {
-                case "main_protocol":
-                    this.put("redo_command", (byte) 0x15);
-                    this.put("new_command", (byte) 0x0a);
+    public Byte get(String key) {
+        Log.d("mLog", "key = " + key);
+        Log.d("mLog", "value = " + moveCodes.get(key));
+        return moveCodes.get(key);
+    }
 
-                    this.put("type_move", (byte) 0xa1);
-                    this.put("type_tele", (byte) 0xb4);
+    //TODO: Get any xml file
+    XmlPullParser prepareXpp() {
+        return context.getResources().getXml(R.xml.xmlcode);
+    }
 
-                    this.put("FORWARD", (byte) 0x01);
-                    this.put("FORWARD_STOP", (byte) 0x41);
-                    this.put("BACK", (byte) 0x02);
-                    this.put("BACK_STOP", (byte) 0x42);
-                    this.put("LEFT", (byte) 0x03);
-                    this.put("LEFT_STOP", (byte) 0x43);
-                    this.put("RIGHT", (byte) 0x0c);
-                    this.put("RIGHT_STOP", (byte) 0x4c);
-                    this.put("STOP", (byte) 0x7f);
-                    break;
-                case "wheel_platform":
-                    break;
+    public void parseCodes() {
+        String parentName = "", curName = "";
+
+        try {
+            XmlPullParser xpp = prepareXpp();
+            while (xpp.getEventType() != XmlPullParser.END_DOCUMENT) {
+                switch (xpp.getEventType()) {
+                    // начало документа
+                    case XmlPullParser.START_TAG:
+                        Log.d(LOG_TAG, "START_TAG: name = " + xpp.getName()
+                                + ", depth = " + xpp.getDepth() + ", attrCount = "
+                                + xpp.getAttributeCount());
+                        parentName = curName;
+                        curName = xpp.getName();
+                        break;
+                    // содержимое тэга
+                    case XmlPullParser.TEXT:
+                        if(curName.equals("length")){
+                            int len = Integer.parseInt(xpp.getText());
+                            lengthOfQuery.put(parentName, len);
+                            Log.d(LOG_TAG, "length of " + parentName + " = " + len);
+                        }
+                        else {
+                            if (labels.contains(curName)) {
+                                Byte xppCode = (byte) (Integer.parseInt(xpp.getText(),16) & 0xff);
+                                Log.d(LOG_TAG, "CODE " + curName + " " + xppCode);
+                                moveCodes.put(curName, xppCode);
+                            }
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+                // следующий элемент
+                xpp.next();
+            }
+            Log.d(LOG_TAG, "END_DOCUMENT");
+
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
-    }
 
+
+
+        /*
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        Document doc;
+        //API to obtain DOM Document instance
+        DocumentBuilder builder = null;
+        try
+        {
+            //Create DocumentBuilder with default configuration
+            builder = factory.newDocumentBuilder();
+
+            //Parse the content to Document object
+            doc = builder.parse(new InputSource(new StringReader(xmlString)));
+            Node root = doc.getDocumentElement();
+            NodeList codes = root.getChildNodes();
+            for (int i = 0; i < codes.getLength(); i++) {
+                Node elem = codes.item(i);
+                NodeList elCode = elem.getChildNodes();
+                for (int j = 0; j < elCode.getLength(); j++) {
+                    Node propNode = elCode.item(j);
+                    if (labels.contains(propNode.getNodeName()))
+                        moveCodes.put(propNode.getNodeName(), Byte.parseByte(propNode.getNodeValue()));
+                    else if (propNode.getNodeName().equals("Length"))
+                        lengthOfQuery.put(elem.getNodeName(), Integer.parseInt(propNode.getNodeValue()));
+                }
+            }
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }*/
+    }
 }
