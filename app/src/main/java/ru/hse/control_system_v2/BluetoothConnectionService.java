@@ -100,7 +100,7 @@ public class BluetoothConnectionService extends Service {
         }).start();
 
     }
-
+/*
                     if (pacNum == 12) // все нормально
                     {
                         pacNum = 0;//здесь проверяем пакет и прочее
@@ -118,7 +118,7 @@ public class BluetoothConnectionService extends Service {
                                 buffer[9] + " " +
                                 buffer[10] + " " +
                                 buffer[11] + " ");
-
+*/
 
     @Override
     public IBinder onBind(Intent intent) {

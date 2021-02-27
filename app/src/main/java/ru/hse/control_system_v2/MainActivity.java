@@ -1,34 +1,59 @@
 package ru.hse.control_system_v2;
 
-import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
+import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
-import android.widget.FrameLayout;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.ProgressBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+
+import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+
+import java.util.ArrayList;
 
 import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 import ru.hse.control_system_v2.dbprotocol.AddProtocolDBActivity;
-import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
 import ru.hse.control_system_v2.list_devices.DeviceItem;
 import ru.hse.control_system_v2.list_devices.DeviceRepository;
 import ru.hse.control_system_v2.list_devices.ListDevicesAdapter;
 
-public class MainActivity extends FragmentActivity implements View.OnClickListener
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
+public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener
 {
     DeviceDBHelper db;
     int bdUpdated = 0;
     public static MainActivity activity;
-    ListDevicesAdapter adapter = null;
+    //инициализация swipe refresh
+    SwipeRefreshLayout swipeToRefreshLayout;
+    BluetoothAdapter btAdapter;
+    boolean stateOfFabToEnBt;
+    ExtendedFloatingActionButton fabToEnBt;
+    ExtendedFloatingActionButton fabToAddDevice;
+    public static RecyclerView recycler;
+    public static ListDevicesAdapter adapter = null;
+    TextView headerText;
+    private BluetoothConnectionService arduino;                  // устройство, с которого буду получаю получать данные
+    ProgressBar progressBar;
+    boolean isItemSelected;
+
 
     @Override
     public void onCreate(Bundle savedInstanceState)
@@ -37,21 +62,84 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         setContentView(R.layout.main);
         activity = this;
         DeviceDBHelper.getInstance(getApplicationContext());
-        ProtocolDBHelper.getInstance(getApplicationContext());
 
-        FrameLayout frame = findViewById(R.id.frame_recycler);
-        findViewById(R.id.button_exit).setOnClickListener(this);
-        findViewById(R.id.button_new_device).setOnClickListener(this);
-        findViewById(R.id.button_new_protocol).setOnClickListener(this);
-        findViewById(R.id.button_delete_bd).setOnClickListener(this);
+        registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
+        registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
+        registerReceiver(mMessageReceiverServiceStarted, new IntentFilter("serviceStarted"));
 
+        progressBar = findViewById(R.id.progressBar);
+
+        headerText = findViewById(R.id.paired_devices_title_add_activity);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        swipeToRefreshLayout = findViewById(R.id.swipeRefreshLayout);
+        swipeToRefreshLayout.setOnRefreshListener(this);
+        btAdapter = BluetoothAdapter.getDefaultAdapter();
+
+        this.fabToAddDevice = findViewById(R.id.floating_action_button_add_device);
+        this.fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
+        fabToAddDevice.setOnClickListener(view -> {
+            Intent intent = new Intent();
+            intent.putExtra("mode",0);
+            startActivityForResult(intent.setClass(MainActivity.this, AddDeviceDBActivity.class), 10);
+        });
+        fabToEnBt.setOnClickListener(view -> {
+            Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            int REQUEST_ENABLE_BT = 1;
+            startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
+        });
+        fabToAddDevice.hide();
+        fabToEnBt.hide();
+        stateOfFabToEnBt = false;
         db = new DeviceDBHelper(this);
 
-        RecyclerView recycler = findViewById(R.id.recycler_main);
+        recycler = findViewById(R.id.recycler_main);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
         recycler.setAdapter(adapter);
+        recycler.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
+
+
+    //Результат работы Service
+    private final BroadcastReceiver mMessageReceiverServiceStarted = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            showToast("Connection Started");
+            progressBar.setVisibility(VISIBLE);
+            isItemSelected = true;
+        }
+    };
+    //Результат работы Service
+    private final BroadcastReceiver mMessageReceiverNotSuccess = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            showToast("Not success");
+            progressBar.setVisibility(INVISIBLE);
+        }
+    };
+
+    private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Устройство подключено, Service выполнился успешно
+            showToast("success");
+            Bundle arguments = intent.getExtras();
+            String selectedDevice = arguments.get("MAC").toString();
+            String classDevice = arguments.get("protocol").toString();
+            Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
+            startSendingData.putExtra("MAC", selectedDevice);
+            startSendingData.putExtra("protocol", classDevice);
+            startActivity(startSendingData);
+
+            //SendDataActivity.device = device;
+            progressBar.setVisibility(INVISIBLE);
+        }
+    };
 
     public class MyListener implements ListDevicesAdapter.DeviceClickedListener{
         @Override
@@ -68,57 +156,41 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         }
     }
 
-    @SuppressLint("NonConstantResourceId")
     @Override
-    public void onClick(View v)
-    {
-        switch (v.getId())
-        {
-            case R.id.button_exit:
-                finish();
-                break;
-            case R.id.button_new_device:
-                Intent intent = new Intent();
-                intent.putExtra("mode",0);
-                startActivityForResult(intent.setClass(MainActivity.this, AddDeviceDBActivity.class), 10);
-                break;
-            case R.id.button_new_protocol:
-                startActivity(new Intent().setClass(MainActivity.this, AddProtocolDBActivity.class));
-                break;
-            case R.id.button_delete_bd:
-                Log.d("button", "button delete");
-                AlertDialog dialog =new AlertDialog.Builder(this)
-                        .setTitle("Подтверждение")
-                        .setIcon(android.R.drawable.ic_dialog_alert)
-                        .setMessage("Вы действительно хотите удалить все имеющиеся устройства?")
-                        .setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int whichButton) {
-                                DeviceDBHelper helper = new DeviceDBHelper(getApplicationContext());
-                                db.onUpgrade(helper.getReadableDatabase(), db.DATABASE_VERSION, db.DATABASE_VERSION + 1);
-                                db = helper;
-                                bdUpdated = 1;
-                            }
-                        })
-                        .setNegativeButton("Отмена", null)
-                        .create();
-                dialog.show();
-                break;
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        super.onCreateOptionsMenu(menu);
+        getMenuInflater().inflate(R.menu.activity_main_drawer, menu);
+        return btIsEnabledFlagVoid();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.new_code) {
+            startActivity(new Intent().setClass(MainActivity.this, AddProtocolDBActivity.class));
+            return true;
         }
+        if (id == R.id.delete_data) {
+            Log.d("button", "button delete");
+            AlertDialog dialog =new AlertDialog.Builder(this)
+                    .setTitle("Подтверждение")
+                    .setIcon(android.R.drawable.ic_dialog_alert)
+                    .setMessage("Вы действительно хотите удалить все имеющиеся устройства?")
+                    .setPositiveButton("OK", (dialog1, whichButton) -> {
+                        DeviceDBHelper helper = new DeviceDBHelper(getApplicationContext());
+                        db.onUpgrade(helper.getReadableDatabase(), db.DATABASE_VERSION, db.DATABASE_VERSION + 1);
+                        db = helper;
+                        bdUpdated = 1;
+                        onRefresh();
+                    })
+                    .setNegativeButton("Отмена", null)
+                    .create();
+            dialog.show();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
-
-    protected void onUpdateList() {
-        if (bdUpdated == 1)
-            adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
-        bdUpdated = 0;
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        onUpdateList();
-    }
-
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -136,8 +208,96 @@ public class MainActivity extends FragmentActivity implements View.OnClickListen
         db = new DeviceDBHelper(getApplicationContext());
         db.viewData();
         bdUpdated = 1;
-        onUpdateList();
     }
 
-}
+    //Обновляем внешний вид приложения, скрываем и добавляем нужные элементы интерфейса
+    @Override
+    public void onRefresh() {
+        if (btIsEnabledFlagVoid()) {
+            headerText.setText(R.string.favorites_devices);
+            // Bluetooth включён. Предложим пользователю добавить устройства и начать передачу данных.
+            if (stateOfFabToEnBt) {
+                // Bluetooth включён, надо скрыть кнопку включения Bluetooth
+                fabToEnBt.hide();
+                stateOfFabToEnBt = false;
+            }
+            invalidateOptionsMenu();
+            fabToAddDevice.show();
+            // Bluetooth включён, надо показать кнопку добавления устройств и другую информацию
+            adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
+            recycler.setAdapter(adapter);
 
+
+        } else {
+            headerText.setText(R.string.suggestionEnableBluetooth);
+            recycler.setAdapter(null);
+            invalidateOptionsMenu(); // now onCreateOptionsMenu(...) is called again
+            fabToAddDevice.hide();
+            if (!stateOfFabToEnBt) {
+                // Bluetooth выключён, надо показать кнопку включения Bluetooth
+                fabToEnBt.show();
+                stateOfFabToEnBt = true;
+            }
+        }
+        // Приложение обновлено, завершаем анимацию обновления
+        swipeToRefreshLayout.setRefreshing(false);
+    }
+
+    // проверка на наличие Bluetooth адаптера; дальнейшее продолжение работы в случае наличия
+    public void checkForBtAdapter() {
+        if (btAdapter != null) {
+            onRefresh();
+        } else {
+            System.out.println("There is no bluetooth adapter on device!");
+            // объект Builder для создания диалогового окна
+            //suggestionNoBtAdapter
+            androidx.appcompat.app.AlertDialog dialog = new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this).create();
+            dialog.setTitle(getString(R.string.error));
+            dialog.setMessage(getString(R.string.suggestionNoBtAdapter));
+            dialog.setButton(androidx.appcompat.app.AlertDialog.BUTTON_NEUTRAL, "OK",
+                    (dialog1, which) -> {
+                        // Closes the dialog and terminates the activity.
+                        dialog1.dismiss();
+                        MainActivity.this.finish();
+                    });
+        }
+    }
+
+    private static long back_pressed = 0;
+
+    @Override
+    public void onBackPressed() {
+
+        if (back_pressed + 2000 > System.currentTimeMillis()) {
+            super.onBackPressed();
+        } else {
+            showToast("Press again to exit");
+        }
+        back_pressed = System.currentTimeMillis();
+    }
+
+    // Метод для вывода всплывающих данных на экран
+    public void showToast(String outputInfoString) {
+        Toast outputInfoToast = Toast.makeText(this, outputInfoString, Toast.LENGTH_SHORT);
+        outputInfoToast.show();
+    }
+
+    //True, если Bluetooth включён
+    public boolean btIsEnabledFlagVoid(){
+        return btAdapter.isEnabled();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        checkForBtAdapter();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        checkForBtAdapter();
+    }
+
+
+}

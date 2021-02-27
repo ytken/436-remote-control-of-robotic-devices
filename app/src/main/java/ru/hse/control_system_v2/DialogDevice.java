@@ -20,9 +20,6 @@ import androidx.fragment.app.DialogFragment;
 import java.util.ArrayList;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 
-
-
-
 public class DialogDevice extends DialogFragment {
     DeviceDBHelper dbHelper;
     Spinner spinnerProtocol;

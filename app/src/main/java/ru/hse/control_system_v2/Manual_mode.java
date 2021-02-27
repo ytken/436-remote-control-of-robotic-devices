@@ -82,7 +82,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         boolean is_sens_data = false;
         boolean is_fixed_angel = false;
 
-        getDevicesID = new ProtocolRepo(b.getString("protocol"));
+        getDevicesID = new ProtocolRepo(this, b.getString("protocol"));
         MAC = b.getString("MAC");
 
         //String MAC = DeviceRepository.getInstance(getApplicationContext()).item(b.getInt("id")).getMAC();

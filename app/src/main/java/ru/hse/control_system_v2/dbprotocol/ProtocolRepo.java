@@ -37,6 +37,7 @@ public class ProtocolRepo extends HashMap<String, Byte> {
         return moveCodes.get(key);
     }
 
+    //TODO: Get any xml file
     XmlPullParser prepareXpp() {
         return context.getResources().getXml(R.xml.xmlcode);
     }
