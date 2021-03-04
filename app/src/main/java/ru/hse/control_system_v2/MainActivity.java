@@ -2,30 +2,21 @@ package ru.hse.control_system_v2;
 
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
-import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
-import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.widget.TextViewCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -33,15 +24,12 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
-import java.util.ArrayList;
-
 import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 import ru.hse.control_system_v2.dbprotocol.AddProtocolDBActivity;
 import ru.hse.control_system_v2.list_devices.DeviceItem;
 import ru.hse.control_system_v2.list_devices.DeviceRepository;
 import ru.hse.control_system_v2.list_devices.ListDevicesAdapter;
-import ru.hse.control_system_v2.list_devices.ListDevicesFragment;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
@@ -57,11 +45,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     boolean stateOfFabToEnBt;
     ExtendedFloatingActionButton fabToEnBt;
     ExtendedFloatingActionButton fabToAddDevice;
-    ListDevicesFragment newFragment;
     public static RecyclerView recycler;
     public static ListDevicesAdapter adapter = null;
     TextView headerText;
-    private BluetoothConnectionService arduino;                  // устройство, с которого буду получаю получать данные
     ProgressBar progressBar;
     boolean isItemSelected;
 
@@ -73,7 +59,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         setContentView(R.layout.main);
         activity = this;
         DeviceDBHelper.getInstance(getApplicationContext());
-        newFragment = new ListDevicesFragment();
 
         registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
         registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));

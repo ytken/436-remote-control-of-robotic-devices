@@ -17,20 +17,17 @@ public class DataThread extends Thread{ // класс поток для прие
 
     public void setSelectedDevice(String selectedDevice) {
         this.MAC = selectedDevice;
+        Log.d(TAG, "MAC передан в поток");
     }
     public void setProtocol(String classDevice) {
         this.classDevice = classDevice;
+        Log.d(TAG, "Протокол соединения передан в поток");
     }
     public void setSocket(BluetoothSocket clientSocket){
         this.clientSocket = clientSocket;
+        Log.d(TAG, "Сокет для соединения передан в поток");
     }
-    public void startManualMode(Context c){
-        Intent intent = new Intent(c.getApplicationContext(),Manual_mode.class);
-        intent.putExtra("MAC", MAC);
-        intent.putExtra("protocol", classDevice);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        c.startActivity(intent);
-    }
+
     String MAC;
     String classDevice;
     BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -46,7 +43,7 @@ public class DataThread extends Thread{ // класс поток для прие
     @Override
     public void run()
     {
-        Log.d("thread is running", "********************************************");
+        Log.d(TAG, "Поток начал работу");
         OutputStream tmpOut = null;
         InputStream tmpIn = null;
         try
@@ -71,6 +68,7 @@ public class DataThread extends Thread{ // класс поток для прие
             try
             {
                 bufNum = InStrem.read(buffer);
+                Log.d(TAG, "Пытаюсь получить входящие данные");
                 if (pacNum + bufNum < 13) // нормально считываем данные
                 {
                     System.arraycopy(buffer, 0, inputPacket, pacNum, bufNum);
@@ -107,6 +105,7 @@ public class DataThread extends Thread{ // класс поток для прие
                 }
             } catch (IOException e)
             {
+                Log.d(TAG, "Входящие данные не удалось успешно получить");
                 break;
             }
         }
@@ -145,6 +144,7 @@ public class DataThread extends Thread{ // класс поток для прие
     {
         try
         {
+            Log.d(TAG, "Закрываю сокет");
             clientSocket.close();
         } catch (IOException e)
         {

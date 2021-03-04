@@ -13,6 +13,7 @@ import android.widget.*;
 
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Timer;
@@ -24,7 +25,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
 {
     private boolean is_hold_command;
 
-    private DataThread dataThreadForArduino;                  // устройство, с которого буду получаю получать данные
     //переделать в массив
     private Timer arduino_timer;            // таймер для arduino
 
@@ -35,7 +35,9 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
     String MAC;
     String classDevice;
     private TextView text_sens_data;
+    private TextView deviceName;
     private byte inputPacket[];
+    DataThread dataThreadForArduinoGlobal;                  // устройство, с которого буду получаю получать данные
     OutputStream OutStrem;
     InputStream InStrem;
     private int[] my_data;
@@ -58,15 +60,17 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
 
         clientSocket = SocketHandler.getSocket();
 
+
         //много устройств, но сейчас одно
         Bundle b = getIntent().getExtras();
         MAC = b.get("MAC").toString();
         classDevice = b.get("protocol").toString();
-        DataThread dataThreadForArduino = new DataThread();
-        dataThreadForArduino.setSelectedDevice(MAC);
-        dataThreadForArduino.setSocket(clientSocket);
-        dataThreadForArduino.setProtocol(classDevice);
-        dataThreadForArduino.start();
+
+        dataThreadForArduinoGlobal = new DataThread();
+        dataThreadForArduinoGlobal.setSelectedDevice(MAC);
+        dataThreadForArduinoGlobal.setSocket(clientSocket);
+        dataThreadForArduinoGlobal.setProtocol(classDevice);
+        dataThreadForArduinoGlobal.start();
 
         pre_str_sens_data = new String[5];
         pre_str_sens_data[0] = "     0º \t\t-\t\t ";
@@ -92,8 +96,8 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
             Manual_mode.this.finish();
         }
 
-        TextView deviceInfo = findViewById(R.id.textViewNameManual);
-        deviceInfo.setText("Устройство: " + b.getString("name") + "\n MAC: " + MAC);
+        deviceName = findViewById(R.id.textViewNameManual);
+        deviceName.setText("Устройство: " + b.getString("name") + "\n MAC: " + MAC);
 
         arduino_timer = new Timer();
         // функция выполняющаяся при тике таймера для arduino
@@ -166,7 +170,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         message[4] = getDevicesID.get("new_command");
         message[5] = getDevicesID.get("type_move");
         message[6] = getDevicesID.get("STOP");
-        dataThreadForArduino.Send_Data(message);
+        dataThreadForArduinoGlobal.Send_Data(message);
 
         if(arduino_timer != null)
         {
@@ -176,7 +180,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
 
         try
         {
-            dataThreadForArduino.Disconnect();                 // отсоединяемся от bluetooth
+            dataThreadForArduinoGlobal.Disconnect();                 // отсоединяемся от bluetooth
             //arduino.Shut_down_bt();               // и выключаем  bluetooth на cubietruck
         }
         catch (Exception e)
@@ -195,7 +199,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                 message[4] = (prevCommand == getDevicesID.get("STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                 message[5] = getDevicesID.get("type_move");
                 message[6] = prevCommand = getDevicesID.get("STOP");
-                dataThreadForArduino.Send_Data(message);
+                dataThreadForArduinoGlobal.Send_Data(message);
                 break;
                 /*
             case R.id.button_left_45:
@@ -222,6 +226,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         @Override
         public boolean onTouch(View v, MotionEvent event)
         {
+            Toast.makeText(getApplicationContext(), "Нажата кнопка", Toast.LENGTH_SHORT).show();
             message[0] = ProtocolRepo.getDeviceCode("class_android"); message[1] = ProtocolRepo.getDeviceCode("type_computer"); // класс и тип устройства отправки
             message[2] = getDevicesID.get("class_arduino"); // класс и тип устройства приема
             message[5] = getDevicesID.get("type_move");
@@ -230,32 +235,42 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                 switch (v.getId())
                 {
                     case R.id.button_up:
-                        //Toast.makeText(getApplicationContext(), "Вперед поехали", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Вперед поехали", Toast.LENGTH_SHORT).show();
                         Log.d("Вперед поехали", "********************************************");
-                        message[4] = (prevCommand == getDevicesID.get("FORWARD"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
+                        //TODO
+                        //Супер-пупер баг!!!
+                        message[4] = (prevCommand == getDevicesID.get("FORWARD")) ? getDevicesID.get("redo_command") : getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("FORWARD");
-                        dataThreadForArduino.Send_Data(message);
+                        Toast.makeText(getApplicationContext(), "команда создана", Toast.LENGTH_SHORT).show();
+                        dataThreadForArduinoGlobal.Send_Data(message);
+                        Toast.makeText(getApplicationContext(), "команда послана в поток", Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.button_down:
                         Log.d("Назад поехали", "********************************************");
-                        //Toast.makeText(getApplicationContext(), "Назад поехали", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Назад поехали", Toast.LENGTH_SHORT).show();
                         message[4] = (prevCommand == getDevicesID.get("BACK"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("BACK");
-                        dataThreadForArduino.Send_Data(message);
+                        Toast.makeText(getApplicationContext(), "команда создана", Toast.LENGTH_SHORT).show();
+                        dataThreadForArduinoGlobal.Send_Data(message);
+                        Toast.makeText(getApplicationContext(), "команда послана в поток", Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.button_left:
-                        //Toast.makeText(getApplicationContext(), "Влево поехали", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Влево поехали", Toast.LENGTH_SHORT).show();
                         Log.d("Влево поехали", "********************************************");
                         message[4] = (prevCommand == getDevicesID.get("LEFT"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("LEFT");
-                        dataThreadForArduino.Send_Data(message);
+                        Toast.makeText(getApplicationContext(), "команда создана", Toast.LENGTH_SHORT).show();
+                        dataThreadForArduinoGlobal.Send_Data(message);
+                        Toast.makeText(getApplicationContext(), "команда послана в поток", Toast.LENGTH_SHORT).show();
                         break;
                     case R.id.button_right:
-                        //Toast.makeText(getApplicationContext(), "Вправо поехали", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getApplicationContext(), "Вправо поехали", Toast.LENGTH_SHORT).show();
                         Log.d("Вправо поехали", "********************************************");
                         message[4] = (prevCommand == getDevicesID.get("RIGHT"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("RIGHT");
-                        dataThreadForArduino.Send_Data(message);
+                        Toast.makeText(getApplicationContext(), "команда создана", Toast.LENGTH_SHORT).show();
+                        dataThreadForArduinoGlobal.Send_Data(message);
+                        Toast.makeText(getApplicationContext(), "команда послана в поток", Toast.LENGTH_SHORT).show();
                         break;
                 }
             }
@@ -269,25 +284,25 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                             //Toast.makeText(getApplicationContext(), "Стоп комманды вперед", Toast.LENGTH_SHORT).show();
                             message[4] = (prevCommand == getDevicesID.get("FORWARD_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("FORWARD_STOP");
-                            dataThreadForArduino.Send_Data(message);
+                            dataThreadForArduinoGlobal.Send_Data(message);
                             break;
                         case R.id.button_down:
                             //Toast.makeText(getApplicationContext(), "Стоп комманды назад", Toast.LENGTH_SHORT).show();
                             message[4] = (prevCommand == getDevicesID.get("BACK_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("BACK_STOP");
-                            dataThreadForArduino.Send_Data(message);
+                            dataThreadForArduinoGlobal.Send_Data(message);
                             break;
                         case R.id.button_left:
                             //Toast.makeText(getApplicationContext(), "Стоп комманды влево", Toast.LENGTH_SHORT).show();
                             message[4] = (prevCommand == getDevicesID.get("LEFT_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("LEFT_STOP");
-                            dataThreadForArduino.Send_Data(message);
+                            dataThreadForArduinoGlobal.Send_Data(message);
                             break;
                         case R.id.button_right:
                             //Toast.makeText(getApplicationContext(), "Стоп комманды вправо", Toast.LENGTH_SHORT).show();
                             message[4] = (prevCommand == getDevicesID.get("RIGHT_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("RIGHT_STOP");
-                            dataThreadForArduino.Send_Data(message);
+                            dataThreadForArduinoGlobal.Send_Data(message);
                             break;
                     }
                 }
@@ -319,9 +334,9 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
 
     private void Data_request()
     {
-        if (dataThreadForArduino.isReady_to_request()) // если готовы принимать данные, таймер действует
+        if (dataThreadForArduinoGlobal.isReady_to_request()) // если готовы принимать данные, таймер действует
         {
-            sens_data = dataThreadForArduino.getMy_data();
+            sens_data = dataThreadForArduinoGlobal.getMy_data();
 
             // добавить проверку пакета на корректность по контрольной сумме
 
@@ -334,8 +349,8 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                     pre_str_sens_data[3] + sens_data[3] + "\n" +
                     pre_str_sens_data[4] + sens_data[4]);
 
-            dataThreadForArduino.Send_Data(message);
-            dataThreadForArduino.setReady_to_request(false); // как только отправили запрос, то так сказать приостанавливаем таймер
+            dataThreadForArduinoGlobal.Send_Data(message);
+            dataThreadForArduinoGlobal.setReady_to_request(false); // как только отправили запрос, то так сказать приостанавливаем таймер
         } else // если не готовы получать данные то просто ничего не делаем
         {
             Log.d("qwerty", "******************************************** ошибка");
@@ -347,15 +362,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         Toast outputInfoToast = Toast.makeText(this, outputInfoString, Toast.LENGTH_SHORT);
         outputInfoToast.show();
     }
-
-
-
-
-
-
-
-
-
 
 }
 

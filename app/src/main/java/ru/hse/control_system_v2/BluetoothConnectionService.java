@@ -54,8 +54,10 @@ public class BluetoothConnectionService extends Service {
                 // Попытка подключиться к устройству
                 try {
                     clientSocket = (BluetoothSocket) device.getClass().getMethod("createRfcommSocketToServiceRecord", UUID.class).invoke(device, MY_UUID);
+                    Log.d(TAG, "...Создаю сокет...");
                 } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
                     Log.d("BLUETOOTH", e.getMessage());
+                    Log.d(TAG, "...Создание сокета неуспешно...");
                     stateOfConnection = false;
                     e.printStackTrace();
                 }
@@ -64,8 +66,10 @@ public class BluetoothConnectionService extends Service {
                     // Отключаем поиск устройств для сохранения заряда батареи
                     BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                     stateOfConnection = true;
+                    Log.d(TAG, "...Подключаюсь к сокету...");
                 } catch (IOException e) {
                     stateOfConnection = false;
+                    Log.d(TAG, "...Соединение через сокет неуспешно...");
                     try {
                         // В случае ошибки пытаемся закрыть соединение
                         clientSocket.close();
@@ -86,6 +90,7 @@ public class BluetoothConnectionService extends Service {
                     try {
                         // Решение ошибки, зависящей от версии Android - даём время на установку полного подключения
                         Thread.sleep(2000);
+                        Log.d(TAG, "...Даю время на корректное соединение...");
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -124,13 +129,13 @@ public class BluetoothConnectionService extends Service {
         Intent resultOfConnectionIntent;
         if (!stateOfConnection) {
             resultOfConnectionIntent = new Intent("not_success");
-            Log.d(TAG, "...Соединение неуспешно...");
+            Log.d(TAG, "...Соединение неуспешно, передаю результат в Main Activity...");
         } else {
             resultOfConnectionIntent = new Intent("success");
             resultOfConnectionIntent.putExtra("MAC", selectedDevice);
             resultOfConnectionIntent.putExtra("protocol", classDevice);
             SocketHandler.setSocket(clientSocket);
-            Log.d(TAG, "...Соединение успешно...");
+            Log.d(TAG, "...Соединение успешно, передаю результат в Main Activity...");
         }
         sendBroadcast(resultOfConnectionIntent);
         onDestroy();
