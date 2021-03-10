@@ -28,6 +28,7 @@ public class BluetoothConnectionService extends Service {
     public boolean stateOfConnection = false;
     BluetoothSocket clientSocket;
     String classDevice;
+    String deviceName;
 
 
 
@@ -36,6 +37,7 @@ public class BluetoothConnectionService extends Service {
         Bundle arguments = intent.getExtras();
         selectedDevice = arguments.get("MAC").toString();
         classDevice = arguments.get("protocol").toString();
+        deviceName = arguments.get("name").toString();
         Intent serviceStarted;
         serviceStarted = new Intent("serviceStarted");
         Log.d(TAG, "...Соединение начато...");
@@ -134,6 +136,7 @@ public class BluetoothConnectionService extends Service {
             resultOfConnectionIntent = new Intent("success");
             resultOfConnectionIntent.putExtra("MAC", selectedDevice);
             resultOfConnectionIntent.putExtra("protocol", classDevice);
+            resultOfConnectionIntent.putExtra("name", deviceName);
             SocketHandler.setSocket(clientSocket);
             Log.d(TAG, "...Соединение успешно, передаю результат в Main Activity...");
         }

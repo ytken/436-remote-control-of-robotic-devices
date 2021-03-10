@@ -7,15 +7,18 @@ public class NewDevice {
     Context c;
     String selectedDevice;
     String classDevice;
-    public NewDevice(Context c, String selectedDevice, String classDevice){
+    String deviceName;
+    public NewDevice(Context c, String selectedDevice, String classDevice, String deviceName){
         this.c = c;
         this.selectedDevice = selectedDevice;
         this.classDevice = classDevice;
+        this.deviceName = deviceName;
     }
     public void startBluetoothConnectionService(){
         Intent intent = new Intent(c, BluetoothConnectionService.class);
         intent.putExtra("MAC", selectedDevice);
         intent.putExtra("protocol", classDevice);
+        intent.putExtra("name", deviceName);
         c.startService(intent);
     }
 }

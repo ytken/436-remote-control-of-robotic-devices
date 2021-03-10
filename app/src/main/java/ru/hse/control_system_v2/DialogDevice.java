@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -46,8 +47,18 @@ public class DialogDevice extends DialogFragment {
         builder=new AlertDialog.Builder(getActivity());
         dbHelper = new DeviceDBHelper(requireActivity());
 
+
+        TextView alertInfo = new TextView(requireContext());
+        alertInfo.setText(R.string.alert_information);
+        TextView deviceName = new TextView(requireContext());
+        deviceName.setText(R.string.alert_device_name);
+        TextView alertAddress = new TextView(requireContext());
+        alertAddress.setText(R.string.alert_MAC);
+        TextView alertProtocol = new TextView(requireContext());
+        alertProtocol.setText(R.string.alert_protocol);
+
         return builder.setTitle("Информация")
-                .setMessage("Name: " + name + "\nMAC address: " + MAC)
+                .setMessage("Имя: " + name + "\nMAC адрес: " + MAC+ "\nПротокол: " + protocol)
                 .setPositiveButton("Подключиться", (dialog, whichButton) -> {
                     Bundle b = new Bundle();
                     b.putString("protocol", classDevice);
@@ -55,7 +66,9 @@ public class DialogDevice extends DialogFragment {
                     b.putString("name", name);
                     Intent intent = new Intent().setClass(getActivity(), Manual_mode.class);
                     intent.putExtras(b);
-                    NewDevice arduino = new NewDevice(requireActivity(),MAC, classDevice);
+                    //код выше наверно не нужен, но это не точно
+                    //запуск подключения происходит ниже
+                    NewDevice arduino = new NewDevice(requireActivity(),MAC, classDevice, name);
                     arduino.startBluetoothConnectionService();
                 })
                 .setNegativeButton("Удалить", (dialog, whichButton) -> MainActivity.activity.setBdUpdated(id))

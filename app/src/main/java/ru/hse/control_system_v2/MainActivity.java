@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     TextView headerText;
     ProgressBar progressBar;
     boolean isItemSelected;
+    String deviceName;
 
 
     @Override
@@ -128,9 +129,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             Bundle arguments = intent.getExtras();
             String selectedDevice = arguments.get("MAC").toString();
             String classDevice = arguments.get("protocol").toString();
+            deviceName = arguments.get("name").toString();
             Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
             startSendingData.putExtra("MAC", selectedDevice);
             startSendingData.putExtra("protocol", classDevice);
+            startSendingData.putExtra("name", deviceName);
             startActivity(startSendingData);
 
             //SendDataActivity.device = device;

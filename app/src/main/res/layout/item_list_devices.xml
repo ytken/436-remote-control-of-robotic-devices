@@ -11,21 +11,13 @@
     android:gravity="end">
 
 
-    <ImageView
-        android:id="@+id/item_image"
-        android:layout_width="61dp"
-        android:layout_height="match_parent"
-        tools:srcCompat="@tools:sample/avatars"
-        android:layout_weight="1"/>
-
     <TextView
         android:id="@+id/item_name"
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginTop="0dp"
         android:layout_marginBottom="0dp"
-        android:layout_toEndOf="@+id/item_image"
-        android:layout_weight="4"
+        android:layout_weight="5"
         android:ellipsize="end"
         android:gravity="center"
         android:text="@string/name"
@@ -36,7 +28,6 @@
         android:layout_width="0dp"
         android:layout_height="match_parent"
         android:layout_marginEnd="0dp"
-        android:layout_toEndOf="@+id/item_name"
         android:layout_weight="5"
         android:ellipsize="end"
         android:gravity="center"

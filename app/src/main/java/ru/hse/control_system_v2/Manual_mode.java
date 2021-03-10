@@ -227,7 +227,9 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         public boolean onTouch(View v, MotionEvent event)
         {
             Toast.makeText(getApplicationContext(), "Нажата кнопка", Toast.LENGTH_SHORT).show();
-            message[0] = ProtocolRepo.getDeviceCode("class_android"); message[1] = ProtocolRepo.getDeviceCode("type_computer"); // класс и тип устройства отправки
+            //
+            message[0] = ProtocolRepo.getDeviceCode("class_android");
+            message[1] = ProtocolRepo.getDeviceCode("type_computer"); // класс и тип устройства отправки
             message[2] = getDevicesID.get("class_arduino"); // класс и тип устройства приема
             message[5] = getDevicesID.get("type_move");
             if(event.getAction() == MotionEvent.ACTION_DOWN)                        // если нажали на кнопку и не важно есть удержание команд или нет

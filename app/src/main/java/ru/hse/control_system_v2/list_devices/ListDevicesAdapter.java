@@ -25,8 +25,7 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
 
     public ListDevicesAdapter(Set<DeviceItem> data, DeviceClickedListener nlistener){
         super();
-        for (DeviceItem item : data)
-            mData.add(item);
+        mData.addAll(data);
         listener = nlistener;
     }
 

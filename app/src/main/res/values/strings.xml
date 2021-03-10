@@ -5,8 +5,8 @@
     <string name="name">Name</string>
     <string name="rate_label">MAC</string>
     <string name="loading_label">Подключение</string>
-    <string name="label_name">Имя</string>
-    <string name="label_MAC">MAC</string>
+    <string name="label_name">Имя устройства</string>
+    <string name="label_MAC">Адрес устройства</string>
     <string name="add_bd_label">Принять</string>
     <string name="cancel_add_bd_label">Отмена</string>
     <string name="ok_add_bd_label">Завершить</string>
@@ -19,4 +19,8 @@
     <string name="favorites_devices">Список избранных устройств</string>
     <string name="no_devices_added">Нет сопряжённых устройств</string>
     <string name="go_to_settings">Новое сопряжение</string>
+    <string name="alert_information">Информация</string>
+    <string name="alert_device_name">Имя устройства:</string>
+    <string name="alert_MAC">MAC адрес:</string>
+    <string name="alert_protocol">Протокол подключения:</string>
 </resources>
