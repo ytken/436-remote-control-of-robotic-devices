@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -24,11 +25,18 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 import ru.hse.control_system_v2.dbprotocol.AddProtocolDBActivity;
+import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
 import ru.hse.control_system_v2.list_devices.DeviceItem;
 import ru.hse.control_system_v2.list_devices.DeviceRepository;
 import ru.hse.control_system_v2.list_devices.ListDevicesAdapter;
@@ -38,7 +46,8 @@ import static android.view.View.VISIBLE;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener
 {
-    DeviceDBHelper db;
+    DeviceDBHelper dbdevice;
+    ProtocolDBHelper dbprotocol;
     int bdUpdated = 0;
     public static MainActivity activity;
     //инициализация swipe refresh
@@ -61,7 +70,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         activity = this;
-        DeviceDBHelper.getInstance(getApplicationContext());
+        dbdevice = DeviceDBHelper.getInstance(getApplicationContext());
+        dbprotocol = ProtocolDBHelper.getInstance(getApplicationContext());
 
         registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
         registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
@@ -76,6 +86,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeToRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         swipeToRefreshLayout.setOnRefreshListener(this);
         btAdapter = BluetoothAdapter.getDefaultAdapter();
+
 
         this.fabToAddDevice = findViewById(R.id.floating_action_button_add_device);
         this.fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
@@ -92,15 +103,52 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         fabToAddDevice.hide();
         fabToEnBt.hide();
         stateOfFabToEnBt = false;
-        db = new DeviceDBHelper(this);
 
         recycler = findViewById(R.id.recycler_main);
         recycler.setLayoutManager(new LinearLayoutManager(this));
         adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
         recycler.setAdapter(adapter);
         recycler.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+        /*
+        AssetManager assetManager = getAssets();
+        InputStream inputStream = null;
+        try {
+            inputStream = assetManager.open(getResources().getXml(R.xml.arduino_default));
+        } catch (IOException e) {
+            Log.e("tag", e.getMessage());
+        }
+        try {
+            // отрываем поток для записи
+            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
+                    openFileOutput(getResources().getString(R.string.TAG_default_protocol), MODE_PRIVATE)));
+            // пишем данные
+            bw.write(readTextFile(inputStream));
+            // закрываем поток
+            bw.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }*/
     }
 
+    private String readTextFile(InputStream inputStream) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        byte buf[] = new byte[1024];
+        int len;
+        try {
+            while ((len = inputStream.read(buf)) != -1) {
+                outputStream.write(buf, 0, len);
+            }
+            outputStream.close();
+            inputStream.close();
+        } catch (IOException e) {
+
+        }
+        return outputStream.toString();
+    }
 
     //Результат работы Service
     private final BroadcastReceiver mMessageReceiverServiceStarted = new BroadcastReceiver() {
@@ -179,8 +227,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     .setMessage("Вы действительно хотите удалить все имеющиеся устройства?")
                     .setPositiveButton("OK", (dialog1, whichButton) -> {
                         DeviceDBHelper helper = new DeviceDBHelper(getApplicationContext());
-                        db.onUpgrade(helper.getReadableDatabase(), db.DATABASE_VERSION, db.DATABASE_VERSION + 1);
-                        db = helper;
+                        dbdevice.onUpgrade(helper.getReadableDatabase(), dbdevice.DATABASE_VERSION, dbdevice.DATABASE_VERSION + 1);
+                        dbdevice = helper;
                         bdUpdated = 1;
                         onRefresh();
                     })
@@ -204,9 +252,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     public void setBdUpdated(int id) {
-        if (id > 0) db.deleteDevice(id);
-        db = new DeviceDBHelper(getApplicationContext());
-        db.viewData();
+        if (id > 0) dbdevice.deleteDevice(id);
+        dbdevice = new DeviceDBHelper(getApplicationContext());
+        dbdevice.viewData();
         bdUpdated = 1;
     }
 

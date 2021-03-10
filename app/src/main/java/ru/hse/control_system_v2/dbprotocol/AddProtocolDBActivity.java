@@ -2,31 +2,30 @@ package ru.hse.control_system_v2.dbprotocol;
 
 import android.app.Activity;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Spinner;
 import android.widget.Toast;
-
 import androidx.annotation.Nullable;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import ru.hse.control_system_v2.R;
-import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
-import ru.hse.control_system_v2.list_devices.DeviceItem;
 
 public class AddProtocolDBActivity extends Activity implements View.OnClickListener {
     ProtocolDBHelper dbHelper;
     EditText editTextName, editTextLen, editTextCode;
-    Spinner spinnerProtocol;
     Button buttonAdd, buttonRead, buttonCancel;
 
     @Override
@@ -60,13 +59,17 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                 String code = editTextCode.getText().toString();
 
                 ContentValues contentValues = new ContentValues();
-
                 contentValues.put(ProtocolDBHelper.KEY_NAME, name);
                 contentValues.put(ProtocolDBHelper.KEY_LEN, length);
-                contentValues.put(ProtocolDBHelper.KEY_CODE, code);
+                try {
+                    contentValues.put(ProtocolDBHelper.KEY_CODE, saveToFile(name,code));
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "Error saving: try again", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
 
                 if (dbHelper.insert(contentValues) == 0)
-                    Toast.makeText(getApplicationContext(), "Protocol name has already been registered", Toast.LENGTH_LONG).show();
+                    Toast.makeText(getApplicationContext(), "Protocol has already been registered", Toast.LENGTH_LONG).show();
                 else {
                     editTextName.setText("");
                     editTextLen.setText("");
@@ -107,9 +110,17 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
         }
     }
 
+    private String saveToFile(String name, String code) throws IOException {
+        String fileName = name + ".txt";
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new
+                File(getFilesDir() + File.separator + name + ".txt")));
+        bufferedWriter.write(code);
+        bufferedWriter.close();
+        return fileName;
+    }
+
     public ProtocolDBHelper getDbHelper(){
         return dbHelper;
     }
-
 
 }

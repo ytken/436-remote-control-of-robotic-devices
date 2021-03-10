@@ -34,6 +34,7 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        Log.d("myLog", "Device helper is created!");
         db.execSQL("create table " + TABLE_DEVICES + "(" + KEY_ID + " integer primary key AUTOINCREMENT,"
                 + KEY_NAME + " text," + KEY_MAC + " text," + KEY_CLASS + " text,"
                 + KEY_URL_PH + " text," + KEY_PROTO + " text,"

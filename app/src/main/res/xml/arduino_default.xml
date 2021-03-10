@@ -1,15 +1,18 @@
 <CodeCatalogue>
     <length>32</length>
-    <TypeAndClass>
-        <length>4</length>
+    <ClassDevice>
+        <length>2</length>
         <class_android>30</class_android>
         <class_computer>65</class_computer>
         <class_arduino>7e</class_arduino>
+    </ClassDevice>
+    <TypeDevice>
+        <length>2</length>
         <type_sphere>10</type_sphere>
-        <type_anthropomorphic>9</type_anthropomorphic>
+        <type_anthropomorphic>09</type_anthropomorphic>
         <type_cubbi>41</type_cubbi>
         <type_computer>9D</type_computer>
-    </TypeAndClass>
+    </TypeDevice>
     <TurnOfCommand>
         <length>1</length>
         <redo_command>15</redo_command>
