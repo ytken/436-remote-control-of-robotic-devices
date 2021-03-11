@@ -81,6 +81,12 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
     public String getFileName(String name) {
         SQLiteDatabase db = this.getWritableDatabase();
         String query = "select " + KEY_CODE + " from " + TABLE_PROTOCOLS + " where " + KEY_NAME + " = '" + name + "';";
+        Cursor cursor = db.rawQuery(query, null);
+        cursor.moveToFirst();
+        if (cursor.isNull(0))
+            return "";
+        return cursor.getString(0);
+    }
 
     public int insert(ContentValues contentValues) {
         int result = 0;

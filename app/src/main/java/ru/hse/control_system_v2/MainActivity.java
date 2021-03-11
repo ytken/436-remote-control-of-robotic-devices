@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         fabToAddDevice.hide();
         fabToEnBt.hide();
         stateOfFabToEnBt = false;
-        db = new DeviceDBHelper(this);
+        dbdevice = new DeviceDBHelper(this);
 
         recycler = findViewById(R.id.recycler_main);
         recycler.setLayoutManager(new LinearLayoutManager(this));
@@ -189,8 +189,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     .setMessage("Вы действительно хотите удалить все имеющиеся устройства?")
                     .setPositiveButton("OK", (dialog1, whichButton) -> {
                         DeviceDBHelper helper = new DeviceDBHelper(getApplicationContext());
-                        db.onUpgrade(helper.getReadableDatabase(), db.DATABASE_VERSION, db.DATABASE_VERSION + 1);
-                        db = helper;
+                        dbdevice.onUpgrade(helper.getReadableDatabase(), dbdevice.DATABASE_VERSION, dbdevice.DATABASE_VERSION + 1);
+                        dbdevice = helper;
                         bdUpdated = 1;
                         onRefresh();
                     })

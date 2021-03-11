@@ -64,7 +64,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         Bundle b = getIntent().getExtras();
         MAC = b.get("MAC").toString();
         classDevice = b.get("protocol").toString();
-        DataThread dataThreadForArduino = new DataThread();
+        dataThreadForArduino = new DataThread();
         dataThreadForArduino.setSelectedDevice(MAC);
         dataThreadForArduino.setSocket(clientSocket);
         dataThreadForArduino.setProtocol(classDevice);
