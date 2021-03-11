@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 
@@ -79,7 +80,14 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                     Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
                 }
 
-
+                if (dbHelper.insert(contentValues) == 0)
+                    Toast.makeText(getApplicationContext(), "Protocol name has already been registered", Toast.LENGTH_LONG).show();
+                else {
+                    editTextName.setText("");
+                    editTextLen.setText("");
+                    editTextCode.setText("");
+                    Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
+                }
                 break;
 
             case R.id.button_read_protocol:

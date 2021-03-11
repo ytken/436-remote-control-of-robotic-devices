@@ -12,7 +12,6 @@ import android.view.View;
 import android.widget.*;
 
 import androidx.appcompat.widget.SwitchCompat;
-
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -65,7 +64,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         Bundle b = getIntent().getExtras();
         MAC = b.get("MAC").toString();
         classDevice = b.get("protocol").toString();
-        dataThreadForArduino = new DataThread();
+        DataThread dataThreadForArduino = new DataThread();
         dataThreadForArduino.setSelectedDevice(MAC);
         dataThreadForArduino.setSocket(clientSocket);
         dataThreadForArduino.setProtocol(classDevice);
@@ -84,7 +83,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         is_hold_command = false;
         boolean is_sens_data = false;
         boolean is_fixed_angel = false;
-
         getDevicesID = new ProtocolRepo(getApplicationContext(), b.getString("protocol"));
         MAC = b.getString("MAC");
 
@@ -302,7 +300,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         if (dataThreadForArduino.isReady_to_request()) // если готовы принимать данные, таймер действует
         {
             sens_data = dataThreadForArduino.getMy_data();
-
             text_sens_data.setText( pre_str_sens_data[0] + sens_data[0] + "\n" +
                     pre_str_sens_data[1] + sens_data[1] + "\n" +
                     pre_str_sens_data[2] + sens_data[2] + "\n" +

@@ -24,7 +24,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.FileNotFoundException;
@@ -77,8 +76,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
         registerReceiver(mMessageReceiverServiceStarted, new IntentFilter("serviceStarted"));
 
-        progressBar = findViewById(R.id.progressBar);
+        registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
+        registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
+        registerReceiver(mMessageReceiverServiceStarted, new IntentFilter("serviceStarted"));
 
+        progressBar = findViewById(R.id.progressBar);
         headerText = findViewById(R.id.paired_devices_title_add_activity);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -86,8 +88,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeToRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         swipeToRefreshLayout.setOnRefreshListener(this);
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-
-
         this.fabToAddDevice = findViewById(R.id.floating_action_button_add_device);
         this.fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
         fabToAddDevice.setOnClickListener(view -> {
@@ -103,6 +103,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         fabToAddDevice.hide();
         fabToEnBt.hide();
         stateOfFabToEnBt = false;
+        db = new DeviceDBHelper(this);
 
         recycler = findViewById(R.id.recycler_main);
         recycler.setLayoutManager(new LinearLayoutManager(this));
@@ -110,24 +111,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         recycler.setAdapter(adapter);
         recycler.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
-
-    /*
-    private String readTextFile(InputStream inputStream) {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-        byte buf[] = new byte[1024];
-        int len;
-        try {
-            while ((len = inputStream.read(buf)) != -1) {
-                outputStream.write(buf, 0, len);
-            }
-            outputStream.close();
-            inputStream.close();
-        } catch (IOException e) {
-
-        }
-        return outputStream.toString();
-    }*/
 
     //Результат работы Service
     private final BroadcastReceiver mMessageReceiverServiceStarted = new BroadcastReceiver() {
@@ -206,8 +189,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     .setMessage("Вы действительно хотите удалить все имеющиеся устройства?")
                     .setPositiveButton("OK", (dialog1, whichButton) -> {
                         DeviceDBHelper helper = new DeviceDBHelper(getApplicationContext());
-                        dbdevice.onUpgrade(helper.getReadableDatabase(), dbdevice.DATABASE_VERSION, dbdevice.DATABASE_VERSION + 1);
-                        dbdevice = helper;
+                        db.onUpgrade(helper.getReadableDatabase(), db.DATABASE_VERSION, db.DATABASE_VERSION + 1);
+                        db = helper;
                         bdUpdated = 1;
                         onRefresh();
                     })
@@ -294,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onBackPressed() {
+
 
         if (back_pressed + 2000 > System.currentTimeMillis()) {
             super.onBackPressed();

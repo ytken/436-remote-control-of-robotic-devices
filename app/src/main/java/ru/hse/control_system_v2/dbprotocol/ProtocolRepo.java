@@ -2,7 +2,6 @@ package ru.hse.control_system_v2.dbprotocol;
 
 import android.content.Context;
 import android.util.Log;
-
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
 import org.xmlpull.v1.XmlPullParser;
@@ -126,38 +125,5 @@ public class ProtocolRepo extends HashMap<String, Byte> {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
-
-        /*
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        Document doc;
-        //API to obtain DOM Document instance
-        DocumentBuilder builder = null;
-        try
-        {
-            //Create DocumentBuilder with default configuration
-            builder = factory.newDocumentBuilder();
-
-            //Parse the content to Document object
-            doc = builder.parse(new InputSource(new StringReader(xmlString)));
-            Node root = doc.getDocumentElement();
-            NodeList codes = root.getChildNodes();
-            for (int i = 0; i < codes.getLength(); i++) {
-                Node elem = codes.item(i);
-                NodeList elCode = elem.getChildNodes();
-                for (int j = 0; j < elCode.getLength(); j++) {
-                    Node propNode = elCode.item(j);
-                    if (labels.contains(propNode.getNodeName()))
-                        moveCodes.put(propNode.getNodeName(), Byte.parseByte(propNode.getNodeValue()));
-                    else if (propNode.getNodeName().equals("Length"))
-                        lengthOfQuery.put(elem.getNodeName(), Integer.parseInt(propNode.getNodeValue()));
-                }
-            }
-        }
-        catch (Exception e)
-        {
-            e.printStackTrace();
-        }*/
     }
 }
