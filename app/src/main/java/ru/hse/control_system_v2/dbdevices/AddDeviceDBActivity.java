@@ -159,9 +159,7 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
     }
 
     void saveDevice(String MacAddress, String name){
-
-        String protocol = data.get((int) spinnerProtocol.getSelectedItemId());
-
+        String protocol = protocolDBHelper.getFileName(data.get((int) spinnerProtocol.getSelectedItemId()));
         if (BluetoothAdapter.checkBluetoothAddress(MacAddress)) {
             ContentValues contentValues = new ContentValues();
 
@@ -270,7 +268,6 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         setResult(RESULT_OK, intent);
         finish();
     }
-
     @Override
     protected void onDestroy(){
         super.onDestroy();
@@ -307,25 +304,3 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
     }
     //Обновляем внешний вид приложения, скрываем и добавляем нужные элементы интерфейса
 }
-
-
-/*Cursor cursor = database.query(DeviceDBHelper.TABLE_DEVICES, null, null, null, null, null, null);
-
-                if (cursor.moveToFirst()) {
-                    int idIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_ID);
-                    int nameIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_NAME);
-                    int MacIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_MAC);
-                    int rateIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_CONNECTION);
-                    int protocolIndex = cursor.getColumnIndex(DeviceDBHelper.KEY_PROTO);
-                    do {
-                        Log.d("mLog", "ID = " + cursor.getInt(idIndex) +
-                                ", name = " + cursor.getString(nameIndex) +
-                                ", MAC = " + cursor.getString(MacIndex) +
-                                ", rate = " + cursor.getString(rateIndex) +
-                                ", protocol = " + cursor.getString(protocolIndex));
-                    } while (cursor.moveToNext());
-                } else
-                    Log.d("mLog","0 rows");
-
-                cursor.close();
-                break;*/

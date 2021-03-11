@@ -1,32 +1,34 @@
 package ru.hse.control_system_v2.dbprotocol;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
-
 import androidx.annotation.Nullable;
 
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.PrintWriter;
 
 import ru.hse.control_system_v2.R;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
-import ru.hse.control_system_v2.list_devices.DeviceItem;
 
 public class AddProtocolDBActivity extends Activity implements View.OnClickListener {
     ProtocolDBHelper dbHelper;
     EditText editTextName, editTextLen, editTextCode;
-    Spinner spinnerProtocol;
     Button buttonAdd, buttonRead, buttonCancel;
 
     @Override
@@ -60,10 +62,23 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                 String code = editTextCode.getText().toString();
 
                 ContentValues contentValues = new ContentValues();
-
                 contentValues.put(ProtocolDBHelper.KEY_NAME, name);
                 contentValues.put(ProtocolDBHelper.KEY_LEN, length);
-                contentValues.put(ProtocolDBHelper.KEY_CODE, code);
+                try {
+                    contentValues.put(ProtocolDBHelper.KEY_CODE, saveToFile(name,code));
+                } catch (IOException e) {
+                    Toast.makeText(getApplicationContext(), "Error saving: try again", Toast.LENGTH_LONG).show();
+                    e.printStackTrace();
+                }
+
+                if (dbHelper.insert(contentValues) == 0)
+                    Toast.makeText(getApplicationContext(), "Protocol has already been registered", Toast.LENGTH_LONG).show();
+                else {
+                    editTextName.setText("");
+                    editTextLen.setText("");
+                    editTextCode.setText("");
+                    Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
+                }
 
                 if (dbHelper.insert(contentValues) == 0)
                     Toast.makeText(getApplicationContext(), "Protocol name has already been registered", Toast.LENGTH_LONG).show();
@@ -73,8 +88,6 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                     editTextCode.setText("");
                     Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
                 }
-
-
                 break;
 
             case R.id.button_read_protocol:
@@ -98,18 +111,32 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                 break;
 
             case R.id.button_cancel_protocol:
-                ProtocolDBHelper dbHelper = new ProtocolDBHelper(getApplicationContext());
-                dbHelper.onUpgrade(dbHelper.getWritableDatabase(), 1,1);
-                /*editTextLen.setText("");
-                editTextName.setText("");
-                editTextCode.setText("");*/
+                AlertDialog dialog =new AlertDialog.Builder(this)
+                        .setTitle("Подтверждение")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setMessage("Вы действительно хотите удалить все кастомные протоколы?")
+                        .setPositiveButton("OK", (dialog1, whichButton) -> {
+                            ProtocolDBHelper dbHelper = new ProtocolDBHelper(getApplicationContext());
+                            dbHelper.onUpgrade(dbHelper.getWritableDatabase(), 1,1);
+                        })
+                        .setNegativeButton("Отмена", null)
+                        .create();
+                dialog.show();
                 break;
         }
+    }
+
+    private String saveToFile(String name, String code) throws IOException {
+        String fileName = name + ".txt";
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new
+                File(getFilesDir() + File.separator + name + ".txt")));
+        bufferedWriter.write(code);
+        bufferedWriter.close();
+        return fileName;
     }
 
     public ProtocolDBHelper getDbHelper(){
         return dbHelper;
     }
-
 
 }

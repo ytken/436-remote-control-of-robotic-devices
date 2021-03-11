@@ -6,6 +6,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.AssetManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -23,12 +24,18 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 import ru.hse.control_system_v2.dbprotocol.AddProtocolDBActivity;
+import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
 import ru.hse.control_system_v2.list_devices.DeviceItem;
 import ru.hse.control_system_v2.list_devices.DeviceRepository;
 import ru.hse.control_system_v2.list_devices.ListDevicesAdapter;
@@ -38,7 +45,8 @@ import static android.view.View.VISIBLE;
 
 public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener
 {
-    DeviceDBHelper db;
+    DeviceDBHelper dbdevice;
+    ProtocolDBHelper dbprotocol;
     int bdUpdated = 0;
     public static MainActivity activity;
     //инициализация swipe refresh
@@ -61,14 +69,18 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         activity = this;
-        DeviceDBHelper.getInstance(getApplicationContext());
+        dbdevice = DeviceDBHelper.getInstance(getApplicationContext());
+        dbprotocol = ProtocolDBHelper.getInstance(getApplicationContext());
+
+        registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
+        registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
+        registerReceiver(mMessageReceiverServiceStarted, new IntentFilter("serviceStarted"));
 
         registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
         registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
         registerReceiver(mMessageReceiverServiceStarted, new IntentFilter("serviceStarted"));
 
         progressBar = findViewById(R.id.progressBar);
-
         headerText = findViewById(R.id.paired_devices_title_add_activity);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -76,7 +88,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         swipeToRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         swipeToRefreshLayout.setOnRefreshListener(this);
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-
         this.fabToAddDevice = findViewById(R.id.floating_action_button_add_device);
         this.fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
         fabToAddDevice.setOnClickListener(view -> {
@@ -100,7 +111,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         recycler.setAdapter(adapter);
         recycler.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
-
 
     //Результат работы Service
     private final BroadcastReceiver mMessageReceiverServiceStarted = new BroadcastReceiver() {
@@ -204,9 +214,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     }
 
     public void setBdUpdated(int id) {
-        if (id > 0) db.deleteDevice(id);
-        db = new DeviceDBHelper(getApplicationContext());
-        db.viewData();
+        if (id > 0) dbdevice.deleteDevice(id);
+        dbdevice = new DeviceDBHelper(getApplicationContext());
+        dbdevice.viewData();
         bdUpdated = 1;
     }
 
@@ -267,6 +277,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
     @Override
     public void onBackPressed() {
+
 
         if (back_pressed + 2000 > System.currentTimeMillis()) {
             super.onBackPressed();

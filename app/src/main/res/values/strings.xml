@@ -22,4 +22,7 @@
     <string name="protocol_name">Имя:</string>
     <string name="protocol_length">Длина сообщения в байт:</string>
     <string name="protocol_xml">XML вид кода:</string>
+    <string name="TAG_default_protocol">arduino_default</string>
+    <string name="switch_hold">Удержание команды</string>
+    <string name="name_manual_default">Устройство</string>
 </resources>

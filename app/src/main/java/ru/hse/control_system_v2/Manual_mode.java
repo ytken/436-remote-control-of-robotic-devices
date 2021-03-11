@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
 
+import androidx.appcompat.widget.SwitchCompat;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
@@ -18,6 +19,7 @@ import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
 import ru.hse.control_system_v2.dbprotocol.ProtocolRepo;
 
 public class Manual_mode extends Activity implements View.OnClickListener, CompoundButton.OnCheckedChangeListener
@@ -46,7 +48,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         this.clientSocket = clientSocket;
     }
 
-    HashMap<String, Byte> getDevicesID;
+    ProtocolRepo getDevicesID;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -81,8 +83,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         is_hold_command = false;
         boolean is_sens_data = false;
         boolean is_fixed_angel = false;
-
-        getDevicesID = new ProtocolRepo(this, b.getString("protocol"));
+        getDevicesID = new ProtocolRepo(getApplicationContext(), b.getString("protocol"));
         MAC = b.getString("MAC");
 
         //String MAC = DeviceRepository.getInstance(getApplicationContext()).item(b.getInt("id")).getMAC();
@@ -130,11 +131,8 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         findViewById(R.id.button_left).setOnTouchListener(touchListener);
         findViewById(R.id.button_right).setOnTouchListener(touchListener);
 
-        Switch hold_command = findViewById(R.id.switch_hold_command_mm);
+        SwitchCompat hold_command = findViewById(R.id.switch_hold_command_mm);
         hold_command.setOnCheckedChangeListener(this);
-
-        //Switch fixed_angel = (Switch) findViewById(R.id.switch_fxed_angel_mm);
-        //fixed_angel.setOnCheckedChangeListener(this);
 
         Arrays.fill(message, (byte) 0);
     }
@@ -197,23 +195,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                 message[6] = prevCommand = getDevicesID.get("STOP");
                 dataThreadForArduino.Send_Data(message);
                 break;
-                /*
-            case R.id.button_left_45:
-                message = new byte[] {0x30, 0x0a, 0x5c, 0x37, 0x37, 0x37};
-                arduino.Send_Data(message);
-                break;
-            case R.id.button_right_45:
-                message = new byte[] {0x30, 0x0a, 0x54, 0x37, 0x37, 0x37};
-                arduino.Send_Data(message);
-                break;
-            case R.id.button_left_90:
-                message = new byte[] {0x30, 0x0a, 0x5a, 0x37, 0x37, 0x37};
-                arduino.Send_Data(message);
-                break;
-            case R.id.button_right_90:
-                message = new byte[] {0x30, 0x0a, 0x56, 0x37, 0x37, 0x37};
-                arduino.Send_Data(message);
-                break;*/
         }
     }
 
@@ -222,7 +203,8 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         @Override
         public boolean onTouch(View v, MotionEvent event)
         {
-            message[0] = getDevicesID.get("class_android"); message[1] = getDevicesID.get("type_computer"); // класс и тип устройства отправки
+            message[0] = getDevicesID.get("class_android");
+            message[1] = getDevicesID.get("type_computer"); // класс и тип устройства отправки
             message[2] = getDevicesID.get("class_arduino"); // класс и тип устройства приема
             message[5] = getDevicesID.get("type_move");
             if(event.getAction() == MotionEvent.ACTION_DOWN)                        // если нажали на кнопку и не важно есть удержание команд или нет
@@ -266,25 +248,21 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                     switch (v.getId())
                     {
                         case R.id.button_up:
-                            //Toast.makeText(getApplicationContext(), "Стоп комманды вперед", Toast.LENGTH_SHORT).show();
                             message[4] = (prevCommand == getDevicesID.get("FORWARD_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("FORWARD_STOP");
                             dataThreadForArduino.Send_Data(message);
                             break;
                         case R.id.button_down:
-                            //Toast.makeText(getApplicationContext(), "Стоп комманды назад", Toast.LENGTH_SHORT).show();
                             message[4] = (prevCommand == getDevicesID.get("BACK_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("BACK_STOP");
                             dataThreadForArduino.Send_Data(message);
                             break;
                         case R.id.button_left:
-                            //Toast.makeText(getApplicationContext(), "Стоп комманды влево", Toast.LENGTH_SHORT).show();
                             message[4] = (prevCommand == getDevicesID.get("LEFT_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("LEFT_STOP");
                             dataThreadForArduino.Send_Data(message);
                             break;
                         case R.id.button_right:
-                            //Toast.makeText(getApplicationContext(), "Стоп комманды вправо", Toast.LENGTH_SHORT).show();
                             message[4] = (prevCommand == getDevicesID.get("RIGHT_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("RIGHT_STOP");
                             dataThreadForArduino.Send_Data(message);
@@ -305,12 +283,12 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                 is_hold_command = isChecked;
                 if(is_hold_command)
                 {
-                    //Toast.makeText(this, "Удерживание комманды включено: ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Удерживание комманды включено: ", Toast.LENGTH_SHORT).show();
                     findViewById(R.id.button_stop).setEnabled(true);
                 }
                 else
                 {
-                    //Toast.makeText(this, "Удерживание комманды отключено: ", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "Удерживание комманды отключено: ", Toast.LENGTH_SHORT).show();
                     findViewById(R.id.button_stop).setEnabled(false);
                 }
                 break;
@@ -322,12 +300,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         if (dataThreadForArduino.isReady_to_request()) // если готовы принимать данные, таймер действует
         {
             sens_data = dataThreadForArduino.getMy_data();
-
-            // добавить проверку пакета на корректность по контрольной сумме
-
-
-            // добавить проверку пакета на корректность по контрольной сумме
-
             text_sens_data.setText( pre_str_sens_data[0] + sens_data[0] + "\n" +
                     pre_str_sens_data[1] + sens_data[1] + "\n" +
                     pre_str_sens_data[2] + sens_data[2] + "\n" +

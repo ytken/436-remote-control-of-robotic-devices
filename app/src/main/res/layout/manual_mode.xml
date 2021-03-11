@@ -7,121 +7,146 @@
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent" android:layout_gravity="center_horizontal"
-        android:layout_weight="0.06" android:background="#ff474341" android:weightSum="1">
-        <Switch
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Удержание команды"
-            android:id="@+id/switch_hold_command_mm" android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp" android:layout_marginTop="10dp"
-            android:visibility="gone"/>
+        android:layout_weight="0.06" android:weightSum="1">
         <LinearLayout
             android:orientation="vertical"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" android:layout_marginTop="10dp" android:weightSum="1"
-            android:gravity="bottom">
+            android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
+            android:layout_weight="0.3">
+            <SeekBar
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/seekBar"
+                android:visibility="gone"/>
+            <TextView
+                android:id="@+id/textViewNameManual"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/name_manual_default"
+                android:textSize="30sp"
+                android:padding="30dp"/>
+
+            <androidx.appcompat.widget.SwitchCompat
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/switch_hold"
+                android:textSize="20sp"
+                android:padding="15dp"
+                android:id="@+id/switch_hold_command_mm" android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp" android:layout_marginTop="10dp" />
+
+        </LinearLayout>
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
+            android:weightSum="3" android:layout_weight="0.7" android:layout_marginBottom="10dp">
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
-                android:layout_weight="0.4">
-                <SeekBar
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/seekBar"
-                    android:visibility="gone"/>
+                android:layout_height="0dp" android:layout_gravity="center_horizontal"
+                android:layout_weight="1" android:weightSum="1">
+                <LinearLayout
+                    android:orientation="horizontal"
+                    android:layout_width="270dp"
+                    android:layout_height="match_parent" android:layout_gravity="center_horizontal"
+                    android:layout_weight="0.81">
+                    <Button
+                        android:layout_width="90dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:text="Left\n45"
+                        android:id="@+id/button_left_45" android:visibility="invisible"/>
+                    <Button
+                        android:layout_width="90dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:text="Up"
+                        android:id="@+id/button_up" android:layout_gravity="bottom"/>
+                    <Button
+                        android:layout_width="90dp"
+                        android:layout_height="fill_parent"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:text="Right\n45"
+                        android:id="@+id/button_right_45" android:visibility="invisible"/>
+                </LinearLayout>
+            </LinearLayout>
 
-                <TextView
-                    android:id="@+id/textViewNameManual"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Устройство"
-                    android:textSize="30sp"/>
+            <LinearLayout
+                android:layout_width="400dp"
+                android:layout_height="0dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="1"
+                android:orientation="vertical"
+                android:weightSum="1">
+
+                <LinearLayout
+                    android:layout_width="270dp"
+                    android:layout_height="fill_parent"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_weight="0.81"
+                    android:weightSum="3"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/button_left"
+                        android:layout_width="90dp"
+                        android:layout_height="fill_parent"
+                        android:layout_margin="5dp"
+                        android:text="Left"
+                        android:layout_weight="1"/>
+
+                    <Button
+                        android:id="@+id/button_stop"
+                        android:layout_width="90dp"
+                        android:layout_height="fill_parent"
+                        android:layout_margin="5dp"
+                        android:text="Stop"
+                        android:layout_weight="1"/>
+
+                    <Button
+                        android:id="@+id/button_right"
+                        android:layout_width="90dp"
+                        android:layout_height="fill_parent"
+                        android:layout_margin="5dp"
+                        android:text="Right"
+                        android:layout_weight="1"/>
+                </LinearLayout>
             </LinearLayout>
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
-                android:weightSum="1" android:layout_weight="0.6" android:layout_marginBottom="10dp">
+                android:layout_height="0dp" android:layout_gravity="center_horizontal"
+                android:layout_weight="1">
                 <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
-                    android:layout_weight="0.28" android:weightSum="1">
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:layout_width="270dp"
-                        android:layout_height="fill_parent" android:layout_gravity="center_horizontal"
-                        android:layout_weight="0.81">
-                        <Button
-                            android:layout_width="90dp"
-                            android:layout_height="fill_parent"
-                            android:text="Left\n45"
-                            android:id="@+id/button_left_45" android:visibility="invisible"/>
-                        <Button
-                            android:layout_width="90dp"
-                            android:layout_height="fill_parent"
-                            android:text="Up"
-                            android:id="@+id/button_up" android:layout_gravity="center_horizontal"/>
-                        <Button
-                            android:layout_width="90dp"
-                            android:layout_height="fill_parent"
-                            android:text="Right\n45"
-                            android:id="@+id/button_right_45" android:visibility="invisible"/>
-                    </LinearLayout>
-                </LinearLayout>
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
-                    android:layout_weight="0.45" android:weightSum="1">
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:layout_width="270dp"
-                        android:layout_height="fill_parent" android:layout_gravity="center_horizontal"
-                        android:layout_weight="0.81">
-                        <Button
-                            android:layout_width="90dp"
-                            android:layout_height="fill_parent"
-                            android:text="Left"
-                            android:id="@+id/button_left"/>
-                        <Button
-                            android:layout_width="90dp"
-                            android:layout_height="fill_parent"
-                            android:text="Stop"
-                            android:id="@+id/button_stop"/>
-                        <Button
-                            android:layout_width="90dp"
-                            android:layout_height="fill_parent"
-                            android:text="Right"
-                            android:id="@+id/button_right"/>
-                    </LinearLayout>
-                </LinearLayout>
-                <LinearLayout
-                    android:orientation="vertical"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:layout_gravity="center_horizontal"
-                    android:layout_weight="0.33">
-                    <LinearLayout
-                        android:orientation="horizontal"
-                        android:layout_width="270dp"
-                        android:layout_height="fill_parent" android:layout_gravity="center_horizontal">
-                        <Button
-                            android:layout_width="90dp"
-                            android:layout_height="fill_parent"
-                            android:text="Left\n90"
-                            android:id="@+id/button_left_90" android:visibility="invisible"/>
-                        <Button
-                            android:layout_width="90dp"
-                            android:layout_height="fill_parent"
-                            android:text="Down"
-                            android:id="@+id/button_down" android:layout_gravity="center_horizontal"/>
-                        <Button
-                            android:layout_width="90dp"
-                            android:layout_height="fill_parent"
-                            android:text="Right\n90"
-                            android:id="@+id/button_right_90" android:visibility="invisible"/>
-                    </LinearLayout>
+                    android:orientation="horizontal"
+                    android:layout_width="270dp"
+                    android:weightSum="3"
+                    android:layout_height="fill_parent" android:layout_gravity="center_horizontal">
+                    <Button
+                        android:layout_width="90dp"
+                        android:layout_height="fill_parent"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:text="Left\n90"
+                        android:id="@+id/button_left_90" android:visibility="invisible"/>
+                    <Button
+                        android:layout_width="90dp"
+                        android:layout_height="match_parent"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:text="Down"
+                        android:id="@+id/button_down" android:layout_gravity="center_horizontal"/>
+                    <Button
+                        android:layout_width="90dp"
+                        android:layout_height="fill_parent"
+                        android:layout_margin="5dp"
+                        android:layout_weight="1"
+                        android:text="Right\n90"
+                        android:id="@+id/button_right_90" android:visibility="invisible"/>
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
