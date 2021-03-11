@@ -1,6 +1,7 @@
 package ru.hse.control_system_v2.dbprotocol;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
@@ -22,6 +23,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 
 import ru.hse.control_system_v2.R;
+import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 
 public class AddProtocolDBActivity extends Activity implements View.OnClickListener {
     ProtocolDBHelper dbHelper;
@@ -101,11 +103,17 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                 break;
 
             case R.id.button_cancel_protocol:
-                ProtocolDBHelper dbHelper = new ProtocolDBHelper(getApplicationContext());
-                dbHelper.onUpgrade(dbHelper.getWritableDatabase(), 1,1);
-                /*editTextLen.setText("");
-                editTextName.setText("");
-                editTextCode.setText("");*/
+                AlertDialog dialog =new AlertDialog.Builder(this)
+                        .setTitle("Подтверждение")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setMessage("Вы действительно хотите удалить все кастомные протоколы?")
+                        .setPositiveButton("OK", (dialog1, whichButton) -> {
+                            ProtocolDBHelper dbHelper = new ProtocolDBHelper(getApplicationContext());
+                            dbHelper.onUpgrade(dbHelper.getWritableDatabase(), 1,1);
+                        })
+                        .setNegativeButton("Отмена", null)
+                        .create();
+                dialog.show();
                 break;
         }
     }

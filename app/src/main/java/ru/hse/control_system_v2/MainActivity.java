@@ -109,30 +109,9 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
         recycler.setAdapter(adapter);
         recycler.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
-
-        /*
-        AssetManager assetManager = getAssets();
-        InputStream inputStream = null;
-        try {
-            inputStream = assetManager.open(getResources().getXml(R.xml.arduino_default));
-        } catch (IOException e) {
-            Log.e("tag", e.getMessage());
-        }
-        try {
-            // отрываем поток для записи
-            BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(
-                    openFileOutput(getResources().getString(R.string.TAG_default_protocol), MODE_PRIVATE)));
-            // пишем данные
-            bw.write(readTextFile(inputStream));
-            // закрываем поток
-            bw.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }*/
     }
 
+    /*
     private String readTextFile(InputStream inputStream) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -148,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
 
         }
         return outputStream.toString();
-    }
+    }*/
 
     //Результат работы Service
     private final BroadcastReceiver mMessageReceiverServiceStarted = new BroadcastReceiver() {

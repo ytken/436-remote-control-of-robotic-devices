@@ -64,26 +64,14 @@ public class ProtocolRepo extends HashMap<String, Byte> {
 
         while((read = bufferedReader.readLine()) != null){
             Log.d("mLog", read);
+            if (read.contains("<?xml"))
+                continue;
             read = read.replaceAll(" ","");
-            /*while (read.contains("\n"))
-                read.replace("\n","");*/
             builder.append(read);
             Log.d("mLog", read);
         }
         String codeText = builder.toString();
         bufferedReader.close();
-
-        /*Document docCode = null;
-        DocumentBuilderFactory builderFactory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder docBuilder;
-        try {
-            docBuilder = builderFactory.newDocumentBuilder();
-            // парсим переданную на вход строку с XML разметкой
-            docCode = docBuilder.parse(new InputSource(new StringReader(codeText)));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }*/
-
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         factory.setNamespaceAware(true);
         xpp = factory.newPullParser();

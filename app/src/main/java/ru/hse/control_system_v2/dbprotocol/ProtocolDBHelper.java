@@ -7,6 +7,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Set;
@@ -48,8 +49,18 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        String query = "select * from " + TABLE_PROTOCOLS + ";";
+        Cursor cursor = db.rawQuery(query, null);
+        cursor.moveToFirst();
+        File dir = context.getFilesDir();
+        for (int i = 0; i < cursor.getCount(); i++) {
+            Log.d("SQL", cursor.getString(3) + " deleting");
+            File file = new File(dir, cursor.getString(3));
+            boolean result = file.delete();
+            Log.d("SQL", cursor.getString(3) + " deleting " + (result ? "yes" : "no"));
+            cursor.moveToNext();
+        }
         db.execSQL("drop table if exists " + TABLE_PROTOCOLS);
-
         onCreate(db);
     }
 
