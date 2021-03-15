@@ -40,7 +40,8 @@ public class ProtocolRepo extends HashMap<String, Byte> {
         Log.d("mLog", "name = "+name);
         lengthOfQuery = new HashMap<>();
         moveCodes = new HashMap<>();
-        parseCodes(name);
+        if (!name.isEmpty())
+            parseCodes(name);
     }
 
     public Byte get(String key) {
@@ -55,7 +56,6 @@ public class ProtocolRepo extends HashMap<String, Byte> {
             xpp = context.getResources().getXml(R.xml.arduino_default);
             return xpp;
         }
-
         BufferedReader bufferedReader = new BufferedReader(new FileReader(new
                 File(context.getFilesDir() + File.separator + name)));
         String read;
@@ -125,5 +125,49 @@ public class ProtocolRepo extends HashMap<String, Byte> {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public int stringXMLparser(String code) {
+        try {
+        XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
+        code = code.replaceAll(" ","");
+        code = code.replaceAll("\n","");
+        factory.setNamespaceAware(true);
+        XmlPullParser xpp = factory.newPullParser();
+        xpp.setInput(new StringReader(code));
+
+        String curName = "";
+            while (xpp.getEventType() != XmlPullParser.END_DOCUMENT) {
+                switch (xpp.getEventType()) {
+                    case XmlPullParser.START_TAG:
+                        curName = xpp.getName();
+                        break;
+                    case XmlPullParser.TEXT:
+                        if (curName.equals("length")) {
+                            int len = Integer.parseInt(xpp.getText());
+                        } else {
+                            if (labels.contains(curName)) {
+                                String codeEl = xpp.getText();
+                                if (codeEl.charAt(1) == 'x')
+                                    codeEl = codeEl.substring(2);
+                                Byte xppCode = (byte) ((Character.digit(codeEl.charAt(0), 16) << 4)
+                                        + Character.digit(codeEl.charAt(1), 16));
+                            }
+                        }
+                        break;
+
+                    default:
+                        break;
+                }
+                // следующий элемент
+                xpp.next();
+            }
+            Log.d(LOG_TAG, "END_DOCUMENT");
+        } catch (IOException e) {
+            return 1;
+        } catch (XmlPullParserException e) {
+            return 2;
+        }
+        return 0;
     }
 }
