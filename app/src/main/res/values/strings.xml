@@ -25,4 +25,18 @@
     <string name="TAG_default_protocol">arduino_default</string>
     <string name="switch_hold">Удержание команды</string>
     <string name="name_manual_default">Устройство</string>
+    <string name="alert_information">Информация</string>
+    <string name="alert_device_name">Имя устройства:\u00A0</string>
+    <string name="alert_MAC">MAC адрес:\u00A0</string>
+    <string name="alert_protocol">Протокол подключения:\u00A0</string>
+    <string name="alert_save">Сохранить</string>
+    <string name="alert_editing">Редактирование</string>
+    <string name="alert_change">Редактировать</string>
+    <string name="alert_delete">Удалить</string>
+    <string name="alert_info">Информация</string>
+    <string name="button_forward">Вперёд</string>
+    <string name="button_backward">Назад</string>
+    <string name="button_leftward">Влево</string>
+    <string name="button_rightward">Вправо</string>
+    <string name="button_stop">Стоп</string>
 </resources>

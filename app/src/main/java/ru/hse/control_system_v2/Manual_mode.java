@@ -131,7 +131,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         findViewById(R.id.button_left).setOnTouchListener(touchListener);
         findViewById(R.id.button_right).setOnTouchListener(touchListener);
 
-        SwitchCompat hold_command = findViewById(R.id.switch_hold_command_mm);
+        Switch hold_command = findViewById(R.id.switch_hold_command_mm);
         hold_command.setOnCheckedChangeListener(this);
 
         Arrays.fill(message, (byte) 0);

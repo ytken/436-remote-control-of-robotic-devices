@@ -132,25 +132,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
     };
 
-    private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //Устройство подключено, Service выполнился успешно
-            showToast("success");
-            Bundle arguments = intent.getExtras();
-            String selectedDevice = arguments.get("MAC").toString();
-            String classDevice = arguments.get("protocol").toString();
-            Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
-            startSendingData.putExtra("MAC", selectedDevice);
-            startSendingData.putExtra("protocol", classDevice);
-            startActivity(startSendingData);
-
-            //SendDataActivity.device = device;
-            progressBar.setVisibility(INVISIBLE);
-        }
-    };
-
     public class MyListener implements ListDevicesAdapter.DeviceClickedListener{
         @Override
         public void deviceClicked(DeviceItem item) {
@@ -201,6 +182,27 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Устройство подключено, Service выполнился успешно
+            showToast("success");
+            Bundle arguments = intent.getExtras();
+            String selectedDevice = arguments.get("MAC").toString();
+            String classDevice = arguments.get("protocol").toString();
+            String deviceName = arguments.get("name").toString();
+            Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
+            startSendingData.putExtra("MAC", selectedDevice);
+            startSendingData.putExtra("protocol", classDevice);
+            startSendingData.putExtra("name", deviceName);
+            startActivity(startSendingData);
+
+            //SendDataActivity.device = device;
+            progressBar.setVisibility(INVISIBLE);
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
