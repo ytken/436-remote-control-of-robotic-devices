@@ -16,9 +16,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 import java.util.ArrayList;
+
+import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
-
-
+import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
 
 
 public class DialogDevice extends DialogFragment {
@@ -31,10 +32,8 @@ public class DialogDevice extends DialogFragment {
     int id;
     String protocol;
     AlertDialog.Builder builder;
-    ArrayList<String> data = new ArrayList<String>() {{
-        add("main_protocol");
-        add("wheel_platform");
-    }};
+    ProtocolDBHelper protocolDBHelper;
+    ArrayList<String> data;
 
     @NonNull
     @Override
@@ -45,6 +44,9 @@ public class DialogDevice extends DialogFragment {
         classDevice = getArguments().getString("protocol");
         builder=new AlertDialog.Builder(getActivity());
         dbHelper = new DeviceDBHelper(requireActivity());
+        protocolDBHelper = new ProtocolDBHelper(requireActivity());
+
+        data = protocolDBHelper.getProtocolNames();
 
         return builder.setTitle(getResources().getString(R.string.alert_info))
                 .setMessage(getResources().getString(R.string.alert_device_name) + name + "\n" + getResources().getString(R.string.alert_MAC) + MAC+ "\n"+getResources().getString(R.string.alert_protocol) + classDevice)
