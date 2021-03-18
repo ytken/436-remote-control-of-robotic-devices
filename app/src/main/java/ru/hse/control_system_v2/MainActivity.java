@@ -220,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         dbdevice = new DeviceDBHelper(getApplicationContext());
         dbdevice.viewData();
         bdUpdated = 1;
+        onRefresh();
     }
 
     //Обновляем внешний вид приложения, скрываем и добавляем нужные элементы интерфейса
