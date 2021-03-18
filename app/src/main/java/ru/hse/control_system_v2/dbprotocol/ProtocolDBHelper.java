@@ -27,13 +27,15 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
     public static final String KEY_NAME = "name";
     public static final String KEY_LEN = "length";
     public static final String KEY_CODE = "code";
+    SQLiteDatabase db;
 
     Context context;
 
     public ProtocolDBHelper(Context context) {super(context, DATABASE_NAME, null, DATABASE_VERSION); this.context = context;}
 
     @Override
-    public void onCreate(SQLiteDatabase db) {
+    public void onCreate(SQLiteDatabase dataBase) {
+        db = dataBase;
         db.execSQL("create table " + TABLE_PROTOCOLS + "(" + KEY_ID + " integer primary key,"
                 + KEY_NAME + " text," + KEY_LEN + " text,"
                 + KEY_CODE + " text" + ")");
@@ -47,7 +49,8 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(SQLiteDatabase dataBase, int oldVersion, int newVersion) {
+        db = dataBase;
         String query = "select * from " + TABLE_PROTOCOLS + ";";
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
@@ -64,7 +67,10 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
     }
 
     public ArrayList<String> getProtocolNames() {
-        SQLiteDatabase db = this.getReadableDatabase();
+        if(db == null || !db.isOpen()) {
+            db = getReadableDatabase();
+        }
+        //db = getReadableDatabase();
         String query = "Select " + KEY_NAME + " from " + TABLE_PROTOCOLS;
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
@@ -79,7 +85,9 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
     }
 
     public String getFileName(String name) {
-        SQLiteDatabase db = this.getWritableDatabase();
+        if(db == null || !db.isOpen()) {
+            db = getWritableDatabase();
+        }
         String query = "select " + KEY_CODE + " from " + TABLE_PROTOCOLS + " where " + KEY_NAME + " = '" + name + "';";
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
@@ -90,7 +98,9 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
 
     public int insert(ContentValues contentValues) {
         int result = 0;
-        SQLiteDatabase db = this.getWritableDatabase();
+        if(db == null || !db.isOpen()) {
+            db = getWritableDatabase();
+        }
         String query ="select * from " + TABLE_PROTOCOLS + " where " + KEY_NAME + " = '" + contentValues.get(KEY_NAME) + "';";
         Cursor cursor = db.rawQuery(query, null);
         if (cursor.getCount() == 0) {

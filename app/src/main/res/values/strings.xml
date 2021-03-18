@@ -6,7 +6,7 @@
     <string name="rate_label">MAC</string>
     <string name="loading_label">Подключение</string>
     <string name="label_name">Имя</string>
-    <string name="label_MAC">MAC</string>
+    <string name="label_MAC">MAC адрес</string>
     <string name="add_bd_label">Принять</string>
     <string name="cancel_add_bd_label">Отмена</string>
     <string name="ok_add_bd_label">Завершить</string>
@@ -16,7 +16,7 @@
     <string name="btnEnBt">Включить bluetooth</string>
     <string name="add_device">Добавить устройство</string>
     <string name="paired_devices">Список сопряжённых устройств</string>
-    <string name="favorites_devices">Список избранных устройств</string>
+    <string name="favorites_devices">Список сохранённых устройств</string>
     <string name="no_devices_added">Нет сопряжённых устройств</string>
     <string name="go_to_settings">Новое сопряжение</string>
     <string name="protocol_name">Имя:</string>
