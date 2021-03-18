@@ -66,7 +66,9 @@ public class DialogDevice extends DialogFragment {
                     NewDevice arduino = new NewDevice(requireActivity(),MAC, classDevice, name);
                     arduino.startBluetoothConnectionService();
                 })
-                .setNegativeButton(getResources().getString(R.string.alert_delete), (dialog, whichButton) -> MainActivity.activity.setBdUpdated(id))
+                .setNegativeButton(getResources().getString(R.string.alert_delete), (dialog, whichButton) -> {
+                    MainActivity.activity.setBdUpdated(id);}
+                    )
                 .setNeutralButton(getResources().getString(R.string.alert_change), (dialog, which) -> {
                     changeDeviceAlert();
                 })
