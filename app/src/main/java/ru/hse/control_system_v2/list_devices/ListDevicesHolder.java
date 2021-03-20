@@ -19,7 +19,7 @@ public class ListDevicesHolder extends RecyclerView.ViewHolder {
         super(itemView);
         resources = itemView.getResources();
         mName = itemView.findViewById(R.id.item_name);
-        mAddress = itemView.findViewById(R.id.item_address);
+        //mAddress = itemView.findViewById(R.id.item_address);
 
         itemView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -35,7 +35,7 @@ public class ListDevicesHolder extends RecyclerView.ViewHolder {
 
     void bind(DeviceItem item) {
         mName.setText(item.name);
-        mAddress.setText(item.MAC);
+        //mAddress.setText(item.MAC);
     }
 
 }

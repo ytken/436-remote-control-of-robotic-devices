@@ -67,7 +67,7 @@ public class DialogDevice extends DialogFragment {
                     arduino.startBluetoothConnectionService();
                 })
                 .setNegativeButton(getResources().getString(R.string.alert_delete), (dialog, whichButton) -> {
-                    MainActivity.activity.setBdUpdated(id);}
+                    ma.setBdUpdated(id);}
                     )
                 .setNeutralButton(getResources().getString(R.string.alert_change), (dialog, which) -> {
                     changeDeviceAlert();
@@ -124,7 +124,7 @@ public class DialogDevice extends DialogFragment {
             contentValues.put(DeviceDBHelper.KEY_PROTO, protocol);
             dbHelper.update(contentValues, id);
             //Toast.makeText(requireActivity(), "Device has been edited", Toast.LENGTH_LONG).show();
-            MainActivity.activity.setBdUpdated(-1);
+            ma.setBdUpdated(-1);
             dbHelper.viewData();
             //Обновление MainActivity
             ma.onRefresh();
