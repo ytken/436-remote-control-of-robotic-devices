@@ -77,7 +77,6 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
 
         deviceDBHelper = new DeviceDBHelper(this);
         protocolDBHelper = new ProtocolDBHelper(this);
-        data = protocolDBHelper.getProtocolNames();
 
         stateOfAlert = false;
 
@@ -89,11 +88,11 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         pairedList.setLayoutManager(new LinearLayoutManager(this));
         pairedList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
+        data = protocolDBHelper.getProtocolNames();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerProtocol = new Spinner(AddDeviceDBActivity.this);
         spinnerProtocol.setAdapter(adapter);
-
 
         b = getIntent().getExtras();
         mode = b.getInt("mode");

@@ -60,6 +60,12 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                 String name = editTextName.getText().toString();
                 Integer length = Integer.parseInt(editTextLen.getText().toString());
                 String code = editTextCode.getText().toString();
+                ProtocolRepo protocolRepo = new ProtocolRepo(getApplicationContext(), "");
+                int result = protocolRepo.stringXMLparser(code);
+                if (result > 0) {
+                    Toast.makeText(getApplicationContext(), "Invalid XML code", Toast.LENGTH_LONG).show();
+                    break;
+                }
 
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(ProtocolDBHelper.KEY_NAME, name);
@@ -80,14 +86,6 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                     Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
                 }
 
-                if (dbHelper.insert(contentValues) == 0)
-                    Toast.makeText(getApplicationContext(), "Protocol name has already been registered", Toast.LENGTH_LONG).show();
-                else {
-                    editTextName.setText("");
-                    editTextLen.setText("");
-                    editTextCode.setText("");
-                    Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
-                }
                 break;
 
             case R.id.button_read_protocol:

@@ -28,11 +28,10 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
     public static final String KEY_LEN = "length";
     public static final String KEY_CODE = "code";
     SQLiteDatabase db;
-    DeviceDBHelper deviceDBHelper;
 
     Context context;
 
-    public ProtocolDBHelper(Context context) {super(context, DATABASE_NAME, null, DATABASE_VERSION); this.context = context; deviceDBHelper = DeviceDBHelper.getInstance(context);}
+    public ProtocolDBHelper(Context context) {super(context, DATABASE_NAME, null, DATABASE_VERSION); this.context = context;}
 
     @Override
     public void onCreate(SQLiteDatabase dataBase) {
@@ -50,18 +49,17 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(SQLiteDatabase dataBase, int oldVersion, int newVersion) {
+        db = dataBase;
         String query = "select * from " + TABLE_PROTOCOLS + ";";
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
         File dir = context.getFilesDir();
         for (int i = 0; i < cursor.getCount(); i++) {
-            String fileName = cursor.getString(3);
-            Log.d("SQL",  fileName + " deleting");
-            deviceDBHelper.deleteProto(fileName);
-            File file = new File(dir, fileName);
+            Log.d("SQL", cursor.getString(3) + " deleting");
+            File file = new File(dir, cursor.getString(3));
             boolean result = file.delete();
-            Log.d("SQL", fileName + " deleting " + (result ? "yes" : "no"));
+            Log.d("SQL", cursor.getString(3) + " deleting " + (result ? "yes" : "no"));
             cursor.moveToNext();
         }
         db.execSQL("drop table if exists " + TABLE_PROTOCOLS);
@@ -120,8 +118,3 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
     }
 
 }
-
-/*
-
-
- */
