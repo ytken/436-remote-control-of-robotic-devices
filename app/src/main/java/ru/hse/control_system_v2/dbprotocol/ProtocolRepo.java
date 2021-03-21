@@ -52,14 +52,14 @@ public class ProtocolRepo extends HashMap<String, Byte> {
 
     XmlPullParser prepareXpp(String name) throws IOException, XmlPullParserException {
         XmlPullParser xpp;
-        if (name.equals(context.getResources().getString(R.string.TAG_default_protocol)+".xml")){
+        if (name.equals(context.getResources().getString(R.string.TAG_default_protocol)+".xml") || name.equals(context.getResources().getString(R.string.TAG_default_protocol))){
             xpp = context.getResources().getXml(R.xml.arduino_default);
             return xpp;
         }
         BufferedReader bufferedReader = new BufferedReader(new FileReader(new
                 File(context.getFilesDir() + File.separator + name)));
         String read;
-        StringBuilder builder = new StringBuilder("");
+        StringBuilder builder = new StringBuilder();
 
         while((read = bufferedReader.readLine()) != null){
             Log.d("mLog", read);
@@ -120,9 +120,7 @@ public class ProtocolRepo extends HashMap<String, Byte> {
             }
             Log.d(LOG_TAG, "END_DOCUMENT");
 
-        } catch (XmlPullParserException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (XmlPullParserException | IOException e) {
             e.printStackTrace();
         }
     }
