@@ -103,7 +103,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         fabToAddDevice.hide();
         fabToEnBt.hide();
         stateOfFabToEnBt = false;
-        db = new DeviceDBHelper(this);
+        dbdevice = new DeviceDBHelper(this);
 
         recycler = findViewById(R.id.recycler_main);
         recycler.setLayoutManager(new LinearLayoutManager(this));
@@ -128,25 +128,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         @Override
         public void onReceive(Context context, Intent intent) {
             showToast("Not success");
-            progressBar.setVisibility(INVISIBLE);
-        }
-    };
-
-    private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            //Устройство подключено, Service выполнился успешно
-            showToast("success");
-            Bundle arguments = intent.getExtras();
-            String selectedDevice = arguments.get("MAC").toString();
-            String classDevice = arguments.get("protocol").toString();
-            Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
-            startSendingData.putExtra("MAC", selectedDevice);
-            startSendingData.putExtra("protocol", classDevice);
-            startActivity(startSendingData);
-
-            //SendDataActivity.device = device;
             progressBar.setVisibility(INVISIBLE);
         }
     };
@@ -189,8 +170,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
                     .setMessage("Вы действительно хотите удалить все имеющиеся устройства?")
                     .setPositiveButton("OK", (dialog1, whichButton) -> {
                         DeviceDBHelper helper = new DeviceDBHelper(getApplicationContext());
-                        db.onUpgrade(helper.getReadableDatabase(), db.DATABASE_VERSION, db.DATABASE_VERSION + 1);
-                        db = helper;
+                        dbdevice.onUpgrade(helper.getReadableDatabase(), dbdevice.DATABASE_VERSION, dbdevice.DATABASE_VERSION + 1);
+                        dbdevice = helper;
                         bdUpdated = 1;
                         onRefresh();
                     })
@@ -201,6 +182,27 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         }
         return super.onOptionsItemSelected(item);
     }
+
+    private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            //Устройство подключено, Service выполнился успешно
+            showToast("success");
+            Bundle arguments = intent.getExtras();
+            String selectedDevice = arguments.get("MAC").toString();
+            String classDevice = arguments.get("protocol").toString();
+            String deviceName = arguments.get("name").toString();
+            Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
+            startSendingData.putExtra("MAC", selectedDevice);
+            startSendingData.putExtra("protocol", classDevice);
+            startSendingData.putExtra("name", deviceName);
+            startActivity(startSendingData);
+
+            //SendDataActivity.device = device;
+            progressBar.setVisibility(INVISIBLE);
+        }
+    };
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
@@ -218,6 +220,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         dbdevice = new DeviceDBHelper(getApplicationContext());
         dbdevice.viewData();
         bdUpdated = 1;
+        onRefresh();
     }
 
     //Обновляем внешний вид приложения, скрываем и добавляем нужные элементы интерфейса
