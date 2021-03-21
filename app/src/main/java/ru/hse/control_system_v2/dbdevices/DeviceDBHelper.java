@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 
 import ru.hse.control_system_v2.MainActivity;
+import ru.hse.control_system_v2.R;
 import ru.hse.control_system_v2.list_devices.DeviceRepository;
 import ru.hse.control_system_v2.list_devices.ListDevicesAdapter;
 
@@ -29,8 +30,9 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
     public static final String KEY_CLASS = "class";
     public static final String KEY_PROTO = "id_protocol";
     public static final String KEY_PANEL = "id_panel";
+    private Context contextmy;
 
-    public DeviceDBHelper(Context context) {super(context, DATABASE_NAME, null, DATABASE_VERSION);}
+    public DeviceDBHelper(Context context) {super(context, DATABASE_NAME, null, DATABASE_VERSION); contextmy = context;}
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -89,6 +91,27 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
         String query = "DELETE FROM " + TABLE_DEVICES + " WHERE _id = " + id + ";";
         Log.d("SQL", query);
         db.execSQL(query);
+    }
+
+    public void deleteProto(String name) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String query ="select * from " + TABLE_DEVICES + " where " + KEY_PROTO + " = '" + name + "';";
+        Cursor cursor = db.rawQuery(query, null);
+        cursor.moveToFirst();
+        for (int i = 0; i < cursor.getCount(); i++) {
+            String id = cursor.getString(0);
+            ContentValues contentValues = new ContentValues();
+            contentValues.put(KEY_NAME, cursor.getString(1));
+            contentValues.put(KEY_MAC, cursor.getString(2));
+            contentValues.put(KEY_CLASS, cursor.getString(3));
+            contentValues.put(KEY_URL_PH, cursor.getString(4));
+            contentValues.put(KEY_PROTO, contextmy.getResources().getString(R.string.TAG_default_protocol)+".xml");
+            contentValues.put(KEY_PANEL, cursor.getString(6));
+            String deleteQuery = "DELETE FROM " + TABLE_DEVICES + " WHERE _id = " + id + ";";
+            this.getWritableDatabase().execSQL(deleteQuery);
+            insert(contentValues);
+            cursor.moveToNext();
+        }
     }
 
     public static synchronized DeviceDBHelper getInstance(Context context) {
