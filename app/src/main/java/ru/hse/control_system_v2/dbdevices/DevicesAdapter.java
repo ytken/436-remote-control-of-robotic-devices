@@ -43,10 +43,8 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesA
         DeviceModel userModel = deviceModelList.get(position);
 
         String devicename = userModel.getDeviceName();
-        String prefix = userModel.getDeviceName().substring(0,1);
 
         holder.tvDevicename.setText(devicename);
-        holder.tvPrefix.setText(prefix);
 
     }
 
@@ -104,12 +102,10 @@ public class DevicesAdapter extends RecyclerView.Adapter<DevicesAdapter.DevicesA
 
     public class DevicesAdapterVh extends RecyclerView.ViewHolder {
 
-        TextView tvPrefix;
         TextView tvDevicename;
         ImageView imIcon;
         public DevicesAdapterVh(@NonNull View itemView) {
             super(itemView);
-            tvPrefix = itemView.findViewById(R.id.prefix);
             tvDevicename = itemView.findViewById(R.id.devicename);
             imIcon = itemView.findViewById(R.id.imageView);
 

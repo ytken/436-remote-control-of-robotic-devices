@@ -1,8 +1,10 @@
 package ru.hse.control_system_v2;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -34,6 +36,15 @@ public class DialogDevice extends DialogFragment {
     AlertDialog.Builder builder;
     ProtocolDBHelper protocolDBHelper;
     ArrayList<String> data;
+    MainActivity ma;
+
+    @Override
+    public void onAttach(@NonNull Context context) {
+        super.onAttach(context);
+        if (context instanceof Activity){
+            ma = (MainActivity) context;
+        }
+    }
 
     @NonNull
     @Override
@@ -55,7 +66,9 @@ public class DialogDevice extends DialogFragment {
                     NewDevice arduino = new NewDevice(requireActivity(),MAC, classDevice, name);
                     arduino.startBluetoothConnectionService();
                 })
-                .setNegativeButton(getResources().getString(R.string.alert_delete), (dialog, whichButton) -> MainActivity.activity.setBdUpdated(id))
+                .setNegativeButton(getResources().getString(R.string.alert_delete), (dialog, whichButton) -> {
+                    ma.setBdUpdated(id);}
+                    )
                 .setNeutralButton(getResources().getString(R.string.alert_change), (dialog, which) -> {
                     changeDeviceAlert();
                 })
@@ -111,8 +124,10 @@ public class DialogDevice extends DialogFragment {
             contentValues.put(DeviceDBHelper.KEY_PROTO, protocol);
             dbHelper.update(contentValues, id);
             //Toast.makeText(requireActivity(), "Device has been edited", Toast.LENGTH_LONG).show();
-            MainActivity.activity.setBdUpdated(-1);
+            ma.setBdUpdated(-1);
             dbHelper.viewData();
+            //Обновление MainActivity
+            ma.onRefresh();
 
         });
         setSettingsToDeviceAlertDialog.setNegativeButton(getResources().getString(R.string.cancel_add_bd_label), (dialogInterface, i) -> {

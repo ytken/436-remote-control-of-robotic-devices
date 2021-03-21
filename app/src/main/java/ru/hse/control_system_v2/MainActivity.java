@@ -19,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -61,6 +62,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     private BluetoothConnectionService arduino;                  // устройство, с которого буду получаю получать данные
     ProgressBar progressBar;
     boolean isItemSelected;
+    GridLayoutManager gridLayoutManager;
 
 
     @Override
@@ -68,9 +70,10 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        activity = this;
         dbdevice = DeviceDBHelper.getInstance(getApplicationContext());
         dbprotocol = ProtocolDBHelper.getInstance(getApplicationContext());
+
+        gridLayoutManager = new GridLayoutManager(getApplicationContext(), 3, LinearLayoutManager.VERTICAL, false);
 
         registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
         registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
@@ -106,10 +109,11 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         dbdevice = new DeviceDBHelper(this);
 
         recycler = findViewById(R.id.recycler_main);
-        recycler.setLayoutManager(new LinearLayoutManager(this));
+        recycler.setLayoutManager(gridLayoutManager);
+        recycler.setHasFixedSize(true);
         adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
         recycler.setAdapter(adapter);
-        recycler.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+        //recycler.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
     }
 
     //Результат работы Service
@@ -220,6 +224,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         dbdevice = new DeviceDBHelper(getApplicationContext());
         dbdevice.viewData();
         bdUpdated = 1;
+        onRefresh();
     }
 
     //Обновляем внешний вид приложения, скрываем и добавляем нужные элементы интерфейса

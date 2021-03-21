@@ -25,8 +25,7 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
 
     public ListDevicesAdapter(Set<DeviceItem> data, DeviceClickedListener nlistener){
         super();
-        for (DeviceItem item : data)
-            mData.add(item);
+        mData.addAll(data);
         listener = nlistener;
     }
 
@@ -36,10 +35,7 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
     public ListDevicesHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         View layout = inflater.inflate(R.layout.item_list_devices, parent, false);
-        return new ListDevicesHolder(
-                layout,
-                this
-        );
+        return new ListDevicesHolder(layout, this);
     }
 
     @Override
@@ -57,4 +53,5 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
     public void onDeviceClicked(int id) {
         listener.deviceClicked(mData.get(id));
     }
+
 }
