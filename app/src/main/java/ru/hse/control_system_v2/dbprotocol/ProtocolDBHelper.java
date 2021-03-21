@@ -28,10 +28,11 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
     public static final String KEY_LEN = "length";
     public static final String KEY_CODE = "code";
     SQLiteDatabase db;
+    DeviceDBHelper deviceDBHelper;
 
     Context context;
 
-    public ProtocolDBHelper(Context context) {super(context, DATABASE_NAME, null, DATABASE_VERSION); this.context = context;}
+    public ProtocolDBHelper(Context context) {super(context, DATABASE_NAME, null, DATABASE_VERSION); this.context = context; deviceDBHelper = DeviceDBHelper.getInstance(context); }
 
     @Override
     public void onCreate(SQLiteDatabase dataBase) {
@@ -56,8 +57,10 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
         cursor.moveToFirst();
         File dir = context.getFilesDir();
         for (int i = 0; i < cursor.getCount(); i++) {
-            Log.d("SQL", cursor.getString(3) + " deleting");
-            File file = new File(dir, cursor.getString(3));
+            String fileName = cursor.getString(3);
+            Log.d("SQL",  fileName + " deleting");
+            File file = new File(dir, fileName);
+            deviceDBHelper.deleteProto(fileName);
             boolean result = file.delete();
             Log.d("SQL", cursor.getString(3) + " deleting " + (result ? "yes" : "no"));
             cursor.moveToNext();
