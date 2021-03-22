@@ -30,8 +30,6 @@ public class BluetoothConnectionService extends Service {
     String classDevice;
     String deviceName;
 
-
-
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         Bundle arguments = intent.getExtras();
@@ -84,11 +82,6 @@ public class BluetoothConnectionService extends Service {
                 }
 
                 if (stateOfConnection) {
-                    // Передаём данные о устройстве в Main Activity
-                    //MainActivity.clientSocket = clientSocket;
-                    //MainActivity.device = device;
-                    //data_receiver1 = new BluetoothConnectionThread();
-                    //data_receiver1.start();
                     try {
                         // Решение ошибки, зависящей от версии Android - даём время на установку полного подключения
                         Thread.sleep(2000);

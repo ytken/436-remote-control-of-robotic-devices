@@ -80,7 +80,7 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
 
         ArrayList<String> names = new ArrayList<>();
         for (int i = 0; i < cursor.getCount(); i++) {
-            names.add(cursor.getString(cursor.getColumnIndex(KEY_NAME)).replace(".txt","").replace(".xml", ""));
+            names.add(cursor.getString(cursor.getColumnIndex(KEY_NAME)).replace(".xml", ""));
             Log.d("SQL", cursor.getString(0));
             cursor.moveToNext();
         }

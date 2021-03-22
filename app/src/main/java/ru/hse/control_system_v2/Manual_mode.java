@@ -83,7 +83,14 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         is_hold_command = false;
         boolean is_sens_data = false;
         boolean is_fixed_angel = false;
-        getDevicesID = new ProtocolRepo(getApplicationContext(), b.getString("protocol"));
+        //TODO
+        //Не баг, не фича, а костыль...
+        if (!classDevice.equals("arduino_default")) {
+            getDevicesID = new ProtocolRepo(getApplicationContext(), b.getString("protocol") + ".xml");
+        } else {
+            //для стандартного протокола
+            getDevicesID = new ProtocolRepo(getApplicationContext(), b.getString("protocol"));
+        }
         MAC = b.getString("MAC");
 
         //String MAC = DeviceRepository.getInstance(getApplicationContext()).item(b.getInt("id")).getMAC();

@@ -31,7 +31,6 @@ public class DialogDevice extends DialogFragment {
     String newName;
     String name;
     String MAC;
-    String classDevice;
     int id;
     String protocol;
     AlertDialog.Builder builder;
@@ -53,19 +52,22 @@ public class DialogDevice extends DialogFragment {
         id = getArguments().getInt("id");
         name = getArguments().getString("name");
         MAC = getArguments().getString("MAC");
-        classDevice = getArguments().getString("protocol");
-        builder=new AlertDialog.Builder(getActivity());
+        //TODO
+        //arduino_default приходит без xml, а новые протоколы - с ним.
+        protocol = getArguments().getString("protocol");
+        protocol = protocol.replace(".xml", "");
+        builder = new AlertDialog.Builder(getActivity());
         dbHelper = new DeviceDBHelper(requireActivity());
         protocolDBHelper = new ProtocolDBHelper(requireActivity());
 
         data = protocolDBHelper.getProtocolNames();
 
         return builder.setTitle(getResources().getString(R.string.alert_info))
-                .setMessage(getResources().getString(R.string.alert_device_name) + name + "\n" + getResources().getString(R.string.alert_MAC) + MAC+ "\n"+getResources().getString(R.string.alert_protocol) + classDevice.replace(".txt",""))
+                .setMessage(getResources().getString(R.string.alert_device_name) + name + "\n" + getResources().getString(R.string.alert_MAC) + MAC+ "\n"+getResources().getString(R.string.alert_protocol) + protocol)
                 .setPositiveButton(getResources().getString(R.string.loading_label), (dialog, whichButton) -> {
                     //запуск подключения происходит ниже
-                    Log.d("proto1", classDevice);
-                    NewDevice arduino = new NewDevice(requireActivity(),MAC, classDevice, name);
+                    Log.d("proto1", protocol);
+                    NewDevice arduino = new NewDevice(requireActivity(),MAC, protocol, name);
                     arduino.startBluetoothConnectionService();
                 })
                 .setNegativeButton(getResources().getString(R.string.alert_delete), (dialog, whichButton) -> {
@@ -89,27 +91,23 @@ public class DialogDevice extends DialogFragment {
     void changeDeviceAlert(){
         ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireActivity(), android.R.layout.simple_spinner_item, data);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerProtocol = new Spinner(requireActivity());
-        EditText editTextNameAlert = new EditText(requireActivity());
+        spinnerProtocol = new Spinner(ma);
+        EditText editTextNameAlert = new EditText(ma);
         spinnerProtocol.setAdapter(spinnerAdapter);
-        id = getArguments().getInt("id");
-        String name = getArguments().getString("name");
         editTextNameAlert.setText(name);
         editTextNameAlert.setInputType(InputType.TYPE_CLASS_TEXT);
-        editTextNameAlert.setHint("Device Name");
-        String MAC = getArguments().getString("MAC");
-        final String[] classDevice = {getArguments().getString("protocol")};
+        editTextNameAlert.setHint(getResources().getString(R.string.alert_device_name_tint));
         for(int i = 0; i<data.size(); i++){
-            if (data.get(i).equals(classDevice[0])){
+            if (data.get(i).equals(protocol)){
                 spinnerProtocol.setSelection(i);
                 break;
             }
         }
-        AlertDialog.Builder setSettingsToDeviceAlertDialog = new AlertDialog.Builder(requireActivity());
+        AlertDialog.Builder setSettingsToDeviceAlertDialog = new AlertDialog.Builder(ma);
         setSettingsToDeviceAlertDialog.setTitle(getResources().getString(R.string.alert_editing));
         //alert_editing
 
-        LinearLayout layout = new LinearLayout(requireActivity());
+        LinearLayout layout = new LinearLayout(ma);
         layout.setOrientation(LinearLayout.VERTICAL);
         if(spinnerProtocol.getParent() != null) {
             ((ViewGroup)spinnerProtocol.getParent()).removeView(spinnerProtocol); // <- fix crash
@@ -119,7 +117,8 @@ public class DialogDevice extends DialogFragment {
         setSettingsToDeviceAlertDialog.setView(layout);
         setSettingsToDeviceAlertDialog.setPositiveButton(getResources().getString(R.string.alert_save), (dialogInterface, i) -> {
             newName = editTextNameAlert.getText().toString();
-            protocol = protocolDBHelper.getFileName(data.get((int) spinnerProtocol.getSelectedItemId())).replace(".xml","");
+            protocol = protocolDBHelper.getFileName(data.get((int) spinnerProtocol.getSelectedItemId()));
+
             ContentValues contentValues = new ContentValues();
             contentValues.put(DeviceDBHelper.KEY_MAC, MAC);
             contentValues.put(DeviceDBHelper.KEY_NAME, newName);
