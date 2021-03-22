@@ -8,6 +8,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
@@ -60,9 +61,10 @@ public class DialogDevice extends DialogFragment {
         data = protocolDBHelper.getProtocolNames();
 
         return builder.setTitle(getResources().getString(R.string.alert_info))
-                .setMessage(getResources().getString(R.string.alert_device_name) + name + "\n" + getResources().getString(R.string.alert_MAC) + MAC+ "\n"+getResources().getString(R.string.alert_protocol) + classDevice)
+                .setMessage(getResources().getString(R.string.alert_device_name) + name + "\n" + getResources().getString(R.string.alert_MAC) + MAC+ "\n"+getResources().getString(R.string.alert_protocol) + classDevice.replace(".txt",""))
                 .setPositiveButton(getResources().getString(R.string.loading_label), (dialog, whichButton) -> {
                     //запуск подключения происходит ниже
+                    Log.d("proto1", classDevice);
                     NewDevice arduino = new NewDevice(requireActivity(),MAC, classDevice, name);
                     arduino.startBluetoothConnectionService();
                 })
@@ -117,7 +119,7 @@ public class DialogDevice extends DialogFragment {
         setSettingsToDeviceAlertDialog.setView(layout);
         setSettingsToDeviceAlertDialog.setPositiveButton(getResources().getString(R.string.alert_save), (dialogInterface, i) -> {
             newName = editTextNameAlert.getText().toString();
-            protocol = data.get((int) spinnerProtocol.getSelectedItemId());
+            protocol = protocolDBHelper.getFileName(data.get((int) spinnerProtocol.getSelectedItemId())).replace(".xml","");
             ContentValues contentValues = new ContentValues();
             contentValues.put(DeviceDBHelper.KEY_MAC, MAC);
             contentValues.put(DeviceDBHelper.KEY_NAME, newName);

@@ -83,7 +83,6 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
     public void update(ContentValues contentValues, int id) {
         SQLiteDatabase db = this.getWritableDatabase();
         db.update(TABLE_DEVICES, contentValues, "_id=?", new String[]{String.valueOf(id)});
-
     }
 
     public void deleteDevice(int id) {
@@ -105,7 +104,7 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
             contentValues.put(KEY_MAC, cursor.getString(2));
             contentValues.put(KEY_CLASS, cursor.getString(3));
             contentValues.put(KEY_URL_PH, cursor.getString(4));
-            contentValues.put(KEY_PROTO, contextmy.getResources().getString(R.string.TAG_default_protocol)+".xml");
+            contentValues.put(KEY_PROTO, contextmy.getResources().getString(R.string.TAG_default_protocol));
             contentValues.put(KEY_PANEL, cursor.getString(6));
             String deleteQuery = "DELETE FROM " + TABLE_DEVICES + " WHERE _id = " + id + ";";
             this.getWritableDatabase().execSQL(deleteQuery);

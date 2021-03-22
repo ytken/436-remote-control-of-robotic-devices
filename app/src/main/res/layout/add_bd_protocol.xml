@@ -34,7 +34,8 @@
                 android:id="@+id/editTextProtocolName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="textPersonName" />
+                android:inputType="textPersonName"
+                android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"/>
 
             <TextView
                 android:id="@+id/textView8"

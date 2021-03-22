@@ -33,18 +33,6 @@ public class DeviceRepository implements Serializable {
         return mData;
     }
 
-    public DeviceItem item(int id) {
-        for (DeviceItem device : mData)
-            if (device.id == id) {
-                return device;
-            }
-        return new DeviceItem(0, "0", "0", "main_protocol");
-    }
-
-    int size() {
-        return mData.size();
-    }
-
     private Activity getActivity(Context context) {
         while (context instanceof ContextWrapper) {
             if (context instanceof Activity) {

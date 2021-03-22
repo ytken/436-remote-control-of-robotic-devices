@@ -1,5 +1,7 @@
 package ru.hse.control_system_v2.list_devices;
 
+import android.util.Log;
+
 import java.util.Objects;
 
 public class DeviceItem {

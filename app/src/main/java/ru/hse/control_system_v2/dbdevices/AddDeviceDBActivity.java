@@ -158,7 +158,7 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
     }
 
     void saveDevice(String MacAddress, String name){
-        String protocol = protocolDBHelper.getFileName(data.get((int) spinnerProtocol.getSelectedItemId()));
+        String protocol = data.get((int) spinnerProtocol.getSelectedItemId());
         if (BluetoothAdapter.checkBluetoothAddress(MacAddress)) {
             ContentValues contentValues = new ContentValues();
 

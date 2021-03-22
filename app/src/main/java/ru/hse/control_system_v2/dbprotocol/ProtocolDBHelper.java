@@ -43,7 +43,7 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
         ContentValues arduino = new ContentValues();
         arduino.put(KEY_NAME, context.getResources().getString(R.string.TAG_default_protocol));
         arduino.put(KEY_LEN, "32");
-        String arduino_default_code = context.getResources().getString(R.string.TAG_default_protocol)+".xml";
+        String arduino_default_code = context.getResources().getString(R.string.TAG_default_protocol);
         Log.d("XMLFile", arduino_default_code);
         arduino.put(KEY_CODE, arduino_default_code);
         insert(arduino);
@@ -80,7 +80,7 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
 
         ArrayList<String> names = new ArrayList<>();
         for (int i = 0; i < cursor.getCount(); i++) {
-            names.add(cursor.getString(cursor.getColumnIndex(KEY_NAME)));
+            names.add(cursor.getString(cursor.getColumnIndex(KEY_NAME)).replace(".txt","").replace(".xml", ""));
             Log.d("SQL", cursor.getString(0));
             cursor.moveToNext();
         }
