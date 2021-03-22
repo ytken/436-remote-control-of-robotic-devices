@@ -125,9 +125,9 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
     }
 
     private String saveToFile(String name, String code) throws IOException {
-        String fileName = name + ".txt";
+        String fileName = name + ".xml";
         BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(new
-                File(getFilesDir() + File.separator + name + ".txt")));
+                File(getFilesDir() + File.separator + name + ".xml")));
         bufferedWriter.write(code);
         bufferedWriter.close();
         return fileName;

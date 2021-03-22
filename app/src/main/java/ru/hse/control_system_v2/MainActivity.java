@@ -144,7 +144,8 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             args.putInt("id", item.getId());
             args.putString("name", item.getName());
             args.putString("MAC", item.getMAC());
-            args.putString("protocol", item.getType());
+            String protocol = item.getType();
+            args.putString("protocol", protocol);
             dialog.setArguments(args);
             //dialog.setTargetFragment(this, MY_REQUEST_CODE);
             dialog.show(getSupportFragmentManager(), "dialog");

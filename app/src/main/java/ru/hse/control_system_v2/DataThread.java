@@ -24,18 +24,12 @@ public class DataThread extends Thread{ // класс поток для прие
     public void setSocket(BluetoothSocket clientSocket){
         this.clientSocket = clientSocket;
     }
-    public void startManualMode(Context c){
-        Intent intent = new Intent(c.getApplicationContext(),Manual_mode.class);
-        intent.putExtra("MAC", MAC);
-        intent.putExtra("protocol", classDevice);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        c.startActivity(intent);
-    }
+
     String MAC;
     String classDevice;
     BluetoothAdapter btAdapter = BluetoothAdapter.getDefaultAdapter();
     BluetoothSocket clientSocket;
-    private byte inputPacket[];
+    private byte[] inputPacket;
     private static final String TAG = "Thread";
     OutputStream OutStrem;
     InputStream InStrem;
