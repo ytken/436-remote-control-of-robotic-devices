@@ -52,9 +52,7 @@ public class DialogDevice extends DialogFragment {
         id = getArguments().getInt("id");
         name = getArguments().getString("name");
         MAC = getArguments().getString("MAC");
-        //TODO arduino_default приходит без xml, а новые протоколы - с ним.
         protocol = getArguments().getString("protocol");
-        //protocol = protocol.replace(".xml", "");
         builder = new AlertDialog.Builder(getActivity());
         dbHelper = new DeviceDBHelper(requireActivity());
         protocolDBHelper = new ProtocolDBHelper(requireActivity());

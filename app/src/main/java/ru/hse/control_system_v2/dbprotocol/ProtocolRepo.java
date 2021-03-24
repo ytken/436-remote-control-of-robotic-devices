@@ -31,6 +31,7 @@ public class ProtocolRepo extends HashMap<String, Byte> {
     private HashMap<String, Integer> lengthOfQuery;
     private HashMap<String, Byte> moveCodes;
     private Context context;
+    ProtocolDBHelper dbHelper;
 
     //TODO ругается, что Call requires API level R (current min is 23): java.util.List#of
     public static final List<String> labels = List.of("class_android","class_computer","class_arduino","type_sphere","type_anthropomorphic",
@@ -38,6 +39,7 @@ public class ProtocolRepo extends HashMap<String, Byte> {
 
     public ProtocolRepo(Context context, String name) {
         this.context = context;
+        dbHelper = ProtocolDBHelper.getInstance(context);
         Log.d("mLog", "name = "+name);
         lengthOfQuery = new HashMap<>();
         moveCodes = new HashMap<>();
@@ -58,7 +60,7 @@ public class ProtocolRepo extends HashMap<String, Byte> {
             return xpp;
         }
         BufferedReader bufferedReader = new BufferedReader(new FileReader(new
-                File(context.getFilesDir() + File.separator + name)));
+                File(context.getFilesDir() + File.separator + dbHelper.getFileName(name))));
         String read;
         StringBuilder builder = new StringBuilder();
 
