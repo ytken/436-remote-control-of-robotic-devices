@@ -63,7 +63,7 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++) {
-            Log.d("SQL", cursor.getInt(0) + " " + cursor.getString(1));
+            Log.d("SQL", cursor.getInt(0) + " " + cursor.getString(1) +" "+ cursor.getString(5));
             cursor.moveToNext();
         }
     }

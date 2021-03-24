@@ -52,10 +52,9 @@ public class DialogDevice extends DialogFragment {
         id = getArguments().getInt("id");
         name = getArguments().getString("name");
         MAC = getArguments().getString("MAC");
-        //TODO
-        //arduino_default приходит без xml, а новые протоколы - с ним.
+        //TODO arduino_default приходит без xml, а новые протоколы - с ним.
         protocol = getArguments().getString("protocol");
-        protocol = protocol.replace(".xml", "");
+        //protocol = protocol.replace(".xml", "");
         builder = new AlertDialog.Builder(getActivity());
         dbHelper = new DeviceDBHelper(requireActivity());
         protocolDBHelper = new ProtocolDBHelper(requireActivity());
@@ -117,7 +116,7 @@ public class DialogDevice extends DialogFragment {
         setSettingsToDeviceAlertDialog.setView(layout);
         setSettingsToDeviceAlertDialog.setPositiveButton(getResources().getString(R.string.alert_save), (dialogInterface, i) -> {
             newName = editTextNameAlert.getText().toString();
-            protocol = protocolDBHelper.getFileName(data.get((int) spinnerProtocol.getSelectedItemId()));
+            protocol = data.get((int) spinnerProtocol.getSelectedItemId());
 
             ContentValues contentValues = new ContentValues();
             contentValues.put(DeviceDBHelper.KEY_MAC, MAC);

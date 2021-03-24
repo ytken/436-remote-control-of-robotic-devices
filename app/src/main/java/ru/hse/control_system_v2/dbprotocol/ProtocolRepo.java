@@ -32,8 +32,7 @@ public class ProtocolRepo extends HashMap<String, Byte> {
     private HashMap<String, Byte> moveCodes;
     private Context context;
 
-    //TODO
-    //ругается, что Call requires API level R (current min is 23): java.util.List#of
+    //TODO ругается, что Call requires API level R (current min is 23): java.util.List#of
     public static final List<String> labels = List.of("class_android","class_computer","class_arduino","type_sphere","type_anthropomorphic",
             "type_cubbi","type_computer","redo_command","new_command","type_move","type_tele","STOP","FORWARD","FORWARD_STOP","BACK","BACK_STOP","LEFT","LEFT_STOP","RIGHT","RIGHT_STOP");
 
