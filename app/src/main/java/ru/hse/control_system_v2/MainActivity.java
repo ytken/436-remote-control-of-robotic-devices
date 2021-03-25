@@ -1,5 +1,6 @@
 package ru.hse.control_system_v2;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
@@ -7,10 +8,14 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.AssetManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.AdapterView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,6 +23,8 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,13 +32,16 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
-import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStreamWriter;
-import java.util.ArrayList;
+import com.mikepenz.iconics.typeface.FontAwesome;
+import com.mikepenz.materialdrawer.Drawer;
+import com.mikepenz.materialdrawer.model.DividerDrawerItem;
+import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
+import com.mikepenz.materialdrawer.model.SectionDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.Badgeable;
+import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
+import com.mikepenz.materialdrawer.model.interfaces.Nameable;
+
 
 import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
@@ -44,7 +54,7 @@ import ru.hse.control_system_v2.list_devices.ListDevicesAdapter;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 
-public class MainActivity extends AppCompatActivity implements SwipeRefreshLayout.OnRefreshListener
+public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayout.OnRefreshListener
 {
     DeviceDBHelper dbdevice;
     ProtocolDBHelper dbprotocol;
@@ -63,6 +73,7 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     ProgressBar progressBar;
     boolean isItemSelected;
     GridLayoutManager gridLayoutManager;
+    private Drawer.Result drawerResult = null;
 
 
     @Override
@@ -113,7 +124,72 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
         recycler.setHasFixedSize(true);
         adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
         recycler.setAdapter(adapter);
-        //recycler.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
+
+        // Инициализируем Navigation Drawer
+        // Обработка клика
+        // Обработка длинного клика
+        drawerResult = new Drawer()
+                .withActivity(this)
+                .withToolbar(toolbar)
+                .withActionBarDrawerToggle(true)
+                .withHeader(R.layout.drawer_header)
+                .addDrawerItems(
+                        new PrimaryDrawerItem().withName(R.string.drawer_item_add_protocol).withIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_code_24, null)).withIdentifier(0),
+                        new PrimaryDrawerItem().withName(R.string.drawer_item_data_base).withIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_delete_outline_24, null)).withIdentifier(1),
+                        new DividerDrawerItem(),
+                        new SecondaryDrawerItem().withName(R.string.drawer_item_code).withIcon(FontAwesome.Icon.faw_github).withIdentifier(2)
+                )
+                .withOnDrawerListener(new Drawer.OnDrawerListener() {
+                    @Override
+                    public void onDrawerOpened(View drawerView) {
+                        // Скрываем клавиатуру при открытии Navigation Drawer
+                        //InputMethodManager inputMethodManager = (InputMethodManager) MainActivity.this.getSystemService(Activity.INPUT_METHOD_SERVICE);
+                        //inputMethodManager.hideSoftInputFromWindow(MainActivity.this.getCurrentFocus().getWindowToken(), 0);
+                    }
+
+                    @Override
+                    public void onDrawerClosed(View drawerView) {
+                        onRefresh();
+                    }
+                })
+                .withOnDrawerItemClickListener((parent, view, position, id, drawerItem) -> {
+                    drawerResult.closeDrawer();
+                    if (id == 0){
+                        startActivity(new Intent().setClass(MainActivity.this, AddProtocolDBActivity.class));
+                        drawerResult.setSelection(-1);
+                    }
+                    if (id == 1){
+                        Log.d("button", "button delete");
+                        AlertDialog dialog =new AlertDialog.Builder(MainActivity.this)
+                                .setTitle("Подтверждение")
+                                .setIcon(android.R.drawable.ic_dialog_alert)
+                                .setMessage("Вы действительно хотите удалить все имеющиеся устройства?")
+                                .setPositiveButton("OK", (dialog1, whichButton) -> {
+                                    DeviceDBHelper helper = new DeviceDBHelper(MainActivity.this);
+                                    dbdevice.onUpgrade(helper.getReadableDatabase(), dbdevice.DATABASE_VERSION, dbdevice.DATABASE_VERSION + 1);
+                                    dbdevice = helper;
+                                    bdUpdated = 1;
+                                    onRefresh();
+                                })
+                                .setNegativeButton("Отмена", null)
+                                .create();
+                        dialog.show();
+                        drawerResult.setSelection(-1);
+                    }
+                    if (id == 3){
+                        Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ytken/436-remote-control-of-robotic-devices"));
+                        startActivity(browserIntent);
+                        drawerResult.setSelection(-1);
+                    }
+                })
+                .withOnDrawerItemLongClickListener((parent, view, position, id, drawerItem) -> {
+                    Toast.makeText(MainActivity.this, MainActivity.this.getString(((Nameable) drawerItem).getNameRes()), Toast.LENGTH_SHORT).show();
+                    drawerResult.setSelection(-1);
+                    return false;
+                })
+                .build();
+        drawerResult.setSelection(-1);
+
     }
 
     //Результат работы Service
@@ -150,42 +226,6 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
             //dialog.setTargetFragment(this, MY_REQUEST_CODE);
             dialog.show(getSupportFragmentManager(), "dialog");
         }
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.activity_main_drawer, menu);
-        return btIsEnabledFlagVoid();
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.new_code) {
-            startActivity(new Intent().setClass(MainActivity.this, AddProtocolDBActivity.class));
-            return true;
-        }
-        if (id == R.id.delete_data) {
-            Log.d("button", "button delete");
-            AlertDialog dialog =new AlertDialog.Builder(this)
-                    .setTitle("Подтверждение")
-                    .setIcon(android.R.drawable.ic_dialog_alert)
-                    .setMessage("Вы действительно хотите удалить все имеющиеся устройства?")
-                    .setPositiveButton("OK", (dialog1, whichButton) -> {
-                        DeviceDBHelper helper = new DeviceDBHelper(getApplicationContext());
-                        dbdevice.onUpgrade(helper.getReadableDatabase(), dbdevice.DATABASE_VERSION, dbdevice.DATABASE_VERSION + 1);
-                        dbdevice = helper;
-                        bdUpdated = 1;
-                        onRefresh();
-                    })
-                    .setNegativeButton("Отмена", null)
-                    .create();
-            dialog.show();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
     }
 
     private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
@@ -286,13 +326,16 @@ public class MainActivity extends AppCompatActivity implements SwipeRefreshLayou
     @Override
     public void onBackPressed() {
 
-
-        if (back_pressed + 2000 > System.currentTimeMillis()) {
-            super.onBackPressed();
+        if(drawerResult.isDrawerOpen()){
+            drawerResult.closeDrawer();
         } else {
-            showToast("Press again to exit");
+            if (back_pressed + 2000 > System.currentTimeMillis()) {
+                super.onBackPressed();
+            } else {
+                showToast("Press again to exit");
+            }
+            back_pressed = System.currentTimeMillis();
         }
-        back_pressed = System.currentTimeMillis();
     }
 
     // Метод для вывода всплывающих данных на экран

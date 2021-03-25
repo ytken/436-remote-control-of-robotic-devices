@@ -14,4 +14,15 @@
     <color name="endColor">#3F51B5</color>
     <color name="centerColor">#006797</color>
     <color name="foregroundColor">#9E9E9E</color>
+
+
+
+    <color name="material_drawer_background">#FFFFFFFF</color>
+    <color name="material_drawer_primary_text">#000</color>
+    <color name="material_drawer_secondary_text">#000</color>
+    <color name="material_drawer_hint_text">#ABABAB</color>
+    <color name="material_drawer_contrast_text">#000</color>
+    <color name="material_drawer_divider">#555555</color>
+    <color name="material_drawer_selected">#FFFFFFFF</color>
+    <color name="material_drawer_selected_text">#000</color>
 </resources>

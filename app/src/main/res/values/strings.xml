@@ -38,5 +38,9 @@
     <string name="button_leftward">Влево</string>
     <string name="button_rightward">Вправо</string>
     <string name="button_stop">Стоп</string>
+    <string name="drawer_item_add_protocol">Добавить новый протокол</string>
+    <string name="drawer_item_data_base">Удалить базу данных устройств</string>
     <string name="alert_device_name_tint">Имя устройства</string>
+    <string name="drawer_item_open_source">Open Source</string>
+    <string name="drawer_item_code">Исходный код</string>
 </resources>
