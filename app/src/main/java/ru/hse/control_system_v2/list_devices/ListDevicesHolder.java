@@ -21,12 +21,7 @@ public class ListDevicesHolder extends RecyclerView.ViewHolder {
         mName = itemView.findViewById(R.id.item_name);
         //mAddress = itemView.findViewById(R.id.item_address);
 
-        itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onDeviceClicked(getAdapterPosition());
-            }
-        });
+        itemView.setOnClickListener(v -> listener.onDeviceClicked(getAdapterPosition()));
     }
 
     interface IListener {

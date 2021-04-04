@@ -168,6 +168,7 @@ public class DataThread extends Thread{ // класс поток для прие
     public void Send_Data(byte message[]) {
         Log.d("Send_Data", "********************************************");
         sendData(message);}
+
     public void Disconnect(Timer bt_timer) // для работы через определенные промежутки времени
     {
         Log.d(TAG, "...In onPause()...");

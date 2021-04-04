@@ -1,18 +1,35 @@
 <CodeCatalogue>
     <length>32</length>
-    <ClassDevice>
-        <length>2</length>
+    <ClassFromDevice>
+        <length>1</length>
         <class_android>30</class_android>
         <class_computer>65</class_computer>
         <class_arduino>7e</class_arduino>
-    </ClassDevice>
-    <TypeDevice>
-        <length>2</length>
+        <no_class>11</no_class>
+    </ClassFromDevice>
+    <TypeFromDevice>
+        <length>1</length>
         <type_sphere>10</type_sphere>
         <type_anthropomorphic>09</type_anthropomorphic>
         <type_cubbi>41</type_cubbi>
         <type_computer>9D</type_computer>
-    </TypeDevice>
+        <no_type>22</no_type>
+    </TypeFromDevice>
+    <ClassToDevice>
+        <length>1</length>
+        <class_android>30</class_android>
+        <class_computer>65</class_computer>
+        <class_arduino>7e</class_arduino>
+        <no_class>11</no_class>
+    </ClassToDevice>
+    <TypeToDevice>
+        <length>1</length>
+        <type_sphere>10</type_sphere>
+        <type_anthropomorphic>09</type_anthropomorphic>
+        <type_cubbi>41</type_cubbi>
+        <type_computer>9D</type_computer>
+        <no_type>22</no_type>
+    </TypeToDevice>
     <TurnOfCommand>
         <length>1</length>
         <redo_command>15</redo_command>
