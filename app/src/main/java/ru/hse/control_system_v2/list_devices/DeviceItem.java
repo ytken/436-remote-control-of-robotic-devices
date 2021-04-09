@@ -1,16 +1,20 @@
 package ru.hse.control_system_v2.list_devices;
 
+import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 
 import java.util.Objects;
 
+import ru.hse.control_system_v2.BluetoothConnectionService;
+import ru.hse.control_system_v2.MainActivity;
+
 public class DeviceItem {
-    String name, MAC;
-    String type;
+    public String type, name, deviceMAC;
     int id;
-    public DeviceItem(int id, String name, String MAC, String type) {
+    public DeviceItem(int id, String name, String deviceMAC, String type) {
         this.name = name;
-        this.MAC = MAC;
+        this.deviceMAC = deviceMAC;
         this.id = id;
         this.type = type;
     }
@@ -21,11 +25,11 @@ public class DeviceItem {
         if (o == null || getClass() != o.getClass()) return false;
         DeviceItem item = (DeviceItem) o;
         return name.equals(item.name) &&
-                MAC.equals(item.MAC);
+                deviceMAC.equals(item.deviceMAC);
     }
 
     public String getMAC() {
-        return MAC;
+        return deviceMAC;
     }
 
     public int getId() {
@@ -37,4 +41,10 @@ public class DeviceItem {
     }
 
     public String getType() { return type; }
+
+    public void startBluetoothConnectionService(Context ma){
+        Intent intent = new Intent(ma, BluetoothConnectionService.class);
+        intent.putExtra("protocol", MainActivity.devicesList.get(0).getType());
+        ma.startService(intent);
+    }
 }

@@ -21,6 +21,7 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
 
     public interface DeviceClickedListener {
         void deviceClicked(DeviceItem item);
+        void deviceLongClicked(DeviceItem item);
     }
 
     public ListDevicesAdapter(Set<DeviceItem> data, DeviceClickedListener nlistener){
@@ -52,6 +53,11 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
     @Override
     public void onDeviceClicked(int id) {
         listener.deviceClicked(mData.get(id));
+    }
+
+    @Override
+    public void onDeviceLongClicked(int id) {
+        listener.deviceLongClicked(mData.get(id));
     }
 
 }

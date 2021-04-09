@@ -181,7 +181,6 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
             else {
                 deviceDBHelper.update(contentValues, id);
                 Toast.makeText(getApplicationContext(), "Device has been edited", Toast.LENGTH_LONG).show();
-                MainActivity.activity.setBdUpdated(-1);
                 finish();
             }
             deviceDBHelper.viewData();

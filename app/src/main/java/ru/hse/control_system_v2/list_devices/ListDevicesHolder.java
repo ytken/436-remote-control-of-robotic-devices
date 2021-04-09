@@ -2,11 +2,9 @@ package ru.hse.control_system_v2.list_devices;
 
 import android.content.res.Resources;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import ru.hse.control_system_v2.R;
@@ -27,15 +25,24 @@ public class ListDevicesHolder extends RecyclerView.ViewHolder {
                 listener.onDeviceClicked(getAdapterPosition());
             }
         });
+        itemView.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+                listener.onDeviceLongClicked(getAdapterPosition());
+                return true;
+            }
+        });
     }
 
     interface IListener {
         void onDeviceClicked(int id);
+        void onDeviceLongClicked(int id);
     }
 
     void bind(DeviceItem item) {
         mName.setText(item.name);
         //mAddress.setText(item.MAC);
+
     }
 
 }

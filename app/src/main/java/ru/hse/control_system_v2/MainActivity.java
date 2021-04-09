@@ -43,6 +43,8 @@ import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 
 
+import java.util.ArrayList;
+
 import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 import ru.hse.control_system_v2.dbprotocol.AddProtocolDBActivity;
@@ -59,21 +61,21 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
     DeviceDBHelper dbdevice;
     ProtocolDBHelper dbprotocol;
     int bdUpdated = 0;
-    public static MainActivity activity;
     //инициализация swipe refresh
     SwipeRefreshLayout swipeToRefreshLayout;
     BluetoothAdapter btAdapter;
     boolean stateOfFabToEnBt;
     ExtendedFloatingActionButton fabToEnBt;
     ExtendedFloatingActionButton fabToAddDevice;
+    ExtendedFloatingActionButton fabToStartConnecting;
     public static RecyclerView recycler;
     public static ListDevicesAdapter adapter = null;
     TextView headerText;
-    private BluetoothConnectionService arduino;                  // устройство, с которого буду получаю получать данные
     ProgressBar progressBar;
     boolean isItemSelected;
     GridLayoutManager gridLayoutManager;
     private Drawer.Result drawerResult = null;
+    public static ArrayList<DeviceItem> devicesList;
 
 
     @Override
@@ -83,6 +85,8 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         setContentView(R.layout.main);
         dbdevice = DeviceDBHelper.getInstance(getApplicationContext());
         dbprotocol = ProtocolDBHelper.getInstance(getApplicationContext());
+
+        devicesList = new ArrayList<>();
 
         gridLayoutManager = new GridLayoutManager(getApplicationContext(), 3, LinearLayoutManager.VERTICAL, false);
 
@@ -104,6 +108,12 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         btAdapter = BluetoothAdapter.getDefaultAdapter();
         this.fabToAddDevice = findViewById(R.id.floating_action_button_add_device);
         this.fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
+        this.fabToStartConnecting = findViewById(R.id.floating_action_button_start_sending_data);
+        fabToStartConnecting.setOnClickListener(view -> {
+            Intent startBluetoothConnectionService = new Intent(this, BluetoothConnectionService.class);
+            startBluetoothConnectionService.putExtra("protocol", devicesList.get(0).getType());
+            startService(startBluetoothConnectionService);
+        });
         fabToAddDevice.setOnClickListener(view -> {
             Intent intent = new Intent();
             intent.putExtra("mode",0);
@@ -114,8 +124,9 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
             int REQUEST_ENABLE_BT = 1;
             startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
         });
-        fabToAddDevice.hide();
-        fabToEnBt.hide();
+        fabToAddDevice.setVisibility(INVISIBLE);
+        fabToEnBt.setVisibility(INVISIBLE);
+        fabToStartConnecting.setVisibility(INVISIBLE);
         stateOfFabToEnBt = false;
         dbdevice = new DeviceDBHelper(this);
 
@@ -156,7 +167,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
                     drawerResult.closeDrawer();
                     if (id == 0){
                         startActivity(new Intent().setClass(MainActivity.this, AddProtocolDBActivity.class));
-                        drawerResult.setSelection(-1);
+
                     }
                     if (id == 1){
                         Log.d("button", "button delete");
@@ -174,22 +185,21 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
                                 .setNegativeButton("Отмена", null)
                                 .create();
                         dialog.show();
-                        drawerResult.setSelection(-1);
+
                     }
                     if (id == 3){
                         Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://github.com/ytken/436-remote-control-of-robotic-devices"));
                         startActivity(browserIntent);
-                        drawerResult.setSelection(-1);
+
                     }
                 })
                 .withOnDrawerItemLongClickListener((parent, view, position, id, drawerItem) -> {
-                    Toast.makeText(MainActivity.this, MainActivity.this.getString(((Nameable) drawerItem).getNameRes()), Toast.LENGTH_SHORT).show();
-                    drawerResult.setSelection(-1);
+                    if (id>=0) {
+                        Toast.makeText(MainActivity.this, MainActivity.this.getString(((Nameable) drawerItem).getNameRes()), Toast.LENGTH_SHORT).show();
+                    }
                     return false;
                 })
                 .build();
-        drawerResult.setSelection(-1);
-
     }
 
     //Результат работы Service
@@ -198,6 +208,9 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         @Override
         public void onReceive(Context context, Intent intent) {
             showToast("Connection Started");
+            devicesList.clear();
+            //TODO
+            //Очистить список выбранных устройств на экране
             progressBar.setVisibility(VISIBLE);
             isItemSelected = true;
         }
@@ -212,22 +225,6 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         }
     };
 
-    public class MyListener implements ListDevicesAdapter.DeviceClickedListener{
-        @Override
-        public void deviceClicked(DeviceItem item) {
-            DialogDevice dialog = new DialogDevice();
-            Bundle args = new Bundle();
-            args.putInt("id", item.getId());
-            args.putString("name", item.getName());
-            args.putString("MAC", item.getMAC());
-            String protocol = item.getType();
-            args.putString("protocol", protocol);
-            dialog.setArguments(args);
-            //dialog.setTargetFragment(this, MY_REQUEST_CODE);
-            dialog.show(getSupportFragmentManager(), "dialog");
-        }
-    }
-
     private final BroadcastReceiver mMessageReceiverSuccess = new BroadcastReceiver() {
 
         @Override
@@ -235,13 +232,9 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
             //Устройство подключено, Service выполнился успешно
             showToast("success");
             Bundle arguments = intent.getExtras();
-            String selectedDevice = arguments.get("MAC").toString();
             String classDevice = arguments.get("protocol").toString();
-            String deviceName = arguments.get("name").toString();
             Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
-            startSendingData.putExtra("MAC", selectedDevice);
             startSendingData.putExtra("protocol", classDevice);
-            startSendingData.putExtra("name", deviceName);
             startActivity(startSendingData);
 
             //SendDataActivity.device = device;
@@ -249,51 +242,104 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         }
     };
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (data == null) {
-            return;
+    public class MyListener implements ListDevicesAdapter.DeviceClickedListener{
+        @Override
+        public void deviceClicked(DeviceItem item) {
+            //проверяю происходит ли выбор списка устройств
+            if(devicesList.size() != 0) {
+                //список не пуст
+                if (!devicesList.get(0).type.equals(item.getType())) {
+                    //если протокол нажатого устройства отличается от уже выбранных
+                    //значит это попытка добавить новое устройство
+                    showToast("Пожалуйста выберите устройства с одинаковыми протоколами");
+                    showToast(devicesList.get(0).type);
+                    showToast(item.getType());
+                } else {
+                    //если протокол совпал
+                    //необходимо проверить на присутствие в списке
+                    boolean wasAlreadySelected = false;
+                    for (int i = 0; i < devicesList.size(); i++) {
+                        if (devicesList.get(i).deviceMAC.equals(item.getMAC())) {
+                            devicesList.remove(i);
+                            wasAlreadySelected = true;
+                        }
+                    }
+                    if (!wasAlreadySelected) {
+                        devicesList.add(item);
+                        fabToAddDevice.setVisibility(INVISIBLE);
+                        fabToStartConnecting.setVisibility(VISIBLE);
+                    } else {
+                        if(devicesList.size() == 0) {
+                            showToast("Список выбранных устройств очищен");
+                            fabToStartConnecting.setVisibility(INVISIBLE);
+                            fabToAddDevice.setVisibility(VISIBLE);
+                        }
+                    }
+                }
+            } else {
+                //список пуст, открываем диалог для одного устройства
+                DialogDevice dialog = new DialogDevice();
+                Bundle args = new Bundle();
+                dialog.setArguments(args);
+                devicesList.add(item);
+                //dialog.setTargetFragment(this, MY_REQUEST_CODE);
+                dialog.show(getSupportFragmentManager(), "dialog");
+            }
         }
-        int resultBundle = data.getIntExtra("result", 0);
-        Log.d("Add device", "In onActivityResult " + resultBundle);
-        bdUpdated = resultBundle;
-    }
 
-    public void setBdUpdated(int id) {
-        if (id > 0) dbdevice.deleteDevice(id);
-        dbdevice = new DeviceDBHelper(getApplicationContext());
-        dbdevice.viewData();
-        bdUpdated = 1;
-        onRefresh();
+        @Override
+        public void deviceLongClicked(DeviceItem item) {
+            if(devicesList.size() == 0){
+                devicesList.add(item);
+                fabToAddDevice.setVisibility(INVISIBLE);
+                fabToStartConnecting.setVisibility(VISIBLE);
+            } else {
+                if(!devicesList.get(0).type.equals(item.getType())){
+                    showToast("Пожалуйста выберите устройства с одинаковыми протоколами");
+                    showToast(devicesList.get(0).type);
+                    showToast(item.getType());
+                } else {
+                    boolean wasAlreadySelected = false;
+                    for(int i = 0; i < devicesList.size(); i++){
+                        if(devicesList.get(i).deviceMAC.equals(item.getMAC())){
+                            wasAlreadySelected = true;
+                        }
+                    }
+                    if(!wasAlreadySelected){
+                        devicesList.add(item);
+                    }
+                }
+
+            }
+        }
     }
 
     //Обновляем внешний вид приложения, скрываем и добавляем нужные элементы интерфейса
     @Override
     public void onRefresh() {
+        devicesList.clear();
+        fabToStartConnecting.setVisibility(INVISIBLE);
         if (btIsEnabledFlagVoid()) {
             headerText.setText(R.string.favorites_devices);
             // Bluetooth включён. Предложим пользователю добавить устройства и начать передачу данных.
             if (stateOfFabToEnBt) {
                 // Bluetooth включён, надо скрыть кнопку включения Bluetooth
-                fabToEnBt.hide();
+                fabToEnBt.setVisibility(INVISIBLE);
                 stateOfFabToEnBt = false;
             }
             invalidateOptionsMenu();
-            fabToAddDevice.show();
+            fabToAddDevice.setVisibility(VISIBLE);
             // Bluetooth включён, надо показать кнопку добавления устройств и другую информацию
             adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
             recycler.setAdapter(adapter);
-
-
         } else {
             headerText.setText(R.string.suggestionEnableBluetooth);
             recycler.setAdapter(null);
             invalidateOptionsMenu(); // now onCreateOptionsMenu(...) is called again
-            fabToAddDevice.hide();
+            fabToAddDevice.setVisibility(INVISIBLE);
             if (!stateOfFabToEnBt) {
                 // Bluetooth выключён, надо показать кнопку включения Bluetooth
-                fabToEnBt.show();
+                fabToEnBt.setVisibility(VISIBLE);
                 stateOfFabToEnBt = true;
             }
         }
