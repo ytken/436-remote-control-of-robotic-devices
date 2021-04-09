@@ -43,4 +43,13 @@
     <string name="alert_device_name_tint">Имя устройства</string>
     <string name="drawer_item_open_source">Open Source</string>
     <string name="drawer_item_code">Исходный код</string>
+
+    <string name="TAG_FULL_MES">CodeCatalogue</string>
+    <string name="TAG_CLASS_FROM">ClassFromDevice</string>
+    <string name="TAG_TYPE_FROM">TypeFromDevice</string>
+    <string name="TAG_CLASS_TO">ClassToDevice</string>
+    <string name="TAG_TYPE_TO">TypeToDevice</string>
+    <string name="TAG_TURN_COM">TurnOfCommand</string>
+    <string name="TAG_TYPE_COM">TypeOfCommand</string>
+    <string name="TAG_MOVE_CODE">TypeOfMove</string>
 </resources>

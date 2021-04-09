@@ -35,7 +35,8 @@ public class ProtocolRepo extends HashMap<String, Byte> {
 
     //TODO ругается, что Call requires API level R (current min is 23): java.util.List#of
     public static final List<String> labels = List.of("class_android","class_computer","class_arduino","type_sphere","type_anthropomorphic",
-            "type_cubbi","type_computer","redo_command","new_command","type_move","type_tele","STOP","FORWARD","FORWARD_STOP","BACK","BACK_STOP","LEFT","LEFT_STOP","RIGHT","RIGHT_STOP");
+            "type_cubbi","type_computer","no_class","no_type","redo_command","new_command","type_move","type_tele",
+            "STOP","FORWARD","FORWARD_STOP","BACK", "BACK_STOP","LEFT","LEFT_STOP","RIGHT","RIGHT_STOP");
 
     public ProtocolRepo(Context context, String name) {
         this.context = context;
@@ -48,9 +49,13 @@ public class ProtocolRepo extends HashMap<String, Byte> {
     }
 
     public Byte get(String key) {
-        Log.d("mLog", "key = " + key);
-        Log.d("mLog", "value = " + moveCodes.get(key));
         return moveCodes.get(key);
+    }
+
+    public Integer getLength(String key) {
+        if (lengthOfQuery.containsKey(key))
+            return lengthOfQuery.get(key);
+        return 0;
     }
 
     XmlPullParser prepareXpp(String name) throws IOException, XmlPullParserException {
@@ -96,7 +101,7 @@ public class ProtocolRepo extends HashMap<String, Byte> {
                         break;
                     // содержимое тэга
                     case XmlPullParser.TEXT:
-                        if(curName.equals("length")){
+                        if(curName.equals("length")) {
                             int len = Integer.parseInt(xpp.getText());
                             lengthOfQuery.put(parentName, len);
                             Log.d(LOG_TAG, "length of " + parentName + " = " + len);
