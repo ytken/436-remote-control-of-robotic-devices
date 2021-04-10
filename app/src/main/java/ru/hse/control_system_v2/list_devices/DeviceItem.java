@@ -44,7 +44,7 @@ public class DeviceItem {
 
     public void startBluetoothConnectionService(Context ma){
         Intent intent = new Intent(ma, BluetoothConnectionService.class);
-        intent.putExtra("protocol", MainActivity.devicesList.get(0).getType());
+        intent.putExtra("protocol", type);
         ma.startService(intent);
     }
 }

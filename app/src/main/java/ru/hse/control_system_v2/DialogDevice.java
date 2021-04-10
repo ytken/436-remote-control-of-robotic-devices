@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -52,10 +53,10 @@ public class DialogDevice extends DialogFragment {
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
         dbdevice = DeviceDBHelper.getInstance(ma);
-        id = MainActivity.devicesList.get(0).getId();
-        name = MainActivity.devicesList.get(0).getName();
-        MAC = MainActivity.devicesList.get(0).getMAC();
-        protocol = MainActivity.devicesList.get(0).getType();
+        id = MainActivity.currentDevice.getId();
+        name = MainActivity.currentDevice.getName();
+        MAC = MainActivity.currentDevice.getMAC();
+        protocol = MainActivity.currentDevice.getType();
         builder = new AlertDialog.Builder(getActivity());
         dbHelper = new DeviceDBHelper(requireActivity());
         protocolDBHelper = new ProtocolDBHelper(requireActivity());
@@ -66,12 +67,19 @@ public class DialogDevice extends DialogFragment {
                 .setMessage(getResources().getString(R.string.alert_device_name) + name + "\n" + getResources().getString(R.string.alert_MAC) + MAC+ "\n"+getResources().getString(R.string.alert_protocol) + protocol)
                 .setPositiveButton(getResources().getString(R.string.loading_label), (dialog, whichButton) -> {
                     //запуск подключения происходит ниже
-                    MainActivity.devicesList.get(0).startBluetoothConnectionService(ma);
+                    MainActivity.currentDevice.startBluetoothConnectionService(ma);
                 })
                 .setNegativeButton(getResources().getString(R.string.alert_delete), (dialog, whichButton) -> {
                             dbdevice.deleteDevice(id);
                             ma.onRefresh();}
                     )
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        //action when dialog is dismissed goes here
+                        //nothing now
+                    }
+                })
                 .setNeutralButton(getResources().getString(R.string.alert_change), (dialog, which) -> {
                     changeDeviceAlert();
                 })

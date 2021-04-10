@@ -12,7 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
+import ru.hse.control_system_v2.MainActivity;
 import ru.hse.control_system_v2.R;
+
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
 
 public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> implements ListDevicesHolder.IListener {
 

@@ -231,8 +231,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                         for(int i = 0; i < dataThreadForArduinoList.size(); i++){
                             dataThreadForArduinoList.get(i).Send_Data(message);
                         }
-                        showToast(String.valueOf(message[4]));
-                        showToast(String.valueOf(message[6]));
                         break;
                     case R.id.button_down:
                         Log.d("Назад поехали", "********************************************");

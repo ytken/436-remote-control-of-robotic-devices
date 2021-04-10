@@ -40,6 +40,7 @@ public class BluetoothConnectionService extends Service {
     int numberOfDevices;
     ExecutorService executorService;
     ArrayList<DeviceItem> devicesList;
+    ArrayList<DeviceItem> devicesListConnected;
     static ArrayList<MyRun> treadList;
     static ArrayList<Boolean> resultOfConnection;
     static ArrayList<BluetoothSocket> socketList;
@@ -55,11 +56,17 @@ public class BluetoothConnectionService extends Service {
         treadList = new ArrayList<>();
         socketList = new ArrayList<>();
         devicesList = new ArrayList<>();
+        devicesListConnected = new ArrayList<>();
 
         Bundle arguments = intent.getExtras();
         classDevice = arguments.get("protocol").toString();
-        devicesList.addAll(MainActivity.devicesList);
-        executorService = Executors.newFixedThreadPool(8);
+        if (MainActivity.devicesList.size() != 0) {
+            devicesList.addAll(MainActivity.devicesList);
+        } else {
+            devicesList.add(MainActivity.currentDevice);
+        }
+
+        executorService = Executors.newFixedThreadPool(devicesList.size());
         Log.d(TAG, "...Соединение начато...");
         for(int i = 0; i < devicesList.size(); i++){
             Log.d(TAG, "...Создаю массивы данных...");
@@ -120,7 +127,9 @@ public class BluetoothConnectionService extends Service {
             } else {
                 resultOfConnection.set(i, false);
             }
-            resultOfConnection();
+            if(i == devicesList.size() - 1){
+                resultOfConnection();
+            }
             Log.d(TAG, "...Попытка подключения для текущего устройства завершено...");
         }
     }
@@ -149,13 +158,14 @@ public class BluetoothConnectionService extends Service {
         for(int i = 0; i < devicesList.size(); i++){
             if(resultOfConnection.get(i).equals(true)){
                 isSuccess = true;
+                devicesListConnected.add(devicesList.get(i));
             }
         }
         if(isSuccess){
             resultOfConnectionIntent = new Intent("success");
             resultOfConnectionIntent.putExtra("protocol", classDevice);
             SocketHandler.setSocketList(socketList);
-            SocketHandler.setDevicesList(devicesList);
+            SocketHandler.setDevicesList(devicesListConnected);
             SocketHandler.setResultOfConnection(resultOfConnection);
             Log.d(TAG, "...Соединение успешно, передаю результат в Main Activity...");
         } else{

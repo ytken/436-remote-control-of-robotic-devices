@@ -76,6 +76,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
     GridLayoutManager gridLayoutManager;
     private Drawer.Result drawerResult = null;
     public static ArrayList<DeviceItem> devicesList;
+    static DeviceItem currentDevice;
 
 
     @Override
@@ -209,8 +210,6 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         public void onReceive(Context context, Intent intent) {
             showToast("Connection Started");
             devicesList.clear();
-            //TODO
-            //Очистить список выбранных устройств на экране
             progressBar.setVisibility(VISIBLE);
             isItemSelected = true;
         }
@@ -222,6 +221,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         public void onReceive(Context context, Intent intent) {
             showToast("Not success");
             progressBar.setVisibility(INVISIBLE);
+            onRefresh();
         }
     };
 
@@ -242,34 +242,37 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         }
     };
 
+    private static final String TAG = "SendDataActivity";
     public class MyListener implements ListDevicesAdapter.DeviceClickedListener{
         @Override
         public void deviceClicked(DeviceItem item) {
             //проверяю происходит ли выбор списка устройств
             if(devicesList.size() != 0) {
+                Log.d(TAG, "...Список не пуст, нажато устройство...");
                 //список не пуст
-                if (!devicesList.get(0).type.equals(item.getType())) {
+                if (!devicesList.get(0).getType().equals(item.getType())) {
                     //если протокол нажатого устройства отличается от уже выбранных
                     //значит это попытка добавить новое устройство
                     showToast("Пожалуйста выберите устройства с одинаковыми протоколами");
-                    showToast(devicesList.get(0).type);
-                    showToast(item.getType());
                 } else {
                     //если протокол совпал
                     //необходимо проверить на присутствие в списке
                     boolean wasAlreadySelected = false;
                     for (int i = 0; i < devicesList.size(); i++) {
-                        if (devicesList.get(i).deviceMAC.equals(item.getMAC())) {
+                        if (devicesList.get(i).getMAC().equals(item.getMAC())) {
                             devicesList.remove(i);
                             wasAlreadySelected = true;
+                            Log.d(TAG, "...В списке нашлось это устройство, удаляю...");
                         }
                     }
                     if (!wasAlreadySelected) {
+                        Log.d(TAG, "...В списке не нашлось это устройство, добавляю...");
                         devicesList.add(item);
                         fabToAddDevice.setVisibility(INVISIBLE);
                         fabToStartConnecting.setVisibility(VISIBLE);
                     } else {
                         if(devicesList.size() == 0) {
+                            Log.d(TAG, "...Список очищен...");
                             showToast("Список выбранных устройств очищен");
                             fabToStartConnecting.setVisibility(INVISIBLE);
                             fabToAddDevice.setVisibility(VISIBLE);
@@ -277,11 +280,12 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
                     }
                 }
             } else {
+                Log.d(TAG, "...Список пуст, открываю диалог...");
                 //список пуст, открываем диалог для одного устройства
                 DialogDevice dialog = new DialogDevice();
                 Bundle args = new Bundle();
                 dialog.setArguments(args);
-                devicesList.add(item);
+                currentDevice = item;
                 //dialog.setTargetFragment(this, MY_REQUEST_CODE);
                 dialog.show(getSupportFragmentManager(), "dialog");
             }
@@ -290,18 +294,19 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         @Override
         public void deviceLongClicked(DeviceItem item) {
             if(devicesList.size() == 0){
+                Log.d(TAG, "...Список пуст, добавляю устройство...");
                 devicesList.add(item);
                 fabToAddDevice.setVisibility(INVISIBLE);
                 fabToStartConnecting.setVisibility(VISIBLE);
             } else {
-                if(!devicesList.get(0).type.equals(item.getType())){
+                if(!devicesList.get(0).getType().equals(item.getType())){
                     showToast("Пожалуйста выберите устройства с одинаковыми протоколами");
                     showToast(devicesList.get(0).type);
                     showToast(item.getType());
                 } else {
                     boolean wasAlreadySelected = false;
                     for(int i = 0; i < devicesList.size(); i++){
-                        if(devicesList.get(i).deviceMAC.equals(item.getMAC())){
+                        if(devicesList.get(i).getMAC().equals(item.getMAC())){
                             wasAlreadySelected = true;
                         }
                     }
