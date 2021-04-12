@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
@@ -23,6 +24,7 @@ import java.util.ArrayList;
 import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
+import ru.hse.control_system_v2.list_devices.DeviceItem;
 
 
 public class DialogDevice extends DialogFragment {
@@ -37,6 +39,7 @@ public class DialogDevice extends DialogFragment {
     ProtocolDBHelper protocolDBHelper;
     ArrayList<String> data;
     MainActivity ma;
+    DeviceDBHelper dbdevice;
 
     @Override
     public void onAttach(@NonNull Context context) {
@@ -49,10 +52,11 @@ public class DialogDevice extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        id = getArguments().getInt("id");
-        name = getArguments().getString("name");
-        MAC = getArguments().getString("MAC");
-        protocol = getArguments().getString("protocol");
+        dbdevice = DeviceDBHelper.getInstance(ma);
+        id = MainActivity.currentDevice.getId();
+        name = MainActivity.currentDevice.getName();
+        MAC = MainActivity.currentDevice.getMAC();
+        protocol = MainActivity.currentDevice.getType();
         builder = new AlertDialog.Builder(getActivity());
         dbHelper = new DeviceDBHelper(requireActivity());
         protocolDBHelper = new ProtocolDBHelper(requireActivity());
@@ -63,13 +67,19 @@ public class DialogDevice extends DialogFragment {
                 .setMessage(getResources().getString(R.string.alert_device_name) + name + "\n" + getResources().getString(R.string.alert_MAC) + MAC+ "\n"+getResources().getString(R.string.alert_protocol) + protocol)
                 .setPositiveButton(getResources().getString(R.string.loading_label), (dialog, whichButton) -> {
                     //запуск подключения происходит ниже
-                    Log.d("proto1", protocol);
-                    NewDevice arduino = new NewDevice(requireActivity(),MAC, protocol, name);
-                    arduino.startBluetoothConnectionService();
+                    MainActivity.currentDevice.startBluetoothConnectionService(ma);
                 })
                 .setNegativeButton(getResources().getString(R.string.alert_delete), (dialog, whichButton) -> {
-                    ma.setBdUpdated(id);}
+                            dbdevice.deleteDevice(id);
+                            ma.onRefresh();}
                     )
+                .setOnDismissListener(new DialogInterface.OnDismissListener() {
+                    @Override
+                    public void onDismiss(DialogInterface dialogInterface) {
+                        //action when dialog is dismissed goes here
+                        //nothing now
+                    }
+                })
                 .setNeutralButton(getResources().getString(R.string.alert_change), (dialog, which) -> {
                     changeDeviceAlert();
                 })
@@ -122,7 +132,6 @@ public class DialogDevice extends DialogFragment {
             contentValues.put(DeviceDBHelper.KEY_PROTO, protocol);
             dbHelper.update(contentValues, id);
             //Toast.makeText(requireActivity(), "Device has been edited", Toast.LENGTH_LONG).show();
-            ma.setBdUpdated(-1);
             dbHelper.viewData();
             //Обновление MainActivity
             ma.onRefresh();
