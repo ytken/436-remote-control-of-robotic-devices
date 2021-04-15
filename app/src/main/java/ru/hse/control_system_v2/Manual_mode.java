@@ -11,6 +11,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.widget.SwitchCompat;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -57,9 +58,9 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         socketList = SocketHandler.getSocketList();
         devicesList = SocketHandler.getDevicesList();
 
-        //много устройств, но сейчас одно
+
+
         Bundle b = getIntent().getExtras();
-        //MAC = b.get("MAC").toString();
         classDevice = b.get("protocol").toString();
         DataThread dataThreadForArduino = new DataThread();
         dataThreadForArduinoList = new ArrayList<>();
