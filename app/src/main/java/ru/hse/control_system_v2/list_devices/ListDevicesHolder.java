@@ -16,6 +16,7 @@ import static android.view.View.VISIBLE;
 public class ListDevicesHolder extends RecyclerView.ViewHolder {
     TextView mName, mAddress;
     Resources resources;
+    boolean isSelected = false;
 
     public ListDevicesHolder(@NonNull View itemView, IListener listener) {
         super(itemView);
@@ -23,36 +24,18 @@ public class ListDevicesHolder extends RecyclerView.ViewHolder {
         mName = itemView.findViewById(R.id.item_name);
         //mAddress = itemView.findViewById(R.id.item_address);
 
-        itemView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                listener.onDeviceClicked(getAdapterPosition());
-                //TODO
-                //if(MainActivity.devicesList.size() != 0){
-                        //if(v.getBackground() != v.getResources().getDrawable(R.drawable.background_selected)){
-                            //v.setBackground(v.getResources().getDrawable(R.drawable.background_selected));
-                        //} else{
-                            //v.setBackground(v.getResources().getDrawable(R.drawable.background_not_selected));
-                    //}
-                //}
-            }
+        itemView.setOnClickListener(v -> {
+            listener.onDeviceClicked(getAdapterPosition(), itemView);
         });
-        itemView.setOnLongClickListener(new View.OnLongClickListener() {
-            @Override
-            public boolean onLongClick(View v) {
-                listener.onDeviceLongClicked(getAdapterPosition());
-                //TODO
-                //if(MainActivity.devicesList.size() == 0){
-                    //v.setBackground(v.getResources().getDrawable(R.drawable.background_selected));
-                //}
-                return true;
-            }
+        itemView.setOnLongClickListener(v -> {
+            listener.onDeviceLongClicked(getAdapterPosition(), itemView);
+            return true;
         });
     }
 
     interface IListener {
-        void onDeviceClicked(int id);
-        void onDeviceLongClicked(int id);
+        void onDeviceClicked(int id, View itemView);
+        void onDeviceLongClicked(int id, View itemView);
     }
 
     void bind(DeviceItem item) {
