@@ -65,18 +65,18 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
     SwipeRefreshLayout swipeToRefreshLayout;
     BluetoothAdapter btAdapter;
     boolean stateOfFabToEnBt;
-    ExtendedFloatingActionButton fabToEnBt;
-    ExtendedFloatingActionButton fabToAddDevice;
-    ExtendedFloatingActionButton fabToStartConnecting;
+    public static ExtendedFloatingActionButton fabToEnBt;
+    public static ExtendedFloatingActionButton fabToAddDevice;
+    public static ExtendedFloatingActionButton fabToStartConnecting;
     public static RecyclerView recycler;
-    public static ListDevicesAdapter adapter = null;
+    ListDevicesAdapter adapter = null;
     TextView headerText;
     ProgressBar progressBar;
     boolean isItemSelected;
     GridLayoutManager gridLayoutManager;
     private Drawer.Result drawerResult = null;
     public static ArrayList<DeviceItem> devicesList;
-    static DeviceItem currentDevice;
+    public static DeviceItem currentDevice;
 
 
     @Override
@@ -107,17 +107,17 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         swipeToRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         swipeToRefreshLayout.setOnRefreshListener(this);
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-        this.fabToAddDevice = findViewById(R.id.floating_action_button_add_device);
-        this.fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
-        this.fabToStartConnecting = findViewById(R.id.floating_action_button_start_sending_data);
+        fabToAddDevice = findViewById(R.id.floating_action_button_add_device);
+        fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
+        fabToStartConnecting = findViewById(R.id.floating_action_button_start_sending_data);
         fabToStartConnecting.setOnClickListener(view -> {
+            fabToStartConnecting.setEnabled(false);
             Intent startBluetoothConnectionService = new Intent(this, BluetoothConnectionService.class);
             startBluetoothConnectionService.putExtra("protocol", devicesList.get(0).getType());
             startService(startBluetoothConnectionService);
         });
         fabToAddDevice.setOnClickListener(view -> {
             Intent intent = new Intent();
-            intent.putExtra("mode",0);
             startActivityForResult(intent.setClass(MainActivity.this, AddDeviceDBActivity.class), 10);
         });
         fabToEnBt.setOnClickListener(view -> {
@@ -134,7 +134,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         recycler = findViewById(R.id.recycler_main);
         recycler.setLayoutManager(gridLayoutManager);
         recycler.setHasFixedSize(true);
-        adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
+        adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), this);
         recycler.setAdapter(adapter);
 
         // Инициализируем Navigation Drawer
@@ -161,7 +161,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
 
                     @Override
                     public void onDrawerClosed(View drawerView) {
-                        onRefresh();
+
                     }
                 })
                 .withOnDrawerItemClickListener((parent, view, position, id, drawerItem) -> {
@@ -236,93 +236,21 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
             Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
             startSendingData.putExtra("protocol", classDevice);
             startActivity(startSendingData);
+            fabToStartConnecting.setEnabled(true);
 
             //SendDataActivity.device = device;
             progressBar.setVisibility(INVISIBLE);
         }
     };
 
-    private static final String TAG = "SendDataActivity";
-    public class MyListener implements ListDevicesAdapter.DeviceClickedListener{
-        @Override
-        public void deviceClicked(DeviceItem item) {
-            //проверяю происходит ли выбор списка устройств
-            if(devicesList.size() != 0) {
-                Log.d(TAG, "...Список не пуст, нажато устройство...");
-                //список не пуст
-                if (!devicesList.get(0).getType().equals(item.getType())) {
-                    //если протокол нажатого устройства отличается от уже выбранных
-                    //значит это попытка добавить новое устройство
-                    showToast("Пожалуйста выберите устройства с одинаковыми протоколами");
-                } else {
-                    //если протокол совпал
-                    //необходимо проверить на присутствие в списке
-                    boolean wasAlreadySelected = false;
-                    for (int i = 0; i < devicesList.size(); i++) {
-                        if (devicesList.get(i).getMAC().equals(item.getMAC())) {
-                            devicesList.remove(i);
-                            wasAlreadySelected = true;
-                            Log.d(TAG, "...В списке нашлось это устройство, удаляю...");
-                        }
-                    }
-                    if (!wasAlreadySelected) {
-                        Log.d(TAG, "...В списке не нашлось это устройство, добавляю...");
-                        devicesList.add(item);
-                        fabToAddDevice.setVisibility(INVISIBLE);
-                        fabToStartConnecting.setVisibility(VISIBLE);
-                    } else {
-                        if(devicesList.size() == 0) {
-                            Log.d(TAG, "...Список очищен...");
-                            showToast("Список выбранных устройств очищен");
-                            fabToStartConnecting.setVisibility(INVISIBLE);
-                            fabToAddDevice.setVisibility(VISIBLE);
-                        }
-                    }
-                }
-            } else {
-                Log.d(TAG, "...Список пуст, открываю диалог...");
-                //список пуст, открываем диалог для одного устройства
-                DialogDevice dialog = new DialogDevice();
-                Bundle args = new Bundle();
-                dialog.setArguments(args);
-                currentDevice = item;
-                //dialog.setTargetFragment(this, MY_REQUEST_CODE);
-                dialog.show(getSupportFragmentManager(), "dialog");
-            }
-        }
 
-        @Override
-        public void deviceLongClicked(DeviceItem item) {
-            if(devicesList.size() == 0){
-                Log.d(TAG, "...Список пуст, добавляю устройство...");
-                devicesList.add(item);
-                fabToAddDevice.setVisibility(INVISIBLE);
-                fabToStartConnecting.setVisibility(VISIBLE);
-            } else {
-                if(!devicesList.get(0).getType().equals(item.getType())){
-                    showToast("Пожалуйста выберите устройства с одинаковыми протоколами");
-                    showToast(devicesList.get(0).type);
-                    showToast(item.getType());
-                } else {
-                    boolean wasAlreadySelected = false;
-                    for(int i = 0; i < devicesList.size(); i++){
-                        if(devicesList.get(i).getMAC().equals(item.getMAC())){
-                            wasAlreadySelected = true;
-                        }
-                    }
-                    if(!wasAlreadySelected){
-                        devicesList.add(item);
-                    }
-                }
-
-            }
-        }
-    }
 
     //Обновляем внешний вид приложения, скрываем и добавляем нужные элементы интерфейса
     @Override
     public void onRefresh() {
         devicesList.clear();
+        progressBar.setVisibility(INVISIBLE);
+        fabToStartConnecting.setEnabled(true);
         fabToStartConnecting.setVisibility(INVISIBLE);
         if (btIsEnabledFlagVoid()) {
             headerText.setText(R.string.favorites_devices);
@@ -335,7 +263,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
             invalidateOptionsMenu();
             fabToAddDevice.setVisibility(VISIBLE);
             // Bluetooth включён, надо показать кнопку добавления устройств и другую информацию
-            adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), new MyListener());
+            adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), this);
             recycler.setAdapter(adapter);
         } else {
             headerText.setText(R.string.suggestionEnableBluetooth);
@@ -391,7 +319,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
 
     // Метод для вывода всплывающих данных на экран
     public void showToast(String outputInfoString) {
-        Toast outputInfoToast = Toast.makeText(this, outputInfoString, Toast.LENGTH_SHORT);
+        Toast outputInfoToast = Toast.makeText(getApplicationContext(), outputInfoString, Toast.LENGTH_SHORT);
         outputInfoToast.show();
     }
 
@@ -411,6 +339,4 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         super.onResume();
         checkForBtAdapter();
     }
-
-
 }
