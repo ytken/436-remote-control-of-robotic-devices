@@ -37,7 +37,7 @@
             android:id="@+id/textViewNameManual"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Устройство"
+            android:text="Панель управления"
             android:textAlignment="center"
             android:textSize="18sp"
             android:textStyle="italic"
@@ -166,5 +166,21 @@
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toEndOf="@+id/button_down"
             app:layout_constraintTop_toBottomOf="@+id/button_right" />
+
+        <TextView
+            android:id="@+id/incoming_data"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:background="@drawable/textview_bg"
+            android:gravity="bottom"
+            android:text="Терминал"
+            android:textColor="#FFFFFF"
+            app:layout_constraintBottom_toTopOf="@+id/button_up"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/switch_hold_command_mm" />
     </androidx.constraintlayout.widget.ConstraintLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

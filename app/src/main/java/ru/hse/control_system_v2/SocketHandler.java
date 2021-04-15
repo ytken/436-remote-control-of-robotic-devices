@@ -7,18 +7,10 @@ import java.util.ArrayList;
 import ru.hse.control_system_v2.list_devices.DeviceItem;
 
 public class SocketHandler {
-    private static BluetoothSocket socket;
     private static ArrayList<BluetoothSocket> socketList;
     private static ArrayList<Boolean> resultOfConnection;
     private static ArrayList<DeviceItem> devicesList;
-
-    public static synchronized BluetoothSocket getSocket(){
-        return socket;
-    }
-
-    public static synchronized void setSocket(BluetoothSocket socket){
-        SocketHandler.socket = socket;
-    }
+    private static int numberOfConnections;
 
     public static synchronized ArrayList<BluetoothSocket> getSocketList(){
         return socketList;
@@ -28,12 +20,12 @@ public class SocketHandler {
         SocketHandler.socketList = socketList;
     }
 
-    public static synchronized ArrayList<Boolean> getResultOfConnection(){
-        return resultOfConnection;
+    public static synchronized int getNumberOfConnections(){
+        return numberOfConnections;
     }
 
-    public static synchronized void setResultOfConnection(ArrayList<Boolean> resultOfConnection){
-        SocketHandler.resultOfConnection = resultOfConnection;
+    public static synchronized void setNumberOfConnections(int numberOfConnections){
+        SocketHandler.numberOfConnections = numberOfConnections;
     }
 
     public static synchronized ArrayList<DeviceItem> getDevicesList(){

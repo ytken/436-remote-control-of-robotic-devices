@@ -6,7 +6,9 @@ import android.content.ContentValues;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Editable;
 import android.text.InputType;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -42,15 +44,15 @@ import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
 public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAdapter.SelectedDevice, SwipeRefreshLayout.OnRefreshListener{
     DeviceDBHelper deviceDBHelper;
     ProtocolDBHelper protocolDBHelper;
-    public ExtendedFloatingActionButton fabToOpenSettings;
+    ExtendedFloatingActionButton fabToOpenSettings;
     Spinner spinnerProtocol;
     RecyclerView pairedList;
-    public BluetoothAdapter btAdapter;
+    BluetoothAdapter btAdapter;
     String selectedDevice;
     DevicesAdapter devicesAdapter;
     String deviceHardwareAddress;
 
-    public TextView pairedDevicesTitleTextView;
+    TextView pairedDevicesTitleTextView;
     LayoutInflater inflater;
     String rateString;
     String name;
@@ -59,7 +61,7 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
     Bundle b;
     boolean stateOfAlert;
 
-    int dataChanged = 0, mode, id;
+    int dataChanged = 0;
 
     ArrayList<String> data;
 
@@ -93,13 +95,6 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinnerProtocol = new Spinner(AddDeviceDBActivity.this);
         spinnerProtocol.setAdapter(adapter);
-
-        b = getIntent().getExtras();
-        mode = b.getInt("mode");
-        if (mode == 1) {
-            alertDeviceSelected(b.getString("MAC"));
-        }
-
         Toolbar toolbar = findViewById(R.id.toolbar_add_device);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -115,13 +110,14 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
 
 
     void alertDeviceSelected(String MacAddress){
+        AlertDialog dialogSaveDevice;
         AlertDialog.Builder setSettingsToDeviceAlertDialog = new AlertDialog.Builder(AddDeviceDBActivity.this);
-        setSettingsToDeviceAlertDialog.setTitle("Set connection settings");
+        setSettingsToDeviceAlertDialog.setTitle(getResources().getString(R.string.alert_device_saving));
 
         EditText editTextNameAlert = new EditText(AddDeviceDBActivity.this);
 
         editTextNameAlert.setInputType(InputType.TYPE_CLASS_TEXT);
-        editTextNameAlert.setHint("Device Name");
+        editTextNameAlert.setHint(getResources().getString(R.string.label_name));
 
         LinearLayout layout = new LinearLayout(getApplicationContext());
         layout.setOrientation(LinearLayout.VERTICAL);
@@ -134,27 +130,37 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         layout.addView(editTextNameAlert);
 
         layout.addView(spinnerProtocol);
-        if(mode == 1){
-            editTextNameAlert.setText(b.getString("name"));
-            spinnerProtocol.setSelection(data.indexOf(b.getString("protocol")));
-            id = b.getInt("id");
-        }
 
         setSettingsToDeviceAlertDialog.setView(layout);
-        setSettingsToDeviceAlertDialog.setPositiveButton("OK", (dialogInterface, i) -> {
+        setSettingsToDeviceAlertDialog.setPositiveButton(getResources().getString(R.string.add_bd_label), (dialogInterface, i) -> {
             name = editTextNameAlert.getText().toString();
             saveDevice(MacAddress, name);
             stateOfAlert = true;
         });
-        setSettingsToDeviceAlertDialog.setNegativeButton("Cancel", (dialogInterface, i) -> {
+        setSettingsToDeviceAlertDialog.setNegativeButton(getResources().getString(R.string.cancel_add_bd_label), (dialogInterface, i) -> {
             dialogInterface.cancel();
-            if(mode == 1){
-                stateOfAlert = true;
-                finish();
+        });
+        dialogSaveDevice = setSettingsToDeviceAlertDialog.show();
+        dialogSaveDevice.getButton(AlertDialog.BUTTON_POSITIVE).setEnabled(false);
+        //Add textWatcher to notify the user
+        editTextNameAlert.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+                //nothing
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                //On user changes the text
+                dialogSaveDevice.getButton(AlertDialog.BUTTON_POSITIVE)
+                        .setEnabled(s.toString().trim().length() != 0);
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                //After user is done entering the text
             }
         });
-        setSettingsToDeviceAlertDialog.show();
-
     }
 
     void saveDevice(String MacAddress, String name){
@@ -166,22 +172,15 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
             contentValues.put(DeviceDBHelper.KEY_NAME, name);
             contentValues.put(DeviceDBHelper.KEY_PROTO, protocol);
 
-            if (mode == 0) {
-                int res = deviceDBHelper.insert(contentValues);
-                if (res == 1) {
-                    dataChanged = 1;
-                    Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
-                    Log.d("Add device", "Device accepted");
-                }
-                else {
-                    Toast.makeText(getApplicationContext(), "MAC has already been registered", Toast.LENGTH_LONG).show();
-                    Log.d("Add device", "MAC is in database");
-                }
+            int res = deviceDBHelper.insert(contentValues);
+            if (res == 1) {
+                dataChanged = 1;
+                Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
+                Log.d("Add device", "Device accepted");
             }
             else {
-                deviceDBHelper.update(contentValues, id);
-                Toast.makeText(getApplicationContext(), "Device has been edited", Toast.LENGTH_LONG).show();
-                finish();
+                Toast.makeText(getApplicationContext(), "MAC has already been registered", Toast.LENGTH_LONG).show();
+                Log.d("Add device", "MAC is in database");
             }
             deviceDBHelper.viewData();
         }
@@ -199,7 +198,7 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         // Если список спаренных устройств не пуст
         if(pairedDevices.size()>0) {
             List<DeviceModel> devicesList = new ArrayList<>();
-            List<String> a = new ArrayList<String>();
+            List<String> a = new ArrayList<>();
             // устанавливаем связь между данными
             // проходимся в цикле по этому списку
             for (BluetoothDevice device : pairedDevices) {
@@ -296,6 +295,7 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
             searchForDevice();
 
         } else {
+            swipeToRefreshLayout.setRefreshing(false);
             finish();
             showToast("Please, enable bluetooth");
         }

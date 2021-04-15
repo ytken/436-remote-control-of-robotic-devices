@@ -29,6 +29,7 @@
     <string name="alert_MAC">MAC адрес:\u00A0</string>
     <string name="alert_protocol">Протокол подключения:\u00A0</string>
     <string name="alert_save">Сохранить</string>
+    <string name="alert_device_saving">Сохранение устройства</string>
     <string name="alert_editing">Редактирование</string>
     <string name="alert_change">Редактировать</string>
     <string name="alert_delete">Удалить</string>
@@ -43,6 +44,7 @@
     <string name="alert_device_name_tint">Имя устройства</string>
     <string name="drawer_item_open_source">Open Source</string>
     <string name="drawer_item_code">Исходный код</string>
+    <string name="robot_item_image">Внешний вид робота</string>
 
     <string name="TAG_FULL_MES">CodeCatalogue</string>
     <string name="TAG_CLASS_FROM">ClassFromDevice</string>
