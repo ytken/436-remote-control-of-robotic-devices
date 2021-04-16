@@ -13,6 +13,9 @@ import android.view.View;
 import android.widget.*;
 
 import androidx.appcompat.widget.SwitchCompat;
+
+import com.google.android.material.switchmaterial.SwitchMaterial;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -47,7 +50,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.manual_mode);
-        showToast("Started Manual mode!");
         findViewById(R.id.button_stop).setEnabled(false);
 
         socketList = SocketHandler.getSocketList();
@@ -134,7 +136,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         findViewById(R.id.button_left).setOnTouchListener(touchListener);
         findViewById(R.id.button_right).setOnTouchListener(touchListener);
 
-        Switch hold_command = findViewById(R.id.switch_hold_command_mm);
+        SwitchMaterial hold_command = findViewById(R.id.switch_hold_command_mm);
         hold_command.setOnCheckedChangeListener(this);
 
         Arrays.fill(message, (byte) 0);
@@ -230,7 +232,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                         outputText.append("\n"+ "Отправляю команду движения вперёд;");
                         message[4] = (prevCommand == getDevicesID.get("FORWARD"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("FORWARD");
-                        //dataThreadForArduino.Send_Data(message);
                         for(int i = 0; i < dataThreadForArduinoList.size(); i++){
                             dataThreadForArduinoList.get(i).Send_Data(message);
                         }
@@ -241,7 +242,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                         //Toast.makeText(getApplicationContext(), "Назад поехали", Toast.LENGTH_SHORT).show();
                         message[4] = (prevCommand == getDevicesID.get("BACK"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("BACK");
-                        //dataThreadForArduino.Send_Data(message);
                         for(int i = 0; i < dataThreadForArduinoList.size(); i++){
                             dataThreadForArduinoList.get(i).Send_Data(message);
                         }
@@ -252,7 +252,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                         Log.d("Влево поехали", "********************************************");
                         message[4] = (prevCommand == getDevicesID.get("LEFT"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("LEFT");
-                        //dataThreadForArduino.Send_Data(message);
                         for(int i = 0; i < dataThreadForArduinoList.size(); i++){
                             dataThreadForArduinoList.get(i).Send_Data(message);
                         }
@@ -263,7 +262,6 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                         Log.d("Вправо поехали", "********************************************");
                         message[4] = (prevCommand == getDevicesID.get("RIGHT"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                         message[6] = prevCommand = getDevicesID.get("RIGHT");
-                        //dataThreadForArduino.Send_Data(message);
                         for(int i = 0; i < dataThreadForArduinoList.size(); i++){
                             dataThreadForArduinoList.get(i).Send_Data(message);
                         }
@@ -274,40 +272,33 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
             {
                 if(!is_hold_command)    // и нет удержания команд то все кнопки отправляют команду стоп
                 {
+                    outputText.append("\n"+ "Кнопка отпущена, отправляю команду стоп;");
                     switch (v.getId())
                     {
                         case R.id.button_up:
-                            outputText.append("\n"+ "Отправляю команду движения вперёд;");
                             message[4] = (prevCommand == getDevicesID.get("FORWARD_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("FORWARD_STOP");
-                            //dataThreadForArduino.Send_Data(message);
                             for(int i = 0; i < dataThreadForArduinoList.size(); i++){
                                 dataThreadForArduinoList.get(i).Send_Data(message);
                             }
                             break;
                         case R.id.button_down:
-                            outputText.append("\n"+ "Отправляю команду движения назад;");
                             message[4] = (prevCommand == getDevicesID.get("BACK_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("BACK_STOP");
-                            //dataThreadForArduino.Send_Data(message);
                             for(int i = 0; i < dataThreadForArduinoList.size(); i++){
                                 dataThreadForArduinoList.get(i).Send_Data(message);
                             }
                             break;
                         case R.id.button_left:
-                            outputText.append("\n"+ "Отправляю команду движения влево;");
                             message[4] = (prevCommand == getDevicesID.get("LEFT_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("LEFT_STOP");
-                            //dataThreadForArduino.Send_Data(message);
                             for(int i = 0; i < dataThreadForArduinoList.size(); i++){
                                 dataThreadForArduinoList.get(i).Send_Data(message);
                             }
                             break;
                         case R.id.button_right:
-                            outputText.append("\n"+ "Отправляю команду движения вправо;");
                             message[4] = (prevCommand == getDevicesID.get("RIGHT_STOP"))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
                             message[6] = prevCommand = getDevicesID.get("RIGHT_STOP");
-                            //dataThreadForArduino.Send_Data(message);
                             for(int i = 0; i < dataThreadForArduinoList.size(); i++){
                                 dataThreadForArduinoList.get(i).Send_Data(message);
                             }

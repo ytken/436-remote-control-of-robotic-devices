@@ -41,13 +41,11 @@ public class BluetoothConnectionService extends Service {
     ArrayList<Boolean> isConnectionComplete;
     ArrayList<BluetoothSocket> socketList;
     int numberOfEndedConnections;
+    Intent intentService;
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Intent serviceStarted;
-        serviceStarted = new Intent("serviceStarted");
-        Log.d(TAG, "...Соединение начато...");
-        sendBroadcast(serviceStarted);
+        intentService = intent;
 
         numberOfEndedConnections = 0;
         resultOfConnection = new ArrayList<>();
@@ -79,6 +77,10 @@ public class BluetoothConnectionService extends Service {
             Log.d(TAG, "...Создаю потоки...");
             executorService.execute(treadList.get(i));
         }
+        Intent serviceStarted;
+        serviceStarted = new Intent("serviceStarted");
+        Log.d(TAG, "...Соединение начато...");
+        sendBroadcast(serviceStarted);
         return Service.START_NOT_STICKY;
     }
 
@@ -130,7 +132,7 @@ public class BluetoothConnectionService extends Service {
             } else {
                 resultOfConnection.set(i, false);
             }
-            Log.d(TAG, "...Попытка подключения для текущего устройства завершено...");
+            Log.d(TAG, "...Попытка подключения для текущего устройства завершена...");
             resultOfConnection();
         }
     }
@@ -143,8 +145,6 @@ public class BluetoothConnectionService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "...Сервис остановлен...");
-        Log.d(TAG, String.valueOf(numberOfEndedConnections));
-        stopSelf();
     }
 
     @Nullable
@@ -177,7 +177,7 @@ public class BluetoothConnectionService extends Service {
                 Log.d(TAG, "...Соединение неуспешно, передаю результат в Main Activity...");
             }
             sendBroadcast(resultOfConnectionIntent);
-            onDestroy();
+            stopService(intentService);
         }
     }
 }
