@@ -95,10 +95,6 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
         registerReceiver(mMessageReceiverServiceStarted, new IntentFilter("serviceStarted"));
 
-        registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
-        registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
-        registerReceiver(mMessageReceiverServiceStarted, new IntentFilter("serviceStarted"));
-
         progressBar = findViewById(R.id.progressBar);
         headerText = findViewById(R.id.paired_devices_title_add_activity);
 
@@ -208,7 +204,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            showToast("Connection Started");
+            showToast("Соединение начато");
             devicesList.clear();
             progressBar.setVisibility(VISIBLE);
             isItemSelected = true;
@@ -219,7 +215,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
 
         @Override
         public void onReceive(Context context, Intent intent) {
-            showToast("Not success");
+            showToast("Подключение не успешно");
             progressBar.setVisibility(INVISIBLE);
             onRefresh();
         }
@@ -230,15 +226,12 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         @Override
         public void onReceive(Context context, Intent intent) {
             //Устройство подключено, Service выполнился успешно
-            showToast("success");
             Bundle arguments = intent.getExtras();
             String classDevice = arguments.get("protocol").toString();
             Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
             startSendingData.putExtra("protocol", classDevice);
             startActivity(startSendingData);
             fabToStartConnecting.setEnabled(true);
-
-            //SendDataActivity.device = device;
             progressBar.setVisibility(INVISIBLE);
         }
     };
@@ -311,7 +304,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
             if (back_pressed + 2000 > System.currentTimeMillis()) {
                 super.onBackPressed();
             } else {
-                showToast("Press again to exit");
+                showToast("Нажмите ещё раз для выхода");
             }
             back_pressed = System.currentTimeMillis();
         }
@@ -319,6 +312,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
 
     // Метод для вывода всплывающих данных на экран
     public void showToast(String outputInfoString) {
+        System.out.println("show toast: " + outputInfoString);
         Toast outputInfoToast = Toast.makeText(getApplicationContext(), outputInfoString, Toast.LENGTH_SHORT);
         outputInfoToast.show();
     }
