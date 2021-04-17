@@ -16,6 +16,7 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -358,14 +359,18 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         outputInfoToast.show();
     }
 
-
-
-
-
-
-
-
-
-
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for (int i = 0; i < dataThreadForArduinoList.size(); i++){
+            try {
+                // В случае ошибки пытаемся закрыть соединение
+                socketList.get(i).close();
+            } catch (IOException e) {
+                Log.d("BLUETOOTH", e.getMessage());
+                e.printStackTrace();
+            }
+        }
+    }
 }
 
