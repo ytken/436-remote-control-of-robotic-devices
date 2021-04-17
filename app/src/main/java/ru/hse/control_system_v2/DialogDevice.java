@@ -131,7 +131,6 @@ public class DialogDevice extends DialogFragment {
             contentValues.put(DeviceDBHelper.KEY_NAME, newName);
             contentValues.put(DeviceDBHelper.KEY_PROTO, protocol);
             dbHelper.update(contentValues, id);
-            //Toast.makeText(requireActivity(), "Device has been edited", Toast.LENGTH_LONG).show();
             dbHelper.viewData();
             //Обновление MainActivity
             ma.onRefresh();
