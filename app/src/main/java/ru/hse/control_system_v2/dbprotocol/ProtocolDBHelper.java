@@ -99,6 +99,18 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
         return cursor.getString(0);
     }
 
+    public int getLength (String name) {
+        if(db == null || !db.isOpen()) {
+            db = getWritableDatabase();
+        }
+        String query = "select " + KEY_LEN + " from " + TABLE_PROTOCOLS + " where " + KEY_NAME + " = '" + name + "';";
+        Cursor cursor = db.rawQuery(query, null);
+        cursor.moveToFirst();
+        if (cursor.isNull(0))
+            return 0;
+        return Integer.parseInt(cursor.getString(0));
+    }
+
     public int insert(ContentValues contentValues) {
         int result = 0;
         if(db == null || !db.isOpen()) {

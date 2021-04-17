@@ -230,6 +230,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
             String classDevice = arguments.get("protocol").toString();
             Intent startSendingData = new Intent(MainActivity.this, Manual_mode.class);
             startSendingData.putExtra("protocol", classDevice);
+            startSendingData.putExtra("length", dbprotocol.getLength(classDevice));
             startActivity(startSendingData);
             fabToStartConnecting.setEnabled(true);
             progressBar.setVisibility(INVISIBLE);

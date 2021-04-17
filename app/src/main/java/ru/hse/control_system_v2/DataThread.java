@@ -34,6 +34,7 @@ public class DataThread extends Thread{ // класс поток для прие
     OutputStream OutStrem;
     InputStream InStrem;
     private int[] my_data;
+    int len;
     // SPP UUID сервиса
     public static final UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private boolean ready_to_request;         // флаг готовности принятия данных: true - высылай новый пакет   false - не высылай пакет
@@ -76,7 +77,7 @@ public class DataThread extends Thread{ // класс поток для прие
                     pacNum = 0;
 
                     byte[] message = new byte[]{0x30, 0x15, 0x0f, 0x37, 0x37, 0x37};
-                    sendData(message);
+                    sendData(message, len);
                 }
 
                 if (pacNum == 12) // все нормально
@@ -106,7 +107,7 @@ public class DataThread extends Thread{ // класс поток для прие
         }
         Log.d("Конец true", "********************************************");
     }
-    public void sendData(String message)
+    public void sendData(String message, int len)
     {
         Log.d("Send_Data 3", "********************************************");
         byte[] msgBuffer = message.getBytes();
@@ -120,11 +121,11 @@ public class DataThread extends Thread{ // класс поток для прие
         }
     }
 
-    public void sendData(byte[] message)
+    public void sendData(byte[] message, int len)
     {
         Log.d("Send_Data 2", "********************************************");
         String logMessage = "***Отправляем данные: ";
-        for (int i=0; i < 32; i++)
+        for (int i=0; i < len; i++)
             logMessage += message[i] + " ";
         Log.d(TAG, logMessage + "***");
         try
@@ -163,11 +164,12 @@ public class DataThread extends Thread{ // класс поток для прие
 
 
 
-    public void Send_Data(String message) { sendData(message);}
+    public void Send_Data(String message) { sendData(message, len);}
 
-    public void Send_Data(byte message[]) {
+    public void Send_Data(byte message[], int len) {
         Log.d("Send_Data", "********************************************");
-        sendData(message);}
+        this.len = len;
+        sendData(message, len);}
 
     public void Disconnect(Timer bt_timer) // для работы через определенные промежутки времени
     {

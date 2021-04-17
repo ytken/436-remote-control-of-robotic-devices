@@ -31,6 +31,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -51,6 +52,7 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
     String selectedDevice;
     DevicesAdapter devicesAdapter;
     String deviceHardwareAddress;
+    ExtendedFloatingActionButton manualMacButton;
 
     TextView pairedDevicesTitleTextView;
     LayoutInflater inflater;
@@ -101,6 +103,27 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.setNavigationOnClickListener(v -> exitActivity());
 
+        manualMacButton = findViewById(R.id.floating_action_button_manual_mac);
+        manualMacButton.setOnClickListener(v -> {
+            AlertDialog dialogAddMac;
+            AlertDialog.Builder setMacAlertDialog = new AlertDialog.Builder(AddDeviceDBActivity.this);
+            setMacAlertDialog.setTitle(getResources().getString(R.string.dialog_mac));
+            EditText editTextMac = new EditText(AddDeviceDBActivity.this);
+            editTextMac.addTextChangedListener(new MaskWatcher("##:##:##:##:##:##"));
+            editTextMac.setHint(R.string.hint_dialog_mac);
+            setMacAlertDialog.setView(editTextMac);
+            setMacAlertDialog.setPositiveButton(getResources().getString(R.string.add_bd_label), (dialogInterface, i) -> {
+                String macAddr = editTextMac.getText().toString();
+                if (BluetoothAdapter.checkBluetoothAddress(macAddr))
+                    alertDeviceSelected(macAddr);
+                else
+                    Toast.makeText(AddDeviceDBActivity.this, "Введите корректный MAC", Toast.LENGTH_SHORT).show();
+            });
+            setMacAlertDialog.setNegativeButton(getResources().getString(R.string.cancel_add_bd_label), (dialogInterface, i) -> {
+                dialogInterface.cancel();
+            });
+            dialogAddMac = setMacAlertDialog.show();
+        });
     }
 
     private void openSettings(View view) {

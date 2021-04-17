@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -28,7 +29,7 @@ import ru.hse.control_system_v2.R;
 public class ProtocolRepo extends HashMap<String, Byte> {
 
     private static final String LOG_TAG = "XMLParcer";
-    private HashMap<String, Integer> lengthOfQuery;
+    private ArrayList<String> queryTags;
     private HashMap<String, Byte> moveCodes;
     private Context context;
     ProtocolDBHelper dbHelper;
@@ -42,20 +43,18 @@ public class ProtocolRepo extends HashMap<String, Byte> {
         this.context = context;
         dbHelper = ProtocolDBHelper.getInstance(context);
         Log.d("mLog", "name = "+name);
-        lengthOfQuery = new HashMap<>();
+        queryTags = new ArrayList<>();
         moveCodes = new HashMap<>();
         if (!name.isEmpty())
             parseCodes(name);
     }
 
-    public Byte get(String key) {
-        return moveCodes.get(key);
+    public boolean getTag(String tag) {
+        return queryTags.contains(tag);
     }
 
-    public Integer getLength(String key) {
-        if (lengthOfQuery.containsKey(key))
-            return lengthOfQuery.get(key);
-        return 0;
+    public Byte get(String key) {
+        return moveCodes.get(key);
     }
 
     XmlPullParser prepareXpp(String name) throws IOException, XmlPullParserException {
@@ -86,40 +85,31 @@ public class ProtocolRepo extends HashMap<String, Byte> {
 
         return xpp;
     }
-
     public void parseCodes(String name) {
-        String parentName = "", curName = "";
+        String curName = "";
         try {
             XmlPullParser xpp = prepareXpp(name);
             while (xpp.getEventType() != XmlPullParser.END_DOCUMENT) {
                 switch (xpp.getEventType()) {
                     // начало документа
                     case XmlPullParser.START_TAG:
-                        //Log.d(LOG_TAG, "START_TAG: name = " + xpp.getName() + ", depth = " + xpp.getDepth() + ", attrCount = " + xpp.getAttributeCount());
-                        parentName = curName;
                         curName = xpp.getName();
+                        queryTags.add(curName);
+                        Log.d(LOG_TAG, "At " + curName);
                         break;
                     // содержимое тэга
                     case XmlPullParser.TEXT:
-                        if(curName.equals("length")) {
-                            int len = Integer.parseInt(xpp.getText());
-                            lengthOfQuery.put(parentName, len);
-                            Log.d(LOG_TAG, "length of " + parentName + " = " + len);
-                        }
-                        else {
-                            if (labels.contains(curName)) {
-                                Log.d(LOG_TAG, xpp.getText());
-                                String codeEl = xpp.getText();
-                                if (codeEl.charAt(1) == 'x')
-                                    codeEl = codeEl.substring(2);
-                                Byte xppCode = (byte) ((Character.digit(codeEl.charAt(0), 16) << 4)
-                                        + Character.digit(codeEl.charAt(1), 16));
-                                Log.d(LOG_TAG, "CODE " + curName + " " + xppCode);
-                                moveCodes.put(curName, xppCode);
+                        if (labels.contains(curName)) {
+                            Log.d(LOG_TAG, xpp.getText());
+                            String codeEl = xpp.getText();
+                            if (codeEl.charAt(1) == 'x')
+                                codeEl = codeEl.substring(2);
+                            Byte xppCode = (byte) ((Character.digit(codeEl.charAt(0), 16) << 4)
+                                    + Character.digit(codeEl.charAt(1), 16));
+                            Log.d(LOG_TAG, "CODE " + curName + " " + xppCode);
+                            moveCodes.put(curName, xppCode);
                             }
-                        }
                         break;
-
                     default:
                         break;
                 }
@@ -133,7 +123,7 @@ public class ProtocolRepo extends HashMap<String, Byte> {
         }
     }
 
-    public int stringXMLparser(String code) {
+        public int stringXMLparser(String code) {
         try {
         XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
         code = code.replaceAll(" ","");
