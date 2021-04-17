@@ -40,6 +40,7 @@ public class BluetoothConnectionService extends Service {
     ArrayList<Boolean> resultOfConnection;
     ArrayList<Boolean> isConnectionComplete;
     ArrayList<BluetoothSocket> socketList;
+    ArrayList<BluetoothSocket> socketListConnected;
     int numberOfEndedConnections;
     Intent intentService;
 
@@ -54,6 +55,7 @@ public class BluetoothConnectionService extends Service {
         devicesList = new ArrayList<>();
         devicesListConnected = new ArrayList<>();
         isConnectionComplete = new ArrayList<>();
+        socketListConnected  = new ArrayList<>();
 
         Bundle arguments = intent.getExtras();
         classDevice = arguments.get("protocol").toString();
@@ -115,6 +117,7 @@ public class BluetoothConnectionService extends Service {
                         BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                         resultOfConnection.set(i, true);
                         Log.d(TAG, "...Подключаюсь к сокету...");
+                        socketListConnected.add(i, socketList.get(i));
                     } catch (IOException e) {
                         resultOfConnection.set(i, false);
                         Log.d(TAG, "...Соединение через сокет неуспешно...");
@@ -168,7 +171,7 @@ public class BluetoothConnectionService extends Service {
             if(isSuccess){
                 resultOfConnectionIntent = new Intent("success");
                 resultOfConnectionIntent.putExtra("protocol", classDevice);
-                SocketHandler.setSocketList(socketList);
+                SocketHandler.setSocketList(socketListConnected);
                 SocketHandler.setDevicesList(devicesListConnected);
                 SocketHandler.setNumberOfConnections(numberOfEndedConnections);
                 Log.d(TAG, "...Соединение успешно, передаю результат в Main Activity...");
