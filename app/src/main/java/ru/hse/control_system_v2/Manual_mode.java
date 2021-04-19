@@ -271,22 +271,18 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                     switch (v.getId())
                     {
                         case R.id.button_up:
-                            outputText.append("\n"+ "Отправляю команду движения вперёд;");
                             completeMessage("FORWARD_STOP");
                             countCommands = 0;
                             break;
                         case R.id.button_down:
-                            outputText.append("\n"+ "Отправляю команду движения назад;");
                             completeMessage("BACK_STOP");
                             countCommands = 0;
                             break;
                         case R.id.button_left:
-                            outputText.append("\n"+ "Отправляю команду движения влево;");
                             completeMessage("LEFT_STOP");
                             countCommands = 0;
                             break;
                         case R.id.button_right:
-                            outputText.append("\n"+ "Отправляю команду движения вправо;");
                             completeMessage("RIGHT_STOP");
                             countCommands = 0;
                             break;
