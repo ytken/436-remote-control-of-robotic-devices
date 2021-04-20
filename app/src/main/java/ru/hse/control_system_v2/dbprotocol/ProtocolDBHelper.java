@@ -60,7 +60,8 @@ public class ProtocolDBHelper extends SQLiteOpenHelper {
             String fileName = cursor.getString(3);
             Log.d("SQL",  fileName + " deleting");
             File file = new File(dir, fileName);
-            deviceDBHelper.deleteProto(fileName);
+            Log.d("delpro", cursor.getString(1));
+            deviceDBHelper.deleteProto(cursor.getString(1));
             boolean result = file.delete();
             Log.d("SQL", cursor.getString(3) + " deleting " + (result ? "yes" : "no"));
             cursor.moveToNext();

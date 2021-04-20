@@ -95,6 +95,7 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
     public void deleteProto(String name) {
         SQLiteDatabase db = this.getWritableDatabase();
         String query ="select * from " + TABLE_DEVICES + " where " + KEY_PROTO + " = '" + name + "';";
+        Log.d("delpro", "I'm in deviceDBHelper");
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++) {
@@ -107,6 +108,7 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
             contentValues.put(KEY_PROTO, contextmy.getResources().getString(R.string.TAG_default_protocol));
             contentValues.put(KEY_PANEL, cursor.getString(6));
             String deleteQuery = "DELETE FROM " + TABLE_DEVICES + " WHERE _id = " + id + ";";
+            Log.d("delpro", cursor.getString(1));
             this.getWritableDatabase().execSQL(deleteQuery);
             insert(contentValues);
             cursor.moveToNext();
