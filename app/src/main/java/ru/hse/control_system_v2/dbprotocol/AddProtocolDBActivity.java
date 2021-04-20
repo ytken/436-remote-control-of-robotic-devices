@@ -4,23 +4,29 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 import androidx.annotation.Nullable;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.PrintWriter;
 
 import ru.hse.control_system_v2.R;
@@ -29,7 +35,8 @@ import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 public class AddProtocolDBActivity extends Activity implements View.OnClickListener {
     ProtocolDBHelper dbHelper;
     EditText editTextName, editTextLen, editTextCode;
-    Button buttonAdd, buttonRead, buttonCancel;
+    Button buttonAdd, buttonRead, buttonCancel, buttonFile;
+    TextView textListProtocols;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -42,6 +49,8 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
         editTextLen = findViewById(R.id.editTextLength);
         editTextCode = findViewById(R.id.editTextCode);
 
+        textListProtocols = findViewById(R.id.text_protocols);
+
         buttonAdd = findViewById(R.id.button_add_protocol);
         buttonAdd.setOnClickListener(this);
 
@@ -50,6 +59,9 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
 
         buttonCancel = findViewById(R.id.button_cancel_protocol);
         buttonCancel.setOnClickListener(this);
+
+        buttonFile = findViewById(R.id.button_choose_file);
+        buttonFile.setOnClickListener(this);
     }
 
     @Override
@@ -92,18 +104,20 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                 Cursor cursor = database.query(ProtocolDBHelper.TABLE_PROTOCOLS, null, null, null, null, null, null);
 
                 if (cursor.moveToFirst()) {
+                    textListProtocols.setText("");
                     int idIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_ID);
                     int nameIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_NAME);
                     int lenIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_LEN);
                     int codeIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_CODE);
+                    textListProtocols.append("Доступные протоколы:");
                     do {
-                        Log.d("mLog", "ID = " + cursor.getInt(idIndex) +
+                        textListProtocols.append("\n" + "ID = " + cursor.getInt(idIndex) +
                                 ", name = " + cursor.getString(nameIndex) +
                                 ", length = " + cursor.getString(lenIndex) +
                                 ", code = " + cursor.getString(codeIndex));
                     } while (cursor.moveToNext());
                 } else
-                    Log.d("mLog","0 rows");
+                    textListProtocols.append("Нет доступных протоколов");
 
                 cursor.close();
                 break;
@@ -121,7 +135,45 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                         .create();
                 dialog.show();
                 break;
+
+            case R.id.button_choose_file:
+                Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                fileIntent.setType("text/plain");
+                startActivityForResult(fileIntent,20);
+                break;
         }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode) {
+            case 20:
+                if (resultCode == RESULT_OK){
+                    Uri uri = data.getData();
+                    String fileContent = readTextFile(uri);
+                    editTextCode.setText(fileContent);
+                }
+
+                break;
+        }
+    }
+
+    private String readTextFile(Uri uri)
+    {
+        BufferedReader reader = null;
+        StringBuilder builder = new StringBuilder();
+        try
+        {
+            reader = new BufferedReader(new InputStreamReader(getContentResolver().openInputStream(uri)));
+            String line = "";
+            while ((line = reader.readLine()) != null)
+            {
+                builder.append(line + "\n");
+            }
+            reader.close();
+        }
+        catch (IOException e) {e.printStackTrace();}
+        return builder.toString();
     }
 
     private String saveToFile(String name, String code) throws IOException {
