@@ -17,58 +17,80 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
+        android:weightSum="100"
         >
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="30"
+            android:layout_weight="25"
+            android:weightSum="70"
             android:orientation="vertical">
 
             <TextView
                 android:id="@+id/textView7"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
+                android:layout_weight="2"
                 android:text="@string/protocol_name" />
 
             <EditText
                 android:id="@+id/editTextProtocolName"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:inputType="textPersonName"
+                android:layout_weight="3"
                 android:digits="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"/>
 
             <TextView
                 android:id="@+id/textView8"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/protocol_length" />
+                android:layout_height="0dp"
+                android:text="@string/protocol_length"
+                android:layout_weight="2"/>
 
             <EditText
                 android:id="@+id/editTextLength"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="0dp"
                 android:ems="10"
+                android:layout_weight="3"
                 android:inputType="number" />
 
             <TextView
                 android:id="@+id/textView10"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/protocol_xml" />
+                android:layout_height="0dp"
+                android:text="@string/protocol_xml"
+                android:layout_weight="2"/>
 
             <EditText
                 android:id="@+id/editTextCode"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="0dp"
                 android:ems="10"
                 android:gravity="start|top"
-                android:inputType="textMultiLine" />
+                android:inputType="textMultiLine"
+                android:layout_weight="28"/>
+
+            <Button
+                android:id="@+id/button_choose_file"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:text="выбрать файл"
+                android:layout_weight="10"/>
+
+            <TextView
+                android:id="@+id/text_protocols"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_weight="20"/>
+
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:layout_weight="70"
+            android:layout_weight="75"
             android:layout_gravity="bottom"
             android:weightSum="150">
 
@@ -78,7 +100,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_weight="50"
-                android:text="Add" />
+                android:text="@string/button_add_protocol" />
 
             <Button
                 android:id="@+id/button_read_protocol"
@@ -86,15 +108,16 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 android:layout_weight="50"
-                android:text="show"/>
+                android:text="@string/button_show_protocols"/>
 
             <Button
                 android:id="@+id/button_cancel_protocol"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="50"
-                android:text="delete"
+                android:text="@string/button_delete_protocols"
                 android:layout_gravity="bottom"/>
+
         </LinearLayout>
     </LinearLayout>
 
