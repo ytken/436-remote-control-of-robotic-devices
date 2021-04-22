@@ -138,7 +138,7 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
 
             case R.id.button_choose_file:
                 Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                fileIntent.setType("text/plain");
+                fileIntent.setType("text/*");
                 startActivityForResult(fileIntent,20);
                 break;
         }
