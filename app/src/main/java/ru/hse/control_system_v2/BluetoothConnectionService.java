@@ -28,7 +28,7 @@ import ru.hse.control_system_v2.list_devices.DeviceItem;
 
 public class BluetoothConnectionService extends Service {
     BluetoothDevice device;
-    String TAG = "SendDataActivity";
+    String TAG = "ConnectionService";
     // SPP UUID сервиса
     UUID MY_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     BluetoothAdapter btAdapter;
@@ -38,7 +38,6 @@ public class BluetoothConnectionService extends Service {
     ArrayList<DeviceItem> devicesListConnected;
     ArrayList<MyRun> treadList;
     ArrayList<Boolean> resultOfConnection;
-    ArrayList<Boolean> isConnectionComplete;
     ArrayList<BluetoothSocket> socketList;
     ArrayList<BluetoothSocket> socketListConnected;
     int numberOfEndedConnections;
@@ -54,7 +53,6 @@ public class BluetoothConnectionService extends Service {
         socketList = new ArrayList<>();
         devicesList = new ArrayList<>();
         devicesListConnected = new ArrayList<>();
-        isConnectionComplete = new ArrayList<>();
         socketListConnected  = new ArrayList<>();
 
         Bundle arguments = intent.getExtras();
@@ -65,13 +63,13 @@ public class BluetoothConnectionService extends Service {
             devicesList.add(MainActivity.currentDevice);
         }
 
+
         executorService = Executors.newFixedThreadPool(devicesList.size());
         Log.d(TAG, "...Соединение начато...");
         for(int i = 0; i < devicesList.size(); i++){
             Log.d(TAG, "...Создаю массивы данных...");
             MyRun mr = new MyRun(devicesList.get(i).getMAC(), i);
             resultOfConnection.add(i, false);
-            isConnectionComplete.add(i, false);
             treadList.add(i, mr);
             socketList.add(i, null);
         }
@@ -117,7 +115,6 @@ public class BluetoothConnectionService extends Service {
                         BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                         resultOfConnection.set(i, true);
                         Log.d(TAG, "...Подключаюсь к сокету...");
-                        socketListConnected.add(i, socketList.get(i));
                     } catch (IOException e) {
                         resultOfConnection.set(i, false);
                         Log.d(TAG, "...Соединение через сокет неуспешно...");
@@ -157,7 +154,7 @@ public class BluetoothConnectionService extends Service {
     }
 
     // Передаём данные о статусе соединения в Main Activity
-    synchronized public void resultOfConnection() {
+    synchronized void resultOfConnection() {
         numberOfEndedConnections++;
         if(numberOfEndedConnections == devicesList.size()){
             Intent resultOfConnectionIntent;
@@ -166,6 +163,7 @@ public class BluetoothConnectionService extends Service {
                 if(resultOfConnection.get(i).equals(true)){
                     isSuccess = true;
                     devicesListConnected.add(devicesList.get(i));
+                    socketListConnected.add(socketList.get(i));
                 }
             }
             if(isSuccess){

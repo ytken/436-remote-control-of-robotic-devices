@@ -25,6 +25,7 @@ app:cardUseCompatPadding="true">
         app:layout_constraintDimensionRatio="1"
         android:elevation="10dp"
         android:scaleType="centerInside"
+        android:adjustViewBounds="true"
         android:src="@drawable/darwin_mini"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

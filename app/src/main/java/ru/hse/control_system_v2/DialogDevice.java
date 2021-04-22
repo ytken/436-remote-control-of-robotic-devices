@@ -38,21 +38,21 @@ public class DialogDevice extends DialogFragment {
     AlertDialog.Builder builder;
     ProtocolDBHelper protocolDBHelper;
     ArrayList<String> data;
-    MainActivity ma;
+    Context c;
     DeviceDBHelper dbdevice;
 
     @Override
     public void onAttach(@NonNull Context context) {
         super.onAttach(context);
         if (context instanceof Activity){
-            ma = (MainActivity) context;
+            c = context;
         }
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
-        dbdevice = DeviceDBHelper.getInstance(ma);
+        dbdevice = DeviceDBHelper.getInstance(c);
         id = MainActivity.currentDevice.getId();
         name = MainActivity.currentDevice.getName();
         MAC = MainActivity.currentDevice.getMAC();
@@ -67,11 +67,11 @@ public class DialogDevice extends DialogFragment {
                 .setMessage(getResources().getString(R.string.alert_device_name) + name + "\n" + getResources().getString(R.string.alert_MAC) + MAC+ "\n"+getResources().getString(R.string.alert_protocol) + protocol)
                 .setPositiveButton(getResources().getString(R.string.loading_label), (dialog, whichButton) -> {
                     //запуск подключения происходит ниже
-                    MainActivity.currentDevice.startBluetoothConnectionService(ma);
+                    MainActivity.currentDevice.startBluetoothConnectionService(c);
                 })
                 .setNegativeButton(getResources().getString(R.string.alert_delete), (dialog, whichButton) -> {
                             dbdevice.deleteDevice(id);
-                            ma.onRefresh();}
+                            ((MainActivity) c).onRefresh();}
                     )
                 .setOnDismissListener(new DialogInterface.OnDismissListener() {
                     @Override
@@ -96,10 +96,11 @@ public class DialogDevice extends DialogFragment {
     }
 
     void changeDeviceAlert(){
-        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireActivity(), android.R.layout.simple_spinner_item, data);
+        ArrayAdapter<String> spinnerAdapter = new ArrayAdapter<>(requireActivity(),
+                android.R.layout.simple_spinner_item, data);
         spinnerAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerProtocol = new Spinner(ma);
-        EditText editTextNameAlert = new EditText(ma);
+        spinnerProtocol = new Spinner(c);
+        EditText editTextNameAlert = new EditText(c);
         spinnerProtocol.setAdapter(spinnerAdapter);
         editTextNameAlert.setText(name);
         editTextNameAlert.setInputType(InputType.TYPE_CLASS_TEXT);
@@ -110,11 +111,12 @@ public class DialogDevice extends DialogFragment {
                 break;
             }
         }
-        AlertDialog.Builder setSettingsToDeviceAlertDialog = new AlertDialog.Builder(ma);
+        AlertDialog.Builder setSettingsToDeviceAlertDialog =
+                new AlertDialog.Builder((MainActivity) c);
         setSettingsToDeviceAlertDialog.setTitle(getResources().getString(R.string.alert_editing));
         //alert_editing
 
-        LinearLayout layout = new LinearLayout(ma);
+        LinearLayout layout = new LinearLayout(c);
         layout.setOrientation(LinearLayout.VERTICAL);
         if(spinnerProtocol.getParent() != null) {
             ((ViewGroup)spinnerProtocol.getParent()).removeView(spinnerProtocol); // <- fix crash
@@ -133,7 +135,7 @@ public class DialogDevice extends DialogFragment {
             dbHelper.update(contentValues, id);
             dbHelper.viewData();
             //Обновление MainActivity
-            ma.onRefresh();
+            ((MainActivity) c).onRefresh();
 
         });
         setSettingsToDeviceAlertDialog.setNegativeButton(getResources().getString(R.string.cancel_add_bd_label), (dialogInterface, i) -> {

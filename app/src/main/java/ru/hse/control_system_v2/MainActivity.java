@@ -1,45 +1,35 @@
 package ru.hse.control_system_v2;
 
-import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.res.AssetManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.AdapterView;
-import android.widget.ProgressBar;
+import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.ContextCompat;
 import androidx.core.content.res.ResourcesCompat;
-import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.mikepenz.iconics.typeface.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.SecondaryDrawerItem;
-import com.mikepenz.materialdrawer.model.SectionDrawerItem;
-import com.mikepenz.materialdrawer.model.interfaces.Badgeable;
-import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.Nameable;
 
 
@@ -66,17 +56,19 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
     BluetoothAdapter btAdapter;
     boolean stateOfFabToEnBt;
     public static ExtendedFloatingActionButton fabToEnBt;
-    public static ExtendedFloatingActionButton fabToAddDevice;
+
     public static ExtendedFloatingActionButton fabToStartConnecting;
     public static RecyclerView recycler;
     ListDevicesAdapter adapter = null;
     TextView headerText;
-    ProgressBar progressBar;
     boolean isItemSelected;
     GridLayoutManager gridLayoutManager;
     private Drawer.Result drawerResult = null;
     public static ArrayList<DeviceItem> devicesList;
     public static DeviceItem currentDevice;
+    Button buttonToAddDevice;
+    Button buttonToAddDeviceViaMAC;
+    public static BottomSheetBehavior<View> bottomSheetBehavior;
 
 
     @Override
@@ -89,13 +81,15 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
 
         devicesList = new ArrayList<>();
 
+        progressOfConnectionDialog =new ProgressDialog(this);
+
         gridLayoutManager = new GridLayoutManager(getApplicationContext(), 3, LinearLayoutManager.VERTICAL, false);
 
         registerReceiver(mMessageReceiverNotSuccess, new IntentFilter("not_success"));
         registerReceiver(mMessageReceiverSuccess, new IntentFilter("success"));
         registerReceiver(mMessageReceiverServiceStarted, new IntentFilter("serviceStarted"));
 
-        progressBar = findViewById(R.id.progressBar);
+
         headerText = findViewById(R.id.paired_devices_title_add_activity);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
@@ -103,7 +97,10 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         swipeToRefreshLayout = findViewById(R.id.swipeRefreshLayout);
         swipeToRefreshLayout.setOnRefreshListener(this);
         btAdapter = BluetoothAdapter.getDefaultAdapter();
-        fabToAddDevice = findViewById(R.id.floating_action_button_add_device);
+
+        buttonToAddDeviceViaMAC = findViewById(R.id.button_manual_mac);
+        buttonToAddDevice = findViewById(R.id.button_add_device);
+
         fabToEnBt = findViewById(R.id.floating_action_button_En_Bt);
         fabToStartConnecting = findViewById(R.id.floating_action_button_start_sending_data);
         fabToStartConnecting.setOnClickListener(view -> {
@@ -112,18 +109,39 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
             startBluetoothConnectionService.putExtra("protocol", devicesList.get(0).getType());
             startService(startBluetoothConnectionService);
         });
-        fabToAddDevice.setOnClickListener(view -> {
+        buttonToAddDevice.setOnClickListener(view -> {
             Intent intent = new Intent();
             startActivityForResult(intent.setClass(MainActivity.this, AddDeviceDBActivity.class), 10);
+        });
+        buttonToAddDeviceViaMAC.setOnClickListener(view -> {
+            DialogSaveDeviceWithMAC dialog = new DialogSaveDeviceWithMAC();
+            dialog.show(this.getSupportFragmentManager(), "dialog");
         });
         fabToEnBt.setOnClickListener(view -> {
             Intent intentBtEnabled = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             int REQUEST_ENABLE_BT = 1;
             startActivityForResult(intentBtEnabled, REQUEST_ENABLE_BT);
         });
-        fabToAddDevice.setVisibility(INVISIBLE);
+
+        // настройка поведения нижнего экрана
+        bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_sheet));
+        bottomSheetBehavior.setHideable(true);
+        bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+
+        TextView textView = findViewById(R.id.bottom_sheet_text_view);
+        textView.setOnClickListener(view -> {
+            if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED){
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+            } else {
+                bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+            }
+        });
+
         fabToEnBt.setVisibility(INVISIBLE);
         fabToStartConnecting.setVisibility(INVISIBLE);
+
+
+
         stateOfFabToEnBt = false;
         dbdevice = new DeviceDBHelper(this);
 
@@ -197,8 +215,11 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
                     return false;
                 })
                 .build();
+
     }
 
+
+    ProgressDialog progressOfConnectionDialog;
     //Результат работы Service
     private final BroadcastReceiver mMessageReceiverServiceStarted = new BroadcastReceiver() {
 
@@ -206,8 +227,12 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         public void onReceive(Context context, Intent intent) {
             showToast("Соединение начато");
             devicesList.clear();
-            progressBar.setVisibility(VISIBLE);
+            progressOfConnectionDialog.setMessage("Соединение...");
+            progressOfConnectionDialog.setCancelable(false);
+            progressOfConnectionDialog.setInverseBackgroundForced(false);
+            progressOfConnectionDialog.show();
             isItemSelected = true;
+
         }
     };
     //Результат работы Service
@@ -216,8 +241,8 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         @Override
         public void onReceive(Context context, Intent intent) {
             showToast("Подключение не успешно");
-            progressBar.setVisibility(INVISIBLE);
             onRefresh();
+            progressOfConnectionDialog.hide();
         }
     };
 
@@ -233,7 +258,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
             startSendingData.putExtra("length", dbprotocol.getLength(classDevice));
             startActivity(startSendingData);
             fabToStartConnecting.setEnabled(true);
-            progressBar.setVisibility(INVISIBLE);
+            progressOfConnectionDialog.hide();
         }
     };
 
@@ -243,9 +268,11 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
     @Override
     public void onRefresh() {
         devicesList.clear();
-        progressBar.setVisibility(INVISIBLE);
         fabToStartConnecting.setEnabled(true);
         fabToStartConnecting.setVisibility(INVISIBLE);
+        if(bottomSheetBehavior.getState() == BottomSheetBehavior.STATE_EXPANDED){
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+        }
         if (btIsEnabledFlagVoid()) {
             headerText.setText(R.string.favorites_devices);
             // Bluetooth включён. Предложим пользователю добавить устройства и начать передачу данных.
@@ -255,7 +282,9 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
                 stateOfFabToEnBt = false;
             }
             invalidateOptionsMenu();
-            fabToAddDevice.setVisibility(VISIBLE);
+            bottomSheetBehavior.setHideable(false);
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
             // Bluetooth включён, надо показать кнопку добавления устройств и другую информацию
             adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), this);
             recycler.setAdapter(adapter);
@@ -263,7 +292,8 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
             headerText.setText(R.string.suggestionEnableBluetooth);
             recycler.setAdapter(null);
             invalidateOptionsMenu(); // now onCreateOptionsMenu(...) is called again
-            fabToAddDevice.setVisibility(INVISIBLE);
+            bottomSheetBehavior.setHideable(true);
+            bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
             if (!stateOfFabToEnBt) {
                 // Bluetooth выключён, надо показать кнопку включения Bluetooth
                 fabToEnBt.setVisibility(VISIBLE);

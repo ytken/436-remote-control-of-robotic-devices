@@ -14,6 +14,8 @@ import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -90,7 +92,8 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
                     if (!wasAlreadySelected) {
                         Log.d(TAG, "...В списке не нашлось это устройство, добавляю...");
                         MainActivity.devicesList.add(item);
-                        MainActivity.fabToAddDevice.setVisibility(INVISIBLE);
+                        MainActivity.bottomSheetBehavior.setHideable(true);
+                        MainActivity.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
                         MainActivity.fabToStartConnecting.setVisibility(VISIBLE);
                         deviceImage.setVisibility(INVISIBLE);
                         deviceName.setAlpha(0.6f);
@@ -99,7 +102,8 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
                         if(MainActivity.devicesList.size() == 0) {
                             Log.d(TAG, "...Список очищен...");
                             MainActivity.fabToStartConnecting.setVisibility(INVISIBLE);
-                            MainActivity.fabToAddDevice.setVisibility(VISIBLE);
+                            MainActivity.bottomSheetBehavior.setHideable(false);
+                            MainActivity.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
                         }
                     }
                 }
@@ -122,13 +126,12 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
             if(MainActivity.devicesList.size() == 0){
                 Log.d(TAG, "...Список пуст, добавляю устройство...");
                 MainActivity.devicesList.add(item);
-                MainActivity.fabToAddDevice.setVisibility(INVISIBLE);
+                MainActivity.bottomSheetBehavior.setHideable(true);
+                MainActivity.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
                 MainActivity.fabToStartConnecting.setVisibility(VISIBLE);
                 deviceImage.setVisibility(INVISIBLE);
-                //deviceImage.setAlpha(0.6f);
                 deviceName.setAlpha(0.6f);
                 checkMark.setVisibility(VISIBLE);
-                //deviceImage.setForeground(getDrawable(ma, R.drawable.ic_baseline_check_24));
             } else {
                 if(!MainActivity.devicesList.get(0).getType().equals(item.getType())){
                     ma.showToast("Пожалуйста выберите устройства с одинаковыми протоколами");

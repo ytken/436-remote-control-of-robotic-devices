@@ -17,6 +17,7 @@ import androidx.appcompat.widget.SwitchCompat;
 
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -271,22 +272,18 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
                     switch (v.getId())
                     {
                         case R.id.button_up:
-                            outputText.append("\n"+ "Отправляю команду движения вперёд;");
                             completeMessage("FORWARD_STOP");
                             countCommands = 0;
                             break;
                         case R.id.button_down:
-                            outputText.append("\n"+ "Отправляю команду движения назад;");
                             completeMessage("BACK_STOP");
                             countCommands = 0;
                             break;
                         case R.id.button_left:
-                            outputText.append("\n"+ "Отправляю команду движения влево;");
                             completeMessage("LEFT_STOP");
                             countCommands = 0;
                             break;
                         case R.id.button_right:
-                            outputText.append("\n"+ "Отправляю команду движения вправо;");
                             completeMessage("RIGHT_STOP");
                             countCommands = 0;
                             break;
@@ -373,5 +370,19 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
     public void showToast(String outputInfoString) {
         Toast outputInfoToast = Toast.makeText(this, outputInfoString, Toast.LENGTH_SHORT);
         outputInfoToast.show();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        for (int i = 0; i < dataThreadForArduinoList.size(); i++){
+            try {
+                Log.d("BLUETOOTH", "Отсоединение от устройства");
+                socketList.get(i).close();
+            } catch (IOException e) {
+                Log.d("BLUETOOTH", e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 }
