@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Control_system_v2</string>
+    <string name="app_name">Bluetooth контроллер</string>
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="name">Name</string>
     <string name="rate_label">MAC</string>

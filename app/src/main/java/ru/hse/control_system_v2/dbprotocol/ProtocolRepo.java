@@ -1,6 +1,7 @@
 package ru.hse.control_system_v2.dbprotocol;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import org.w3c.dom.Document;
 import org.xml.sax.InputSource;
@@ -9,6 +10,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -17,6 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -107,6 +110,30 @@ public class ProtocolRepo extends HashMap<String, Byte> {
                             Byte xppCode = (byte) ((Character.digit(codeEl.charAt(0), 16) << 4)
                                     + Character.digit(codeEl.charAt(1), 16));
                             Log.d(LOG_TAG, "CODE " + curName + " " + xppCode);
+                            /*byte intXpp = 0;
+                            for (int i = 1; i >= 0; i--) {
+                                char d = codeEl.charAt(i);
+                                switch (d) {
+                                    case '1': intXpp += 1*16^i; break;
+                                    case '2': intXpp += 2*16^i; break;
+                                    case '3': intXpp += 3*16^i; break;
+                                    case '4': intXpp += 4; break;
+                                    case '5': intXpp += 5; break;
+                                    case '6': intXpp += 6; break;
+                                    case '7': intXpp += 7; break;
+                                    case '8': intXpp += 8; break;
+                                    case '9': intXpp += 9; break;
+                                    case 'A': intXpp += 10; break;
+                                    case 'B': intXpp += 11; break;
+                                    case 'C': intXpp += 12; break;
+                                    case 'D': intXpp += 13; break;
+                                    case 'E': intXpp += 14; break;
+                                    case 'F': intXpp += 15; break;
+                                }
+                            }*/
+                            //Byte xppCode = intXpp.byteValue();
+                                    /*(byte) ((Character.digit(codeEl.charAt(0), 16) << 4)
+                                    + Character.digit(codeEl.charAt(1), 16));*/
                             moveCodes.put(curName, xppCode);
                             }
                         break;

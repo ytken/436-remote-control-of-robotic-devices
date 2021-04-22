@@ -27,7 +27,6 @@ import java.util.ArrayList;
 
 import ru.hse.control_system_v2.dbdevices.AddDeviceDBActivity;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
-import ru.hse.control_system_v2.dbdevices.MaskWatcher;
 import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
 
 
@@ -56,7 +55,7 @@ public class DialogSaveDeviceWithMAC extends DialogFragment {
                 new androidx.appcompat.app.AlertDialog.Builder(c);
         setMacAlertDialogSettings.setTitle(getResources().getString(R.string.dialog_mac));
         EditText editTextMac = new EditText(c);
-        editTextMac.addTextChangedListener(new MaskWatcher("##:##:##:##:##:##"));
+        editTextMac.addTextChangedListener(new AddDeviceDBActivity.MaskWatcher("##:##:##:##:##:##"));
         editTextMac.setHint(R.string.hint_dialog_mac);
         setMacAlertDialogSettings.setView(editTextMac);
         setMacAlertDialogSettings.setPositiveButton(getResources().getString(R.string.add_bd_label), (dialogInterface, i) -> {

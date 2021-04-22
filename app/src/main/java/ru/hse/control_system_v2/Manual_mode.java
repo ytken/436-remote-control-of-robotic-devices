@@ -307,7 +307,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
             message[countCommands++] = getDevicesID.get("class_arduino");
 
         if (getDevicesID.getTag(res.getString(R.string.TAG_TYPE_TO)))
-            message[countCommands++] = getDevicesID.get("no_type");// класс и тип устройства приема
+            message[countCommands++] = getDevicesID.get("type_cubbi");// класс и тип устройства приема
     }
 
     public void completeMessage (String command) {

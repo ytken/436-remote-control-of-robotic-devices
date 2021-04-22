@@ -43,9 +43,10 @@ import ru.hse.control_system_v2.R;
 import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
 
 public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAdapter.SelectedDevice, SwipeRefreshLayout.OnRefreshListener{
-
-
+    DeviceDBHelper deviceDBHelper;
+    ProtocolDBHelper protocolDBHelper;
     ExtendedFloatingActionButton fabToOpenSettings;
+    Spinner spinnerProtocol;
     RecyclerView pairedList;
     BluetoothAdapter btAdapter;
     String selectedDevice;
@@ -56,14 +57,14 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
     TextView pairedDevicesTitleTextView;
     LayoutInflater inflater;
     String rateString;
-
+    String name;
     //инициализация swipe refresh
     SwipeRefreshLayout swipeToRefreshLayout;
     Bundle b;
     public static boolean stateOfAlert;
     public static int dataChanged = 0;
 
-
+    ArrayList<String> data;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -77,8 +78,8 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         fabToOpenSettings = findViewById(R.id.floating_action_button_open_settings);
         fabToOpenSettings.setOnClickListener(this::openSettings);
 
-
-
+        deviceDBHelper = new DeviceDBHelper(this);
+        protocolDBHelper = new ProtocolDBHelper(this);
 
         stateOfAlert = false;
 
@@ -90,13 +91,16 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         pairedList.setLayoutManager(new LinearLayoutManager(this));
         pairedList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
-
+        data = protocolDBHelper.getProtocolNames();
+        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerProtocol = new Spinner(AddDeviceDBActivity.this);
+        spinnerProtocol.setAdapter(adapter);
         Toolbar toolbar = findViewById(R.id.toolbar_add_device);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         toolbar.setNavigationOnClickListener(v -> exitActivity());
-
     }
 
     private void openSettings(View view) {
@@ -154,10 +158,6 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
 
     }
 
-    Spinner spinnerProtocol;
-    ArrayList<String> data;
-    String name;
-
     void alertDeviceSelected(String MacAddress){
         ProtocolDBHelper protocolDBHelper = new ProtocolDBHelper(this);
         data = protocolDBHelper.getProtocolNames();
@@ -170,12 +170,12 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         androidx.appcompat.app.AlertDialog.Builder setSettingsToDeviceAlertDialog = new androidx.appcompat.app.AlertDialog.Builder(this);
         setSettingsToDeviceAlertDialog.setTitle(getResources().getString(R.string.alert_device_saving));
 
-        EditText editTextNameAlert = new EditText(this);
+        EditText editTextNameAlert = new EditText(AddDeviceDBActivity.this);
 
         editTextNameAlert.setInputType(InputType.TYPE_CLASS_TEXT);
         editTextNameAlert.setHint(getResources().getString(R.string.label_name));
 
-        LinearLayout layout = new LinearLayout(this);
+        LinearLayout layout = new LinearLayout(getApplicationContext());
         layout.setOrientation(LinearLayout.VERTICAL);
 
         if(spinnerProtocol.getParent() != null) {
@@ -188,14 +188,12 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         layout.addView(spinnerProtocol);
 
         setSettingsToDeviceAlertDialog.setView(layout);
-        setSettingsToDeviceAlertDialog.setPositiveButton(getResources()
-                .getString(R.string.add_bd_label), (dialogInterface, i) -> {
+        setSettingsToDeviceAlertDialog.setPositiveButton(getResources().getString(R.string.add_bd_label), (dialogInterface, i) -> {
             name = editTextNameAlert.getText().toString();
             saveDevice(MacAddress, name);
             AddDeviceDBActivity.stateOfAlert = true;
         });
-        setSettingsToDeviceAlertDialog.setNegativeButton(getResources()
-                .getString(R.string.cancel_add_bd_label), (dialogInterface, i) -> {
+        setSettingsToDeviceAlertDialog.setNegativeButton(getResources().getString(R.string.cancel_add_bd_label), (dialogInterface, i) -> {
             dialogInterface.cancel();
         });
         dialogSaveDevice = setSettingsToDeviceAlertDialog.show();
@@ -310,4 +308,43 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         }
     }
     //Обновляем внешний вид приложения, скрываем и добавляем нужные элементы интерфейса
+
+    public static class MaskWatcher implements TextWatcher {
+        private boolean isRunning = false;
+        private boolean isDeleting = false;
+        private final String mask;
+
+        public MaskWatcher(String mask) {
+            this.mask = mask;
+        }
+
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int start, int count, int after) {
+            isDeleting = count > after;
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int start, int before, int count) {
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            if (isRunning || isDeleting) {
+                return;
+            }
+            isRunning = true;
+
+            int editableLength = editable.length();
+            if (editableLength < mask.length()) {
+                if (mask.charAt(editableLength) != '#') {
+                    editable.append(mask.charAt(editableLength));
+                } else if (mask.charAt(editableLength-1) != '#') {
+                    editable.insert(editableLength-1, mask, editableLength-1, editableLength);
+                }
+            }
+
+            isRunning = false;
+        }
+    }
+
 }

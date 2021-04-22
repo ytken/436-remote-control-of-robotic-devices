@@ -2,7 +2,7 @@
     <ClassFromDevice>
         <class_android>30</class_android>
         <class_computer>65</class_computer>
-        <class_arduino>7e</class_arduino>
+        <class_arduino>7E</class_arduino>
         <no_class>11</no_class>
     </ClassFromDevice>
     <TypeFromDevice>
@@ -15,7 +15,7 @@
     <ClassToDevice>
         <class_android>30</class_android>
         <class_computer>65</class_computer>
-        <class_arduino>7e</class_arduino>
+        <class_arduino>7E</class_arduino>
         <no_class>11</no_class>
     </ClassToDevice>
     <TypeToDevice>
