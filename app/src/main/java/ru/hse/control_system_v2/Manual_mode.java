@@ -44,6 +44,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
     ArrayList<BluetoothSocket> socketList;
     ArrayList<DeviceItem> devicesList;
     TextView outputText;
+    SwitchMaterial hold_command;
     int numberOfEndedConnections;
     ProtocolRepo getDevicesID;
     int countCommands;
@@ -147,8 +148,9 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         findViewById(R.id.button_right).setOnTouchListener(touchListener);
         findViewById(R.id.button_stop).setOnClickListener(this);
 
-        SwitchMaterial hold_command = findViewById(R.id.switch_hold_command_mm);
+        hold_command = findViewById(R.id.switch_hold_command_mm);
         hold_command.setOnCheckedChangeListener(this);
+        hold_command.setChecked(true);
 
         Arrays.fill(message, (byte) 0);
     }
@@ -186,6 +188,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
 
         message[countCommands++] = getDevicesID.get("STOP");
         for(int i = 0; i < dataThreadForArduinoList.size(); i++){
+            Log.d("Logg", "Manual_mode onPause");
             dataThreadForArduinoList.get(i).Send_Data(message, lengthMes);
         }
 
@@ -215,11 +218,9 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         {
             case R.id.button_stop:
                 //Toast.makeText(getApplicationContext(), "Стоп всех комманд", Toast.LENGTH_SHORT).show();
+                outputText.append("\n"+ "Отправляю команду стоп;");
                 completeMessage("STOP");
                 countCommands = 0;
-                for(int i = 0; i < dataThreadForArduinoList.size(); i++){
-                    dataThreadForArduinoList.get(i).Send_Data(message, lengthMes);
-                }
                 break;
         }
     }

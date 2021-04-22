@@ -37,6 +37,7 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
     EditText editTextName, editTextLen, editTextCode;
     Button buttonAdd, buttonRead, buttonCancel, buttonFile;
     TextView textListProtocols;
+    final int REQUEST_CODE_OPEN = 20;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -137,9 +138,12 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                 break;
 
             case R.id.button_choose_file:
-                Intent fileIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                fileIntent.setType("text/*");
-                startActivityForResult(fileIntent,20);
+                Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+                intent.addCategory(Intent.CATEGORY_OPENABLE);
+                intent.setType("*/*");
+                String[] mimetypes = {"text/xml", "text/plain"};
+                intent.putExtra(Intent.EXTRA_MIME_TYPES, mimetypes);
+                startActivityForResult(intent, REQUEST_CODE_OPEN);
                 break;
         }
     }
@@ -147,7 +151,7 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         switch (requestCode) {
-            case 20:
+            case REQUEST_CODE_OPEN:
                 if (resultCode == RESULT_OK){
                     Uri uri = data.getData();
                     String fileContent = readTextFile(uri);
