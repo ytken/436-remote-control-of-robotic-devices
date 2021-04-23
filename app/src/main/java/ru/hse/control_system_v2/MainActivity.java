@@ -106,7 +106,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
         fabToStartConnecting.setOnClickListener(view -> {
             fabToStartConnecting.setEnabled(false);
             Intent startBluetoothConnectionService = new Intent(this, BluetoothConnectionService.class);
-            startBluetoothConnectionService.putExtra("protocol", devicesList.get(0).getType());
+            startBluetoothConnectionService.putExtra("protocol", devicesList.get(0).getProtocol());
             startService(startBluetoothConnectionService);
         });
         buttonToAddDevice.setOnClickListener(view -> {

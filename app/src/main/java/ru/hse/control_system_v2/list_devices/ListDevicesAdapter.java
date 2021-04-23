@@ -71,7 +71,7 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
             if(MainActivity.devicesList.size() != 0) {
                 Log.d(TAG, "...Список не пуст, нажато устройство...");
                 //список не пуст
-                if (!MainActivity.devicesList.get(0).getType().equals(item.getType())) {
+                if (!MainActivity.devicesList.get(0).getProtocol().equals(item.getProtocol())) {
                     //если протокол нажатого устройства отличается от уже выбранных
                     //значит это попытка добавить новое устройство
                     ma.showToast("Пожалуйста выберите устройства с одинаковыми протоколами");
@@ -133,10 +133,10 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
                 deviceName.setAlpha(0.6f);
                 checkMark.setVisibility(VISIBLE);
             } else {
-                if(!MainActivity.devicesList.get(0).getType().equals(item.getType())){
+                if(!MainActivity.devicesList.get(0).getProtocol().equals(item.getProtocol())){
                     ma.showToast("Пожалуйста выберите устройства с одинаковыми протоколами");
-                    ma.showToast(MainActivity.devicesList.get(0).type);
-                    ma.showToast(item.getType());
+                    ma.showToast(MainActivity.devicesList.get(0).getProtocol());
+                    ma.showToast(item.getProtocol());
                 } else {
                     boolean wasAlreadySelected = false;
                     for(int i = 0; i < MainActivity.devicesList.size(); i++){

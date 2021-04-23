@@ -39,7 +39,7 @@ public class ListDevicesHolder extends RecyclerView.ViewHolder {
     }
 
     void bind(DeviceItem item) {
-        mName.setText(item.name);
+        mName.setText(item.getName());
         //mAddress.setText(item.MAC);
 
     }

@@ -28,6 +28,7 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
     public static final String KEY_MAC = "address";
     public static final String KEY_URL_PH = "photo";
     public static final String KEY_CLASS = "class";
+    public static final String KEY_TYPE = "id_type";
     public static final String KEY_PROTO = "id_protocol";
     public static final String KEY_PANEL = "id_panel";
     private Context contextmy;
@@ -38,9 +39,8 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         Log.d("myLog", "Device helper is created!");
         db.execSQL("create table " + TABLE_DEVICES + "(" + KEY_ID + " integer primary key AUTOINCREMENT,"
-                + KEY_NAME + " text," + KEY_MAC + " text," + KEY_CLASS + " text,"
-                + KEY_URL_PH + " text," + KEY_PROTO + " text,"
-                + KEY_PANEL + " text" + ")");
+                + KEY_NAME + " text," + KEY_MAC + " text," + KEY_CLASS + " text," + KEY_TYPE + " text,"
+                + KEY_URL_PH + " text," + KEY_PROTO + " text" + ")");
     }
 
     @Override
@@ -63,7 +63,9 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++) {
-            Log.d("SQL", cursor.getInt(0) + " " + cursor.getString(1) +" "+ cursor.getString(5));
+            Log.d("SQL", cursor.getInt(0) + " " + cursor.getString(1) +" "+ cursor.getString(2) +
+                    " "+ cursor.getString(3) +" "+ cursor.getString(4)+" "+ cursor.getString(5)
+                    +" "+ cursor.getString(6));
             cursor.moveToNext();
         }
     }
@@ -99,14 +101,14 @@ public class DeviceDBHelper extends SQLiteOpenHelper {
         Cursor cursor = db.rawQuery(query, null);
         cursor.moveToFirst();
         for (int i = 0; i < cursor.getCount(); i++) {
-            String id = cursor.getString(0);
+            String id = cursor.getString(cursor.getColumnIndex(DeviceDBHelper.KEY_ID));
             ContentValues contentValues = new ContentValues();
-            contentValues.put(KEY_NAME, cursor.getString(1));
-            contentValues.put(KEY_MAC, cursor.getString(2));
-            contentValues.put(KEY_CLASS, cursor.getString(3));
-            contentValues.put(KEY_URL_PH, cursor.getString(4));
+            contentValues.put(KEY_NAME, cursor.getString(cursor.getColumnIndex(DeviceDBHelper.KEY_NAME)));
+            contentValues.put(KEY_MAC, cursor.getString(cursor.getColumnIndex(DeviceDBHelper.KEY_MAC)));
+            contentValues.put(KEY_CLASS, cursor.getString(cursor.getColumnIndex(DeviceDBHelper.KEY_CLASS)));
+            contentValues.put(KEY_TYPE, cursor.getString(cursor.getColumnIndex(DeviceDBHelper.KEY_TYPE)));
+            contentValues.put(KEY_URL_PH, cursor.getString(cursor.getColumnIndex(DeviceDBHelper.KEY_URL_PH)));
             contentValues.put(KEY_PROTO, contextmy.getResources().getString(R.string.TAG_default_protocol));
-            contentValues.put(KEY_PANEL, cursor.getString(6));
             String deleteQuery = "DELETE FROM " + TABLE_DEVICES + " WHERE _id = " + id + ";";
             Log.d("delpro", cursor.getString(1));
             this.getWritableDatabase().execSQL(deleteQuery);

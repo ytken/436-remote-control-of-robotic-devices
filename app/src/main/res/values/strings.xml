@@ -28,6 +28,8 @@
     <string name="alert_device_name">Имя устройства:\u00A0</string>
     <string name="alert_MAC">MAC адрес:\u00A0</string>
     <string name="alert_protocol">Протокол подключения:\u00A0</string>
+    <string name="alert_class">Класс:\u00A0</string>
+    <string name="alert_type">Тип:\u00A0</string>
     <string name="alert_save">Сохранить</string>
     <string name="alert_device_saving">Сохранение устройства</string>
     <string name="alert_editing">Редактирование</string>

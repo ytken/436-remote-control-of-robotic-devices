@@ -103,7 +103,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
         countCommands = 0;
 
         for(int i = 0; i < devicesList.size(); i++) {
-            if (!BluetoothAdapter.checkBluetoothAddress(devicesList.get(i).deviceMAC)) {
+            if (!BluetoothAdapter.checkBluetoothAddress(devicesList.get(i).getMAC())) {
                 showToast("Wrong MAC address");
                 Manual_mode.this.finish();
             }
@@ -150,7 +150,7 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
 
         hold_command = findViewById(R.id.switch_hold_command_mm);
         hold_command.setOnCheckedChangeListener(this);
-        hold_command.setChecked(true);
+        hold_command.setChecked(false);
 
         Arrays.fill(message, (byte) 0);
     }

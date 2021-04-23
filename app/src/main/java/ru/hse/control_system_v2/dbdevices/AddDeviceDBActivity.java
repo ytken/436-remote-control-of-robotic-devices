@@ -13,6 +13,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -46,17 +47,14 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
     DeviceDBHelper deviceDBHelper;
     ProtocolDBHelper protocolDBHelper;
     ExtendedFloatingActionButton fabToOpenSettings;
-    Spinner spinnerProtocol;
     RecyclerView pairedList;
     BluetoothAdapter btAdapter;
     String selectedDevice;
     DevicesAdapter devicesAdapter;
     String deviceHardwareAddress;
-    ExtendedFloatingActionButton manualMacButton;
 
     TextView pairedDevicesTitleTextView;
     LayoutInflater inflater;
-    String rateString;
     String name;
     //инициализация swipe refresh
     SwipeRefreshLayout swipeToRefreshLayout;
@@ -65,6 +63,7 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
     public static int dataChanged = 0;
 
     ArrayList<String> data;
+    List<String> listClasses, listTypes;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -91,11 +90,6 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
         pairedList.setLayoutManager(new LinearLayoutManager(this));
         pairedList.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL));
 
-        data = protocolDBHelper.getProtocolNames();
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerProtocol = new Spinner(AddDeviceDBActivity.this);
-        spinnerProtocol.setAdapter(adapter);
         Toolbar toolbar = findViewById(R.id.toolbar_add_device);
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -146,106 +140,14 @@ public class AddDeviceDBActivity extends AppCompatActivity implements DevicesAda
 
     //Получаем адрес устройства из List View
     public void checkDeviceAddress(DeviceModel deviceModel) {
-
         selectedDevice = deviceModel.getDeviceName();
         //Get information from List View in String
-        showToast(selectedDevice);
         int i = selectedDevice.indexOf(':');
         i = i - 2;
         //В текущем пункте List View находим первый символ ":", всё после него, а также два символа до него - адрес выбранного устройства
         selectedDevice = selectedDevice.substring(i);
-        alertDeviceSelected(selectedDevice);
-
-    }
-
-    void alertDeviceSelected(String MacAddress){
-        ProtocolDBHelper protocolDBHelper = new ProtocolDBHelper(this);
-        data = protocolDBHelper.getProtocolNames();
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this, android.R.layout.simple_spinner_item, data);
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        spinnerProtocol = new Spinner(this);
-        spinnerProtocol.setAdapter(adapter);
-
-        androidx.appcompat.app.AlertDialog dialogSaveDevice;
-        androidx.appcompat.app.AlertDialog.Builder setSettingsToDeviceAlertDialog = new androidx.appcompat.app.AlertDialog.Builder(this);
-        setSettingsToDeviceAlertDialog.setTitle(getResources().getString(R.string.alert_device_saving));
-
-        EditText editTextNameAlert = new EditText(AddDeviceDBActivity.this);
-
-        editTextNameAlert.setInputType(InputType.TYPE_CLASS_TEXT);
-        editTextNameAlert.setHint(getResources().getString(R.string.label_name));
-
-        LinearLayout layout = new LinearLayout(getApplicationContext());
-        layout.setOrientation(LinearLayout.VERTICAL);
-
-        if(spinnerProtocol.getParent() != null) {
-            ((ViewGroup)spinnerProtocol.getParent()).removeView(spinnerProtocol); // <- fix crash
-        }
-
-
-        layout.addView(editTextNameAlert);
-
-        layout.addView(spinnerProtocol);
-
-        setSettingsToDeviceAlertDialog.setView(layout);
-        setSettingsToDeviceAlertDialog.setPositiveButton(getResources().getString(R.string.add_bd_label), (dialogInterface, i) -> {
-            name = editTextNameAlert.getText().toString();
-            saveDevice(MacAddress, name);
-            AddDeviceDBActivity.stateOfAlert = true;
-        });
-        setSettingsToDeviceAlertDialog.setNegativeButton(getResources().getString(R.string.cancel_add_bd_label), (dialogInterface, i) -> {
-            dialogInterface.cancel();
-        });
-        dialogSaveDevice = setSettingsToDeviceAlertDialog.show();
-        dialogSaveDevice.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE)
-                .setEnabled(false);
-        //Add textWatcher to notify the user
-        editTextNameAlert.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-                //nothing
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                //On user changes the text
-                dialogSaveDevice.getButton(AlertDialog.BUTTON_POSITIVE)
-                        .setEnabled(s.toString().trim().length() != 0);
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-                //After user is done entering the text
-            }
-        });
-    }
-
-    void saveDevice(String MacAddress, String name){
-        DeviceDBHelper deviceDBHelper = new DeviceDBHelper(this);
-        String protocol = data.get((int) spinnerProtocol.getSelectedItemId());
-        if (BluetoothAdapter.checkBluetoothAddress(MacAddress)) {
-            ContentValues contentValues = new ContentValues();
-
-            contentValues.put(DeviceDBHelper.KEY_MAC, MacAddress);
-            contentValues.put(DeviceDBHelper.KEY_NAME, name);
-            contentValues.put(DeviceDBHelper.KEY_PROTO, protocol);
-
-            int res = deviceDBHelper.insert(contentValues);
-            if (res == 1) {
-                AddDeviceDBActivity.dataChanged = 1;
-                Toast.makeText(this, "Accepted", Toast.LENGTH_LONG).show();
-                Log.d("Add device", "Device accepted");
-            }
-            else {
-                Toast.makeText(this, "MAC has already been registered", Toast.LENGTH_LONG).show();
-                Log.d("Add device", "MAC is in database");
-            }
-            deviceDBHelper.viewData();
-        }
-        else {
-            Toast.makeText(this, "Wrong MAC address", Toast.LENGTH_LONG).show();
-            Log.d("Add device", "Device denied");
-        }
+        SetDeviceAlertDialog alertDialog = new SetDeviceAlertDialog(this, selectedDevice);
+        alertDialog.show();
     }
 
     // Метод для вывода всплывающих данных на экран

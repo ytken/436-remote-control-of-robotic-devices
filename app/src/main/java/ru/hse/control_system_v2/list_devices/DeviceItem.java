@@ -10,13 +10,15 @@ import ru.hse.control_system_v2.BluetoothConnectionService;
 import ru.hse.control_system_v2.MainActivity;
 
 public class DeviceItem {
-    public String type, name, deviceMAC;
+    private String name, deviceMAC, devClass, devType, protocol;
     int id;
-    public DeviceItem(int id, String name, String deviceMAC, String type) {
+    public DeviceItem(int id, String name, String deviceMAC, String protocol, String devClass, String devType) {
         this.name = name;
         this.deviceMAC = deviceMAC;
         this.id = id;
-        this.type = type;
+        this.protocol = protocol;
+        this.devClass = devClass;
+        this.devType = devType;
     }
 
     @Override
@@ -40,11 +42,15 @@ public class DeviceItem {
         return name;
     }
 
-    public String getType() { return type; }
+    public String getDevClass() { return devClass; }
+
+    public String getDevType() { return devType; }
+
+    public String getProtocol() { return protocol; }
 
     public void startBluetoothConnectionService(Context ma){
         Intent intent = new Intent(ma, BluetoothConnectionService.class);
-        intent.putExtra("protocol", type);
+        intent.putExtra("protocol", protocol);
         ma.startService(intent);
     }
 }

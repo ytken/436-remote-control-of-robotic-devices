@@ -30,11 +30,8 @@ import ru.hse.control_system_v2.list_devices.DeviceItem;
 public class DialogDevice extends DialogFragment {
     DeviceDBHelper dbHelper;
     Spinner spinnerProtocol;
-    String newName;
-    String name;
-    String MAC;
+    String newName, name, MAC, protocol, devClass, devType;
     int id;
-    String protocol;
     AlertDialog.Builder builder;
     ProtocolDBHelper protocolDBHelper;
     ArrayList<String> data;
@@ -56,7 +53,9 @@ public class DialogDevice extends DialogFragment {
         id = MainActivity.currentDevice.getId();
         name = MainActivity.currentDevice.getName();
         MAC = MainActivity.currentDevice.getMAC();
-        protocol = MainActivity.currentDevice.getType();
+        protocol = MainActivity.currentDevice.getProtocol();
+        devClass = MainActivity.currentDevice.getDevClass();
+        devType = MainActivity.currentDevice.getDevType();
         builder = new AlertDialog.Builder(getActivity());
         dbHelper = new DeviceDBHelper(requireActivity());
         protocolDBHelper = new ProtocolDBHelper(requireActivity());
@@ -64,7 +63,8 @@ public class DialogDevice extends DialogFragment {
         data = protocolDBHelper.getProtocolNames();
 
         return builder.setTitle(getResources().getString(R.string.alert_info))
-                .setMessage(getResources().getString(R.string.alert_device_name) + name + "\n" + getResources().getString(R.string.alert_MAC) + MAC+ "\n"+getResources().getString(R.string.alert_protocol) + protocol)
+                .setMessage(getResources().getString(R.string.alert_device_name) + name + "\n" + getResources().getString(R.string.alert_MAC) + MAC+ "\n" + getResources().getString(R.string.alert_class) + devClass + "\n"
+                        + getResources().getString(R.string.alert_type) + devType + "\n" + getResources().getString(R.string.alert_protocol) + protocol)
                 .setPositiveButton(getResources().getString(R.string.loading_label), (dialog, whichButton) -> {
                     //запуск подключения происходит ниже
                     MainActivity.currentDevice.startBluetoothConnectionService(c);
@@ -73,12 +73,9 @@ public class DialogDevice extends DialogFragment {
                             dbdevice.deleteDevice(id);
                             ((MainActivity) c).onRefresh();}
                     )
-                .setOnDismissListener(new DialogInterface.OnDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialogInterface) {
-                        //action when dialog is dismissed goes here
-                        //nothing now
-                    }
+                .setOnDismissListener(dialogInterface -> {
+                    //action when dialog is dismissed goes here
+                    //nothing now
                 })
                 .setNeutralButton(getResources().getString(R.string.alert_change), (dialog, which) -> {
                     changeDeviceAlert();

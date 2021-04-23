@@ -71,7 +71,8 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
         switch (v.getId()){
             case R.id.button_add_protocol:
                 String name = editTextName.getText().toString();
-                Integer length = Integer.parseInt(editTextLen.getText().toString());
+                String slength = editTextLen.getText().toString();
+                Integer length;
                 String code = editTextCode.getText().toString();
                 ProtocolRepo protocolRepo = new ProtocolRepo(getApplicationContext(), "");
                 int result = protocolRepo.stringXMLparser(code);
@@ -79,7 +80,16 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                     Toast.makeText(getApplicationContext(), "Invalid XML code", Toast.LENGTH_LONG).show();
                     break;
                 }
-
+                if (name.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Invalid name", Toast.LENGTH_LONG).show();
+                    break;
+                }
+                if (slength.isEmpty()) {
+                    Toast.makeText(getApplicationContext(), "Invalid length", Toast.LENGTH_LONG).show();
+                    break;
+                }
+                else
+                    length = Integer.parseInt(slength);
                 ContentValues contentValues = new ContentValues();
                 contentValues.put(ProtocolDBHelper.KEY_NAME, name);
                 contentValues.put(ProtocolDBHelper.KEY_LEN, length);
