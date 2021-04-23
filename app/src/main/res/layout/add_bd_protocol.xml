@@ -11,6 +11,7 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:context="ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper"
+    android:id="@+id/activity_explain_perms"
     >
 
     <LinearLayout
