@@ -42,6 +42,7 @@ app:cardUseCompatPadding="true">
         android:gravity="center"
         android:maxLines="2"
         android:text="@string/name"
+        android:textSize="@dimen/text_size_protocol"
         android:textStyle="bold"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"

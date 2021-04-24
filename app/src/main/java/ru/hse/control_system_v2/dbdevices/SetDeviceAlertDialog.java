@@ -36,8 +36,6 @@ public class SetDeviceAlertDialog extends AlertDialog.Builder{
     Resources res;
     String Mac, name;
 
-
-
     public SetDeviceAlertDialog(@NonNull Context context, String address) {
         super(context);
         this.context = context;

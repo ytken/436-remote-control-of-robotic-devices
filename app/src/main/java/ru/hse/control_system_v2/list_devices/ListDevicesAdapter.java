@@ -71,39 +71,47 @@ public class ListDevicesAdapter extends RecyclerView.Adapter<ListDevicesHolder> 
             if(MainActivity.devicesList.size() != 0) {
                 Log.d(TAG, "...Список не пуст, нажато устройство...");
                 //список не пуст
-                if (!MainActivity.devicesList.get(0).getProtocol().equals(item.getProtocol())) {
+                if (!MainActivity.devicesList.get(0).getProtocol().equals(item.getProtocol()))
                     //если протокол нажатого устройства отличается от уже выбранных
                     //значит это попытка добавить новое устройство
                     ma.showToast("Пожалуйста выберите устройства с одинаковыми протоколами");
-                } else {
-                    //если протокол совпал
-                    //необходимо проверить на присутствие в списке
-                    boolean wasAlreadySelected = false;
-                    for (int i = 0; i < MainActivity.devicesList.size(); i++) {
-                        if (MainActivity.devicesList.get(i).getMAC().equals(item.getMAC())) {
-                            MainActivity.devicesList.remove(i);
-                            wasAlreadySelected = true;
-                            Log.d(TAG, "...В списке нашлось это устройство, удаляю...");
-                            deviceImage.setVisibility(VISIBLE);
-                            deviceName.setAlpha(1f);
-                            checkMark.setVisibility(INVISIBLE);
-                        }
-                    }
-                    if (!wasAlreadySelected) {
-                        Log.d(TAG, "...В списке не нашлось это устройство, добавляю...");
-                        MainActivity.devicesList.add(item);
-                        MainActivity.bottomSheetBehavior.setHideable(true);
-                        MainActivity.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
-                        MainActivity.fabToStartConnecting.setVisibility(VISIBLE);
-                        deviceImage.setVisibility(INVISIBLE);
-                        deviceName.setAlpha(0.6f);
-                        checkMark.setVisibility(VISIBLE);
-                    } else {
-                        if(MainActivity.devicesList.size() == 0) {
-                            Log.d(TAG, "...Список очищен...");
-                            MainActivity.fabToStartConnecting.setVisibility(INVISIBLE);
-                            MainActivity.bottomSheetBehavior.setHideable(false);
-                            MainActivity.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                else {
+                    if (!MainActivity.devicesList.get(0).getDevClass().equals(item.getDevClass()))
+                        ma.showToast("Пожалуйста выберите устройства с одинаковыми классами");
+                    else {
+                        if (!MainActivity.devicesList.get(0).getDevType().equals(item.getDevType()))
+                            ma.showToast("Пожалуйста выберите устройства с одинаковыми типами");
+                        else {
+                            //необходимо проверить на присутствие в списке
+                            boolean wasAlreadySelected = false;
+                            for (int i = 0; i < MainActivity.devicesList.size(); i++) {
+                                if (MainActivity.devicesList.get(i).getMAC().equals(item.getMAC())) {
+                                    MainActivity.devicesList.remove(i);
+                                    wasAlreadySelected = true;
+                                    Log.d(TAG, "...В списке нашлось это устройство, удаляю...");
+                                    deviceImage.setVisibility(VISIBLE);
+                                    deviceName.setAlpha(1f);
+                                    checkMark.setVisibility(INVISIBLE);
+                                }
+                            }
+
+                            if (!wasAlreadySelected) {
+                                Log.d(TAG, "...В списке не нашлось это устройство, добавляю...");
+                                MainActivity.devicesList.add(item);
+                                MainActivity.bottomSheetBehavior.setHideable(true);
+                                MainActivity.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_HIDDEN);
+                                MainActivity.fabToStartConnecting.setVisibility(VISIBLE);
+                                deviceImage.setVisibility(INVISIBLE);
+                                deviceName.setAlpha(0.6f);
+                                checkMark.setVisibility(VISIBLE);
+                            } else {
+                                if(MainActivity.devicesList.size() == 0) {
+                                    Log.d(TAG, "...Список очищен...");
+                                    MainActivity.fabToStartConnecting.setVisibility(INVISIBLE);
+                                    MainActivity.bottomSheetBehavior.setHideable(false);
+                                    MainActivity.bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+                                }
+                            }
                         }
                     }
                 }
