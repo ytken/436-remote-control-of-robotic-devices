@@ -304,16 +304,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
                 ed.putInt("isFirstLaunch", 0);
                 ed.apply();
                 isFirstLaunch = 0;
-
-                    if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                            Manifest.permission.READ_EXTERNAL_STORAGE)) {
-                        final String message = "Storage permission is needed to show files count";
-                        Snackbar.make(MainActivity.this.findViewById(R.id.activity_explain_perms), message, Snackbar.LENGTH_LONG)
-                                .setAction("GRANT", v -> requestPerms())
-                                .show();
-                    } else {
-                        requestPerms();
-                    }
+                requestPerms();
                 if (btIsEnabledFlagVoid()){
                     createOneButtonAlertDialog(getResources().getString(R.string.instruction_alert),
                             getResources().getString(R.string.other_discoverable_devices));
