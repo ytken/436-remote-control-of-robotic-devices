@@ -70,7 +70,8 @@ public class AddProtocolDBActivity extends AppCompatActivity implements View.OnC
 
         buttonAdd = findViewById(R.id.button_add_protocol);
         buttonAdd.setOnClickListener(this);
-        buttonAdd.setVisibility(GONE);
+        buttonAdd.setBackgroundColor(getResources().getColor(R.color.foregroundColor));
+        buttonAdd.setEnabled(false);
 
         editTextName = findViewById(R.id.editTextProtocolName);
         editTextName.addTextChangedListener(new TextChangedListener<EditText>(editTextName) {
@@ -126,9 +127,11 @@ public class AddProtocolDBActivity extends AppCompatActivity implements View.OnC
 
     void canShowSaveButton(){
         if (isEditTextNameChanged && isEditTextLenChanged && isEditTextCodeChanged){
-            buttonAdd.setVisibility(VISIBLE);
+            buttonAdd.setEnabled(true);
+            buttonAdd.setBackgroundColor(getResources().getColor(R.color.white));
         } else {
-            buttonAdd.setVisibility(GONE);
+            buttonAdd.setEnabled(false);
+            buttonAdd.setBackgroundColor(getResources().getColor(R.color.foregroundColor));
         }
     }
     @Override
@@ -137,7 +140,7 @@ public class AddProtocolDBActivity extends AppCompatActivity implements View.OnC
             case R.id.button_add_protocol:
                 String name = editTextName.getText().toString();
                 String slength = editTextLen.getText().toString();
-                Integer length;
+                int length;
                 String code = editTextCode.getText().toString();
                 ProtocolRepo protocolRepo = new ProtocolRepo(getApplicationContext(), "");
                 int result = protocolRepo.stringXMLparser(code);
@@ -338,7 +341,7 @@ public class AddProtocolDBActivity extends AppCompatActivity implements View.OnC
             String line = "";
             while ((line = reader.readLine()) != null)
             {
-                builder.append(line + "\n");
+                builder.append(line).append("\n");
             }
             reader.close();
         }
