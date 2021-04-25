@@ -13,16 +13,20 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
+import android.text.Editable;
+import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ScrollView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 
 import com.google.android.material.snackbar.Snackbar;
@@ -40,14 +44,22 @@ import java.io.PrintWriter;
 
 import ru.hse.control_system_v2.MainActivity;
 import ru.hse.control_system_v2.R;
+import ru.hse.control_system_v2.TextChangedListener;
 import ru.hse.control_system_v2.dbdevices.DeviceDBHelper;
 
-public class AddProtocolDBActivity extends Activity implements View.OnClickListener {
+import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
+import static android.view.View.VISIBLE;
+
+public class AddProtocolDBActivity extends AppCompatActivity implements View.OnClickListener {
     ProtocolDBHelper dbHelper;
     EditText editTextName, editTextLen, editTextCode;
-    Button buttonAdd, buttonRead, buttonCancel, buttonFile;
+    Button buttonAdd, buttonShowProtoMenu, buttonCancel, buttonFile;
     TextView textListProtocols;
     final int REQUEST_CODE_OPEN = 20, PERMISSION_REQUEST_CODE = 123;
+    SQLiteDatabase database;
+    boolean isEditTextNameChanged, isEditTextLenChanged, isEditTextCodeChanged;
+    ScrollView menuProto;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -56,28 +68,71 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
 
         dbHelper = new ProtocolDBHelper(this);
 
-        editTextName = findViewById(R.id.editTextProtocolName);
-        editTextLen = findViewById(R.id.editTextLength);
-        editTextCode = findViewById(R.id.editTextCode);
-
-        textListProtocols = findViewById(R.id.text_protocols);
-
         buttonAdd = findViewById(R.id.button_add_protocol);
         buttonAdd.setOnClickListener(this);
+        buttonAdd.setVisibility(GONE);
 
-        buttonRead = findViewById(R.id.button_read_protocol);
-        buttonRead.setOnClickListener(this);
+        editTextName = findViewById(R.id.editTextProtocolName);
+        editTextName.addTextChangedListener(new TextChangedListener<EditText>(editTextName) {
+            @Override
+            public void onTextChanged(EditText target, Editable s) {
+                isEditTextNameChanged = s.toString().trim().length() != 0;
+                canShowSaveButton();
+            }
+        });
+        editTextLen = findViewById(R.id.editTextLength);
+        editTextLen.addTextChangedListener(new TextChangedListener<EditText>(editTextLen) {
+            @Override
+            public void onTextChanged(EditText target, Editable s) {
+                isEditTextLenChanged = s.toString().trim().length() != 0;
+                canShowSaveButton();
+            }
+        });
+        editTextCode = findViewById(R.id.editTextCode);
+        editTextCode.addTextChangedListener(new TextChangedListener<EditText>(editTextCode) {
+            @Override
+            public void onTextChanged(EditText target, Editable s) {
+                isEditTextCodeChanged = s.toString().trim().length() != 0;
+                canShowSaveButton();
+            }
+        });
+
+        editTextCode.setMovementMethod(new ScrollingMovementMethod());
+
+        menuProto = findViewById(R.id.add_proto_scroll);
+        menuProto.setVisibility(GONE);
+
+        textListProtocols = findViewById(R.id.text_protocols);
+        textListProtocols.setMovementMethod(new ScrollingMovementMethod());
+
+        database = dbHelper.getWritableDatabase();
 
         buttonCancel = findViewById(R.id.button_cancel_protocol);
         buttonCancel.setOnClickListener(this);
 
+        buttonShowProtoMenu = findViewById(R.id.button_show_add_proto);
+        buttonShowProtoMenu.setOnClickListener(this);
+
         buttonFile = findViewById(R.id.button_choose_file);
         buttonFile.setOnClickListener(this);
+
     }
 
     @Override
+    protected void onStart(){
+        super.onStart();
+        showProtocols();
+    }
+
+    void canShowSaveButton(){
+        if (isEditTextNameChanged && isEditTextLenChanged && isEditTextCodeChanged){
+            buttonAdd.setVisibility(VISIBLE);
+        } else {
+            buttonAdd.setVisibility(GONE);
+        }
+    }
+    @Override
     public void onClick(View v) {
-        SQLiteDatabase database = dbHelper.getWritableDatabase();
         switch (v.getId()){
             case R.id.button_add_protocol:
                 String name = editTextName.getText().toString();
@@ -117,30 +172,9 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                     editTextLen.setText("");
                     editTextCode.setText("");
                     Toast.makeText(getApplicationContext(), "Accepted", Toast.LENGTH_LONG).show();
+                    showProtocols();
                 }
 
-                break;
-
-            case R.id.button_read_protocol:
-                Cursor cursor = database.query(ProtocolDBHelper.TABLE_PROTOCOLS, null, null, null, null, null, null);
-
-                if (cursor.moveToFirst()) {
-                    textListProtocols.setText("");
-                    int idIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_ID);
-                    int nameIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_NAME);
-                    int lenIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_LEN);
-                    int codeIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_CODE);
-                    textListProtocols.append("Доступные протоколы:");
-                    do {
-                        textListProtocols.append("\n" + "ID = " + cursor.getInt(idIndex) +
-                                ", name = " + cursor.getString(nameIndex) +
-                                ", length = " + cursor.getString(lenIndex) +
-                                ", code = " + cursor.getString(codeIndex));
-                    } while (cursor.moveToNext());
-                } else
-                    textListProtocols.append("Нет доступных протоколов");
-
-                cursor.close();
                 break;
 
             case R.id.button_cancel_protocol:
@@ -151,6 +185,7 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                         .setPositiveButton("OK", (dialog1, whichButton) -> {
                             ProtocolDBHelper dbHelper = new ProtocolDBHelper(getApplicationContext());
                             dbHelper.onUpgrade(dbHelper.getWritableDatabase(), 1,1);
+                            showProtocols();
                         })
                         .setNegativeButton("Отмена", null)
                         .create();
@@ -171,20 +206,32 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
                 }
 
                 break;
+
+            case R.id.button_show_add_proto:
+                if (menuProto.getVisibility() == VISIBLE) {
+                    menuProto.setVisibility(GONE);
+                    buttonShowProtoMenu
+                            .setCompoundDrawablesWithIntrinsicBounds(0, 0,
+                                    R.drawable.ic_baseline_keyboard_arrow_right_24, 0);
+                } else if (menuProto.getVisibility() == GONE){
+                    menuProto.setVisibility(VISIBLE);
+                    buttonShowProtoMenu
+                            .setCompoundDrawablesWithIntrinsicBounds(0, 0,
+                                    R.drawable.ic_baseline_keyboard_arrow_down_24, 0);
+                }
+                break;
         }
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case REQUEST_CODE_OPEN:
-                if (resultCode == RESULT_OK){
-                    Uri uri = data.getData();
-                    String fileContent = readTextFile(uri);
-                    editTextCode.setText(fileContent);
-                }
-
-                break;
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_OPEN) {
+            if (resultCode == RESULT_OK) {
+                Uri uri = data.getData();
+                String fileContent = readTextFile(uri);
+                editTextCode.setText(fileContent);
+            }
         }
     }
 
@@ -306,6 +353,27 @@ public class AddProtocolDBActivity extends Activity implements View.OnClickListe
         bufferedWriter.write(code);
         bufferedWriter.close();
         return fileName;
+    }
+
+    void showProtocols(){
+        Cursor cursor = database.query(ProtocolDBHelper.TABLE_PROTOCOLS, null, null, null, null, null, null);
+        if (cursor.moveToFirst()) {
+            textListProtocols.setText("");
+            textListProtocols.append("Список доступных протоколов");
+            int idIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_ID);
+            int nameIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_NAME);
+            int lenIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_LEN);
+            int codeIndex = cursor.getColumnIndex(ProtocolDBHelper.KEY_CODE);
+            do {
+                textListProtocols.append("\n" + "ID = " + cursor.getInt(idIndex) +
+                        ", name = " + cursor.getString(nameIndex) +
+                        ", length = " + cursor.getString(lenIndex) +
+                        ", code = " + cursor.getString(codeIndex));
+            } while (cursor.moveToNext());
+        } else
+            textListProtocols.append("Нет доступных протоколов");
+
+        cursor.close();
     }
 
 }

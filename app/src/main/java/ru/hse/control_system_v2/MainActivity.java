@@ -1,13 +1,17 @@
 package ru.hse.control_system_v2;
 
+import android.Manifest;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -17,6 +21,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
 import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -25,6 +30,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import com.google.android.material.bottomsheet.BottomSheetBehavior;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
+import com.google.android.material.snackbar.Snackbar;
 import com.mikepenz.iconics.typeface.FontAwesome;
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.model.DividerDrawerItem;
@@ -69,6 +75,9 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
     Button buttonToAddDevice;
     Button buttonToAddDeviceViaMAC;
     public static BottomSheetBehavior<View> bottomSheetBehavior;
+    int isFirstLaunch;
+    SharedPreferences sPref;
+    final int REQUEST_CODE_OPEN = 20, PERMISSION_REQUEST_CODE = 123;
 
 
     @Override
@@ -76,6 +85,10 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
+
+        sPref = getPreferences(MODE_PRIVATE);
+        isFirstLaunch = sPref.getInt("isFirstLaunch", 1);
+
         dbdevice = DeviceDBHelper.getInstance(getApplicationContext());
         dbprotocol = ProtocolDBHelper.getInstance(getApplicationContext());
 
@@ -160,7 +173,7 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
                 .withActionBarDrawerToggle(true)
                 .withHeader(R.layout.drawer_header)
                 .addDrawerItems(
-                        new PrimaryDrawerItem().withName(R.string.drawer_item_add_protocol).withIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_code_24, null)).withIdentifier(0),
+                        new PrimaryDrawerItem().withName(R.string.protocol_control).withIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_code_24, null)).withIdentifier(0),
                         new PrimaryDrawerItem().withName(R.string.drawer_item_data_base).withIcon(ResourcesCompat.getDrawable(getResources(), R.drawable.ic_baseline_delete_outline_24, null)).withIdentifier(1),
                         new DividerDrawerItem(),
                         new SecondaryDrawerItem().withName(R.string.drawer_item_code).withIcon(FontAwesome.Icon.faw_github).withIdentifier(2)
@@ -285,6 +298,28 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
             bottomSheetBehavior.setHideable(false);
             bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
+            if (isFirstLaunch == 1){
+                sPref = getPreferences(MODE_PRIVATE);
+                SharedPreferences.Editor ed = sPref.edit();
+                ed.putInt("isFirstLaunch", 0);
+                ed.apply();
+                isFirstLaunch = 0;
+
+                    if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                            Manifest.permission.READ_EXTERNAL_STORAGE)) {
+                        final String message = "Storage permission is needed to show files count";
+                        Snackbar.make(MainActivity.this.findViewById(R.id.activity_explain_perms), message, Snackbar.LENGTH_LONG)
+                                .setAction("GRANT", v -> requestPerms())
+                                .show();
+                    } else {
+                        requestPerms();
+                    }
+                if (btIsEnabledFlagVoid()){
+                    createOneButtonAlertDialog(getResources().getString(R.string.instruction_alert),
+                            getResources().getString(R.string.other_discoverable_devices));
+                }
+            }
+
             // Bluetooth включён, надо показать кнопку добавления устройств и другую информацию
             adapter = new ListDevicesAdapter(DeviceRepository.getInstance(getApplicationContext()).list(), this);
             recycler.setAdapter(adapter);
@@ -321,6 +356,13 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
                         dialog1.dismiss();
                         MainActivity.this.finish();
                     });
+        }
+    }
+
+    private void requestPerms(){
+        String[] permissions = new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE};
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
+            requestPermissions(permissions,PERMISSION_REQUEST_CODE);
         }
     }
 
@@ -363,5 +405,32 @@ public class MainActivity extends AppCompatActivity  implements SwipeRefreshLayo
     public void onResume() {
         super.onResume();
         checkForBtAdapter();
+    }
+
+    // создает диалоговое окно с 1й кнопкой
+    private void createOneButtonAlertDialog(String title, String content) {
+        // объект Builder для создания диалогового окна
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(MainActivity.this, R.style.AlertDialog);
+        // добавляем различные компоненты в диалоговое окно
+        builder.setTitle(title);
+        builder.setMessage(content);
+        builder.setCancelable(true);
+        // устанавливаем кнопку, которая отвечает за позитивный ответ
+        builder.setPositiveButton(getResources().getString(R.string.ok), (dialog, which) -> {
+            dialog.dismiss();
+        });
+        // объект Builder создал диалоговое окно и оно готово появиться на экране
+        // вызываем этот метод, чтобы показать AlertDialog на экране пользователя
+        // Create the alert dialog and change Buttons colour
+        androidx.appcompat.app.AlertDialog dialog = builder.create();
+        dialog.setOnShowListener(new DialogInterface.OnShowListener() {
+            @Override
+            public void onShow(DialogInterface arg0) {
+                dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_POSITIVE).setTextColor(getResources().getColor(R.color.colorAccent));
+                dialog.getButton(androidx.appcompat.app.AlertDialog.BUTTON_NEGATIVE).setTextColor(getResources().getColor(R.color.colorAccent));
+                //dialog.getButton(AlertDialog.BUTTON_NEUTRAL).setTextColor(getResources().getColor(R.color.colorAccent));
+            }
+        });
+        dialog.show();
     }
 }

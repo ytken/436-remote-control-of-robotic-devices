@@ -23,4 +23,12 @@
     <style name="ToolbarColoredBackArrow" parent="Theme.Control_system_v2">
         <item name="android:textColorSecondary">@color/white</item>
     </style>
+    <style name="AlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!-- Used for the buttons -->
+        <item name="colorAccent">@color/colorAccent</item>
+        <!-- Used for the title and text -->
+        <item name="android:textColorPrimary">@color/black</item>
+        <!-- Used for the background -->
+        <item name="android:background">@color/white</item>
+    </style>
 </resources>
