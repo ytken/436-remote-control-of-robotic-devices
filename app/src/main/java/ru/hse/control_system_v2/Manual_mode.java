@@ -13,20 +13,14 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.*;
 
-import androidx.appcompat.widget.SwitchCompat;
-
 import com.google.android.material.switchmaterial.SwitchMaterial;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import ru.hse.control_system_v2.dbprotocol.ProtocolDBHelper;
 import ru.hse.control_system_v2.dbprotocol.ProtocolRepo;
 import ru.hse.control_system_v2.list_devices.DeviceItem;
 
@@ -305,23 +299,31 @@ public class Manual_mode extends Activity implements View.OnClickListener, Compo
             message[countCommands++] = getDevicesID.get("type_computer"); // класс и тип устройства отправки
 
         if (getDevicesID.getTag(res.getString(R.string.TAG_CLASS_TO)))
-            message[countCommands++] = getDevicesID.get("class_arduino");
+            message[countCommands++] = getDevicesID.get(devicesList.get(0).getDevClass());
 
         if (getDevicesID.getTag(res.getString(R.string.TAG_TYPE_TO)))
-            message[countCommands++] = getDevicesID.get("type_cubbi");// класс и тип устройства приема
+            message[countCommands++] = getDevicesID.get(devicesList.get(0).getDevType());// класс и тип устройства приема
     }
 
     public void completeMessage (String command) {
-        if (getDevicesID.getTag(res.getString(R.string.TAG_TURN_COM))) {
-            message[countCommands++] = (prevCommand == getDevicesID.get(command))? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
-            prevCommand = getDevicesID.get(command);
-        }
 
-        if (getDevicesID.getTag(res.getString(R.string.TAG_TYPE_COM)))
-            message[countCommands++] = getDevicesID.get("type_move");
-        message[countCommands++] = getDevicesID.get(command);
-        for(int i = 0; i < dataThreadForArduinoList.size(); i++){
-            dataThreadForArduinoList.get(i).Send_Data(message, lengthMes);
+        Byte code = getDevicesID.get(command);
+        if (code != null) {
+            if (getDevicesID.getTag(res.getString(R.string.TAG_TURN_COM))) {
+                message[countCommands++] = (prevCommand == code)? getDevicesID.get("redo_command"): getDevicesID.get("new_command");
+                prevCommand = code;
+            }
+
+            if (getDevicesID.getTag(res.getString(R.string.TAG_TYPE_COM)))
+                message[countCommands++] = getDevicesID.get("type_move");
+            message[countCommands++] = code;
+
+            for(int i = 0; i < dataThreadForArduinoList.size(); i++){
+                dataThreadForArduinoList.get(i).Send_Data(message, lengthMes);
+            }
+        }
+        else {
+            outputText.append("\n"+ "Недостаточно данных в используемом протоколе, сообщение не отправлено;");
         }
     }
 
