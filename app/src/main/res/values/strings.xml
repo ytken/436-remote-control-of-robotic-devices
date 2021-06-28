@@ -65,7 +65,7 @@
     <string name="TAG_TYPE_COM">TypeOfCommand</string>
     <string name="TAG_MOVE_CODE">TypeOfMove</string>
     <string name="button_show_protocols">вывод</string>
-    <string name="button_save_protocol">добавить выбранный протокол</string>
+    <string name="button_save_protocol">добавить протокол</string>
     <string name="button_add_protocol">добавить новый протокол</string>
     <string name="button_delete_protocols">удалить кастомные протоколы</string>
 </resources>
